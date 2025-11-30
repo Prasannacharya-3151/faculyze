@@ -1,7 +1,9 @@
+
 import React, { useState } from "react";
 import { Label } from "../../components/ui/label";
 import { Input } from "../../components/ui/input";
 import { cn } from "../../lib/utils";
+import { Link } from "react-router-dom"
 
 export default function RegisterFormDemo() {
   const [formData, setFormData] = useState({
@@ -118,6 +120,17 @@ export default function RegisterFormDemo() {
           Sign up &rarr;
           <BottomGradient />
         </button>
+
+        <div className="mt-6 text-center">
+            <p className="text-sm text-neutral-600 dark:text-nurtral-400">
+                Already have an account?{" "}
+                <Link 
+                to="/login"
+                className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200 hover:underline">
+                    Sign in
+                </Link>
+            </p>
+        </div>
       </form>
     </div>
   );

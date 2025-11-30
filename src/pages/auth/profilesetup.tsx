@@ -16,7 +16,7 @@ export default function ProfileSetup() {
   });
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
@@ -31,31 +31,36 @@ export default function ProfileSetup() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-xl rounded-xl bg-[var(--background)] p-6 shadow-lg">
-      <h1 className="mb-4 text-2xl font-bold text-[var(--secondary)]">
+    <div className="mx-auto w-full max-w-xl rounded-xl bg-white p-6 shadow-lg dark:bg-black">
+      <h1 className="mb-4 text-2xl font-bold text-gray-800 dark:text-white">
         Complete Your Profile
       </h1>
 
-      <p className="mb-6 text-sm text-[var(--muted)]">
+      <p className="mb-6 text-sm text-gray-600 dark:text-gray-400">
         Please fill out the required information to continue.
       </p>
 
       <form className="space-y-5" onSubmit={handleSubmit}>
-        
-
+        {/* Profile Photo Upload */}
         <div className="flex flex-col items-center space-y-3">
-          <div className="h-28 w-28 rounded-full border-2 border-[var(--primary)] bg-[var(--accent)]"></div>
-
+          <div className="h-28 w-28 rounded-full border-2 border-gray-300 bg-gray-100 dark:border-gray-600 dark:bg-gray-800"></div>
+          
           <label
             htmlFor="profilePhoto"
-            className="cursor-pointer rounded-md border border-[var(--primary)] px-4 py-1 text-[var(--primary)]"
+            className="cursor-pointer rounded-md border border-blue-600 px-4 py-2 text-blue-600 transition-colors hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/20"
           >
             Upload Photo
           </label>
-          <input type="file" id="profilePhoto" className="hidden" onChange={handleFileUpload} />
+          <input 
+            type="file" 
+            id="profilePhoto" 
+            className="hidden" 
+            onChange={handleFileUpload}
+            accept="image/*"
+          />
         </div>
 
-      
+        {/* Full Name */}
         <LabelInputContainer>
           <Label htmlFor="fullName">Full Name</Label>
           <Input
@@ -65,11 +70,10 @@ export default function ProfileSetup() {
             value={formData.fullName}
             onChange={handleChange}
             required
-            className="border-[var(--secondary)]"
           />
         </LabelInputContainer>
 
-       
+        {/* Gender */}
         <LabelInputContainer>
           <Label htmlFor="gender">Gender</Label>
           <select
@@ -77,8 +81,7 @@ export default function ProfileSetup() {
             value={formData.gender}
             onChange={handleChange}
             required
-            className="h-10 w-full rounded-md border border-[var(--secondary)] bg-white px-3"
-            
+            className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
           >
             <option value="">Select Gender</option>
             <option value="male">Male</option>
@@ -87,14 +90,14 @@ export default function ProfileSetup() {
           </select>
         </LabelInputContainer>
 
-        
+        {/* PUC Handling */}
         <LabelInputContainer>
           <Label htmlFor="pucHandling">PUC Handling</Label>
           <select
             id="pucHandling"
             value={formData.pucHandling}
             onChange={handleChange}
-            className="h-10 w-full rounded-md border border-[var(--secondary)] bg-white px-3"
+            className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
             required
           >
             <option value="">Select</option>
@@ -104,7 +107,7 @@ export default function ProfileSetup() {
           </select>
         </LabelInputContainer>
 
-       
+        {/* Qualification */}
         <LabelInputContainer>
           <Label htmlFor="qualification">Qualification</Label>
           <Input
@@ -114,11 +117,10 @@ export default function ProfileSetup() {
             value={formData.qualification}
             onChange={handleChange}
             required
-            className="border-[var(--secondary)]"
           />
         </LabelInputContainer>
 
-      
+        {/* Experience */}
         <LabelInputContainer>
           <Label htmlFor="experience">Experience (Years)</Label>
           <Input
@@ -128,11 +130,12 @@ export default function ProfileSetup() {
             value={formData.experience}
             onChange={handleChange}
             required
-            className="border-[var(--secondary)]"
+            min="0"
+            max="50"
           />
         </LabelInputContainer>
 
-    
+        {/* Phone Number */}
         <LabelInputContainer>
           <Label htmlFor="phone">Phone Number</Label>
           <Input
@@ -142,11 +145,11 @@ export default function ProfileSetup() {
             value={formData.phone}
             onChange={handleChange}
             required
-            className="border-[var(--secondary)]"
+            pattern="[0-9]{10}"
           />
         </LabelInputContainer>
 
-       
+        {/* Bio */}
         <LabelInputContainer>
           <Label htmlFor="bio">Short Bio</Label>
           <textarea
@@ -154,14 +157,15 @@ export default function ProfileSetup() {
             placeholder="Physics faculty with 10+ years experience..."
             value={formData.bio}
             onChange={handleChange}
-            className="h-28 w-full rounded-md border border-[var(--secondary)] px-3 py-2"
+            className="h-28 w-full rounded-md border border-gray-300 bg-white px-3 py-2 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+            maxLength={500}
           ></textarea>
         </LabelInputContainer>
 
-      
+        {/* Submit Button */}
         <button
           type="submit"
-          className="w-full rounded-md bg-[var(--primary)] py-2 text-white transition-all hover:bg-red-700"
+          className="w-full rounded-md bg-blue-600 py-3 font-medium text-white transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-700 dark:hover:bg-blue-600"
         >
           Save Profile & Continue
         </button>
