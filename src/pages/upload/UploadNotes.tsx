@@ -1,4 +1,18 @@
 import React, { useState, useRef } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "../../components/ui/dropdown-menu";
 
 export default function UploadNotes() {
   const [formData, setFormData] = useState({
@@ -175,6 +189,49 @@ export default function UploadNotes() {
     <div className="w-full h-full flex gap-8 p-6">
       {/* LEFT FORM SECTION */}
       <div className="w-1/2 flex flex-col gap-4">
+        {/* Dropdown Menu Example */}
+        <div className="flex justify-end">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                Actions
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              <DropdownMenuLabel>File Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  New Upload
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  Save Draft
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  Export Data
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>More Options</DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem>Template</DropdownMenuItem>
+                      <DropdownMenuItem>Archive</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>Help</DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
         <div>
           <label className="font-semibold text-sm text-gray-700">Course Title *</label>
           <input
@@ -202,83 +259,148 @@ export default function UploadNotes() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="font-semibold text-sm text-gray-700">PUC Year *</label>
-            <select 
-              id="pucYear"
-              className="w-full rounded-2xl bg-gray-100 p-3 mt-2 border border-gray-200 focus:outline-none focus:border-blue-500"
-              value={formData.pucYear}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Year</option>
-              <option value="1st">1st PUC</option>
-              <option value="2nd">2nd PUC</option>
-            </select>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-full rounded-2xl bg-gray-100 p-3 mt-2 border border-gray-200 focus:outline-none focus:border-blue-500 text-left">
+                  {formData.pucYear ? (formData.pucYear === "1st" ? "1st PUC" : "2nd PUC") : "Select Year"}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
+                <DropdownMenuLabel>Select PUC Year</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setFormData({...formData, pucYear: "1st"})}>
+                  1st PUC
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFormData({...formData, pucYear: "2nd"})}>
+                  2nd PUC
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <div>
             <label className="font-semibold text-sm text-gray-700">Subject *</label>
-            <select 
-              id="subject"
-              className="w-full rounded-2xl bg-gray-100 p-3 mt-2 border border-gray-200 focus:outline-none focus:border-blue-500"
-              value={formData.subject}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Subject</option>
-              <option value="physics">Physics</option>
-              <option value="chemistry">Chemistry</option>
-              <option value="mathematics">Mathematics</option>
-              <option value="biology">Biology</option>
-            </select>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-full rounded-2xl bg-gray-100 p-3 mt-2 border border-gray-200 focus:outline-none focus:border-blue-500 text-left">
+                  {formData.subject ? 
+                    formData.subject.charAt(0).toUpperCase() + formData.subject.slice(1) 
+                    : "Select Subject"
+                  }
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
+                <DropdownMenuLabel>Select Subject</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setFormData({...formData, subject: "physics"})}>
+                  Physics
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFormData({...formData, subject: "chemistry"})}>
+                  Chemistry
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFormData({...formData, subject: "mathematics"})}>
+                  Mathematics
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFormData({...formData, subject: "biology"})}>
+                  Biology
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFormData({...formData, subject: "computer-science"})}>
+                  Computer Science
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <div>
             <label className="font-semibold text-sm text-gray-700">Groups</label>
-            <select 
-              id="groups"
-              className="w-full rounded-2xl bg-gray-100 p-3 mt-2 border border-gray-200 focus:outline-none focus:border-blue-500"
-              value={formData.groups}
-              onChange={handleChange}
-            >
-              <option value="">Select Group</option>
-              <option value="science">Science</option>
-              <option value="commerce">Commerce</option>
-              <option value="arts">Arts</option>
-            </select>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-full rounded-2xl bg-gray-100 p-3 mt-2 border border-gray-200 focus:outline-none focus:border-blue-500 text-left">
+                  {formData.groups ? 
+                    formData.groups.charAt(0).toUpperCase() + formData.groups.slice(1) 
+                    : "Select Group"
+                  }
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
+                <DropdownMenuLabel>Select Group</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setFormData({...formData, groups: "science"})}>
+                  Science
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFormData({...formData, groups: "commerce"})}>
+                  Commerce
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFormData({...formData, groups: "arts"})}>
+                  Arts
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <div>
             <label className="font-semibold text-sm text-gray-700">Types</label>
-            <select 
-              id="types"
-              className="w-full rounded-2xl bg-gray-100 p-3 mt-2 border border-gray-200 focus:outline-none focus:border-blue-500"
-              value={formData.types}
-              onChange={handleChange}
-            >
-              <option value="">Select Type</option>
-              <option value="notes">Notes</option>
-              <option value="assignment">Assignment</option>
-              <option value="question-paper">Question Paper</option>
-            </select>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-full rounded-2xl bg-gray-100 p-3 mt-2 border border-gray-200 focus:outline-none focus:border-blue-500 text-left">
+                  {formData.types ? 
+                    formData.types.split('-').map(word => 
+                      word.charAt(0).toUpperCase() + word.slice(1)
+                    ).join(' ') 
+                    : "Select Type"
+                  }
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
+                <DropdownMenuLabel>Select Type</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setFormData({...formData, types: "notes"})}>
+                  Notes
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFormData({...formData, types: "assignment"})}>
+                  Assignment
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFormData({...formData, types: "question-paper"})}>
+                  Question Paper
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFormData({...formData, types: "syllabus"})}>
+                  Syllabus
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setFormData({...formData, types: "presentation"})}>
+                  Presentation
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
         <div>
           <label className="font-semibold text-sm text-gray-700">Language *</label>
-          <select 
-            id="language"
-            className="w-full rounded-2xl bg-gray-100 p-3 mt-2 border border-gray-200 focus:outline-none focus:border-blue-500"
-            value={formData.language}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Select Language</option>
-            <option value="english">English</option>
-            <option value="kannada">Kannada</option>
-            <option value="hindi">Hindi</option>
-          </select>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="w-full rounded-2xl bg-gray-100 p-3 mt-2 border border-gray-200 focus:outline-none focus:border-blue-500 text-left">
+                {formData.language ? 
+                  formData.language.charAt(0).toUpperCase() + formData.language.slice(1) 
+                  : "Select Language"
+                }
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
+              <DropdownMenuLabel>Select Language</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => setFormData({...formData, language: "english"})}>
+                English
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFormData({...formData, language: "kannada"})}>
+                Kannada
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFormData({...formData, language: "hindi"})}>
+                Hindi
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-      </div>
+      </div> {/* ← THIS WAS MISSING - CLOSING DIV FOR LEFT FORM SECTION */}
 
       {/* RIGHT UPLOAD BOX */}
       <div className="w-1/2 bg-white rounded-2xl p-6 border-2 border-dashed border-gray-300">
