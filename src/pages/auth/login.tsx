@@ -75,7 +75,7 @@ export default function LoginFormDemo() {
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
             Don't have an account?{" "}
             <Link 
-              to="/" 
+              to="/register" 
               className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-200 hover:underline"
             >
               Register here
