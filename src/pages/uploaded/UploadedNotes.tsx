@@ -1,7 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
+import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
+
+import acharyaPDF from "../../assets/sample.pdf";
+
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
 export default function UploadedNotes() {
- 
+  // Sample Notes
   const uploadedNotes = [
     {
       id: 1,
@@ -11,6 +18,7 @@ export default function UploadedNotes() {
       type: "Notes",
       year: "1st PUC",
       date: "2024-01-15",
+      file: acharyaPDF,
     },
     {
       id: 2,
@@ -20,94 +28,140 @@ export default function UploadedNotes() {
       type: "Assignment",
       year: "2nd PUC",
       date: "2024-01-14",
-    },
-    {
-      id: 3,
-      title: "Calculus Question Paper",
-      subject: "Mathematics",
-      group: "Science",
-      type: "Question Paper",
-      year: "1st PUC",
-      date: "2024-01-13",
-    },
-    {
-      id: 4,
-      title: "Biology Syllabus",
-      subject: "Biology",
-      group: "Science",
-      type: "Syllabus",
-      year: "2nd PUC",
-      date: "2024-01-12",
+      file: acharyaPDF,
     },
   ];
 
-  const handleEdit = (id: number) => {
-    console.log("Edit note with id:", id);
-};
+  // Modal State
+  const [isOpen, setIsOpen] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+  const [numPages, setNumPages] = useState(0);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pdfError, setPdfError] = useState(false);
 
-  const handleDelete = (id: number) => {
-    console.log("Delete note with id:", id);
-};
+  // Open Preview
+  const openPreview = (file: string) => {
+    setPdfUrl(file);
+    setIsOpen(true);
+    setPageNumber(1);
+    setPdfError(false);
+  };
+
+  // Close Preview
+  const closePreview = () => {
+    setIsOpen(false);
+    setPdfUrl(null);
+  };
 
   return (
     <div className="w-full p-6">
-      {/* <h1 className="text-2xl font-bold text-gray-800 mb-6">Uploaded Notes</h1> */}
-      
-   
-      <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-     
-        <div className="overflow-x-auto">
-          <table className="w-full">
-          
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700">Title</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700">Subject</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700">Group</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700">Type</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700">Year</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700">Date</th>
-                <th className="text-left py-4 px-12 font-semibold text-gray-700">Action</th>
+      <h1 className="text-2xl font-bold mb-6">Uploaded Notes</h1>
+
+      {/* Notes Table */}
+      <div className="bg-white rounded-xl border overflow-hidden">
+        <table className="w-full">
+          <thead className="bg-gray-50 border-b">
+            <tr>
+              <th className="py-4 px-6 text-left font-semibold">Title</th>
+              <th className="py-4 px-6 text-left font-semibold">Subject</th>
+              <th className="py-4 px-6 text-left font-semibold">Group</th>
+              <th className="py-4 px-6 text-left font-semibold">Type</th>
+              <th className="py-4 px-6 text-left font-semibold">Year</th>
+              <th className="py-4 px-6 text-left font-semibold">Date</th>
+              <th className="py-4 px-6 text-left font-semibold">Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {uploadedNotes.map((note) => (
+              <tr key={note.id} className="border-b hover:bg-gray-50">
+                <td className="py-4 px-6">{note.title}</td>
+                <td className="py-4 px-6">{note.subject}</td>
+                <td className="py-4 px-6">{note.group}</td>
+                <td className="py-4 px-6">{note.type}</td>
+                <td className="py-4 px-6">{note.year}</td>
+                <td className="py-4 px-6">{note.date}</td>
+                <td className="py-4 px-6">
+                  <button
+                    onClick={() => openPreview(note.file)}
+                    className="text-blue-600 font-medium hover:text-blue-800"
+                  >
+                    Preview
+                  </button>
+                </td>
               </tr>
-            </thead>
-         
-            <tbody className="divide-y divide-gray-200">
-              {uploadedNotes.map((note) => (
-                <tr key={note.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="py-4 px-6 text-gray-800 font-medium">{note.title}</td>
-                  <td className="py-4 px-6 text-gray-600">{note.subject}</td>
-                  <td className="py-4 px-6 text-gray-600">{note.group}</td>
-                  <td className="py-4 px-6 text-gray-600">{note.type}</td>
-                  <td className="py-4 px-6 text-gray-600">{note.year}</td>
-                  <td className="py-4 px-6 text-gray-600">{note.date}</td>
-                  <td className="py-4 px-6">
-                    <div className="flex gap-3">
-                      <button
-                        onClick={() => handleEdit(note.id)}
-                        className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
-                      >
-                        Preview
-                      </button>
-                      <button
-                        onClick={() => handleDelete(note.id)}
-                        className="text-red-600 hover:text-red-800 font-medium text-sm transition-colors"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
 
-   
-      {uploadedNotes.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-500 text-lg">No notes uploaded yet.</p>
-          <p className="text-gray-400 mt-2">Upload your first notes to get started.</p>
+      {/* PDF Modal */}
+      {isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
+          <div className="bg-white w-full max-w-5xl h-[90vh] rounded-xl shadow-xl flex flex-col">
+            
+            {/* Header */}
+            <div className="flex justify-between p-5 border-b">
+              <h2 className="text-lg font-semibold">Document Preview</h2>
+              <button
+                onClick={closePreview}
+                className="text-red-500 hover:text-red-700 text-lg font-semibold"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* PDF Viewer */}
+            <div className="flex-1 overflow-auto p-4 bg-gray-100 flex justify-center">
+              {!pdfError ? (
+                <Document
+                  file={pdfUrl!}
+                  onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+                  onLoadError={() => setPdfError(true)}
+                  loading={
+                    <div className="flex flex-col items-center mt-10">
+                      <div className="animate-spin h-10 w-10 border-b-2 border-blue-600 rounded-full mb-3"></div>
+                      <p className="text-gray-600">Loading PDF...</p>
+                    </div>
+                  }
+                >
+                  <Page
+                    pageNumber={pageNumber}
+                    width={Math.min(800, window.innerWidth - 100)}
+                  />
+                </Document>
+              ) : (
+                <div className="text-center mt-20 text-red-500">
+                  ⚠ Failed to load PDF
+                </div>
+              )}
+            </div>
+
+            {/* Pagination */}
+            {numPages > 0 && !pdfError && (
+              <div className="flex justify-between items-center p-4 border-t bg-gray-50">
+                <button
+                  onClick={() => setPageNumber((p) => Math.max(1, p - 1))}
+                  disabled={pageNumber <= 1}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md disabled:bg-gray-400"
+                >
+                  Previous
+                </button>
+
+                <span className="text-gray-700 font-medium">
+                  Page {pageNumber} of {numPages}
+                </span>
+
+                <button
+                  onClick={() => setPageNumber((p) => Math.min(numPages, p + 1))}
+                  disabled={pageNumber >= numPages}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md disabled:bg-gray-400"
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
