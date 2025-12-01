@@ -116,14 +116,4 @@ Table view for uploaded documents
 Note
 Make sure the PDF.js worker version matches your pdfjs-dist version (5.4.296).
 
-Simple and clean PDF viewer for your React applications
 
-text
-
-**That's it bruh! One page README. Copy and save as `README.md`.**
-      },
-      // other options...
-    },
-  },
-])
-```
