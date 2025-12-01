@@ -1,30 +1,47 @@
 import React, { useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../../components/ui/dropdown-menu";
 
 export default function Profile() {
   const [profileData, setProfileData] = useState({
-    fullName: "Pradeep Nayak Physics",
-    college: "College Emotion Institute", 
+    fullName: "Dr. Rajesh Kumar",
+    collegeEmail: "rajesh.kumar@college.edu",
     phoneNumber: "+91 9876543210",
-    date: "2024/05/06",
-    website: "http://www.baerawar.com",
-    email: "https://www.baerawar.com",
-    qualification: "Q1/Accum",
-    experience: "10+ years",
-    coursePassword: "••••••••",
-    nonDelivered: "Non-Delivered",
-    certifiedPassword: "Certified Password"
+    gender: "Male",
+    rolePosition: "Senior Faculty",
+    department: "Physics Department",
+    pucHandling: "Both 1st & 2nd PUC",
+    qualification: "M.Sc Physics, Ph.D, B.Ed",
+    experience: "12 years",
+    shortBio: "Physics faculty with 12+ years experience in teaching PUC students. Specialized in Quantum Mechanics and Thermodynamics.",
+    currentPassword: "••••••••",
+    newPassword: "",
+    confirmPassword: ""
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setProfileData({
       ...profileData,
       [e.target.name]: e.target.value
     });
   };
 
+  const handleSelectChange = (field: string, value: string) => {
+    setProfileData({
+      ...profileData,
+      [field]: value
+    });
+  };
+
   const handleSave = () => {
     console.log("Saving profile:", profileData);
-    alert("Profile saved successfully!");
+    alert("Profile updated successfully!");
   };
 
   const handleCancel = () => {
@@ -32,204 +49,364 @@ export default function Profile() {
   };
 
   return (
-    <div className="bg-white p-6 rounded-4xl border border-gray-300 mt-6">
-    <div className="w-full h-full flex gap-8 p-6">
-      {/* LEFT COLUMN */}
-      <div className="w-1/2 flex flex-col gap-6">
-        
-        {/* Header */}
-        {/* <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-800">Pradeep Nayak Physics</h1>
-          <h2 className="text-2xl font-semibold text-gray-700 mt-2">Pradeep Nayak Physics</h2>
-        </div> */}
+    <div className="w-full p-6">
+      <h1 className="text-2xl font-bold text-gray-800 mb-6">Profile Settings</h1>
+      
+      <div className="bg-white p-8 rounded-3xl border border-gray-200">
+        <div className="w-full flex gap-8">
 
-        {/* Basic Information Card */}
-        <div className="">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">Basic Information</h3>
-          
-          <div className="space-y-4">
+          <div className="w-1/2 flex flex-col gap-8">
+            
+     
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Full name</label>
-              <input
-                type="text"
-                name="fullName"
-                value={profileData.fullName}
-                onChange={handleChange}
-                className="w-full rounded-xl bg-gray-100 p-3 border border-gray-300"
-              />
-            </div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-6 pb-3 border-b border-gray-200">Basic Information</h3>
+              
+              <div className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Full name *</label>
+                  <input
+                    type="text"
+                    name="fullName"
+                    value={profileData.fullName}
+                    onChange={handleInputChange}
+                    className="w-full rounded-xl bg-gray-50 p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">College Emotion Institute</label>
-              <input
-                type="text"
-                name="college"
-                value={profileData.college}
-                onChange={handleChange}
-                className="w-full rounded-xl bg-gray-100 p-3 border border-gray-300"
-              />
-            </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">College Email (non-editable) *</label>
+                  <input
+                    type="email"
+                    name="collegeEmail"
+                    value={profileData.collegeEmail}
+                    readOnly
+                    className="w-full rounded-xl bg-gray-100 p-3 border border-gray-300 text-gray-500 cursor-not-allowed"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">College email cannot be changed</p>
+                </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-              <input
-                type="tel"
-                name="phoneNumber"
-                value={profileData.phoneNumber}
-                onChange={handleChange}
-                className="w-full rounded-xl bg-gray-100 p-3 border border-gray-300"
-              />
-            </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+                  <input
+                    type="tel"
+                    name="phoneNumber"
+                    value={profileData.phoneNumber}
+                    onChange={handleInputChange}
+                    className="w-full rounded-xl bg-gray-50 p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Date: 2024/05/06</label>
-                <input
-                  type="text"
-                  name="date"
-                  value={profileData.date}
-                  onChange={handleChange}
-                  className="w-full rounded-xl bg-gray-100 p-3 border border-gray-300"
-                />
+           
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Gender *</label>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button 
+                        className="w-full rounded-xl bg-gray-50 p-3 border border-gray-300 text-left transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <div className="flex justify-between items-center">
+                          <span>{profileData.gender}</span>
+                          <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white shadow-lg border border-gray-300">
+                      <DropdownMenuLabel className="text-gray-700 font-medium">Select Gender</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => handleSelectChange('gender', 'Male')}>
+                        Male
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleSelectChange('gender', 'Female')}>
+                        Female
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleSelectChange('gender', 'Other')}>
+                        Other
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleSelectChange('gender', 'Prefer not to say')}>
+                        Prefer not to say
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Role/Position *</label>
+                  <input
+                    type="text"
+                    name="rolePosition"
+                    value={profileData.rolePosition}
+                    onChange={handleInputChange}
+                    className="w-full rounded-xl bg-gray-50 p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Department *</label>
+                  <input
+                    type="text"
+                    name="department"
+                    value={profileData.department}
+                    onChange={handleInputChange}
+                    className="w-full rounded-xl bg-gray-50 p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Mail: http://www.baerawar.com</label>
-                <input
-                  type="url"
-                  name="website"
-                  value={profileData.website}
-                  onChange={handleChange}
-                  className="w-full rounded-xl bg-gray-100 p-3 border border-gray-300"
-                />
-              </div>
             </div>
 
+            {/* Password Card */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Email: https://www.baerawar.com</label>
-              <input
-                type="email"
-                name="email"
-                value={profileData.email}
-                onChange={handleChange}
-                className="w-full rounded-xl bg-gray-100 p-3 border border-gray-300"
-              />
+              <h3 className="text-lg font-semibold text-gray-800 mb-6 pb-3 border-b border-gray-200">Password</h3>
+              
+              <div className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Current Password *</label>
+                  <input
+                    type="password"
+                    name="currentPassword"
+                    value={profileData.currentPassword}
+                    onChange={handleInputChange}
+                    className="w-full rounded-xl bg-gray-50 p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">New Password *</label>
+                  <input
+                    type="password"
+                    name="newPassword"
+                    value={profileData.newPassword}
+                    onChange={handleInputChange}
+                    className="w-full rounded-xl bg-gray-50 p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password *</label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={profileData.confirmPassword}
+                    onChange={handleInputChange}
+                    className="w-full rounded-xl bg-gray-50 p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Academic Details Card */}
-        <div className="">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">Academic Details</h3>
+          <div className="w-1/2 flex flex-col gap-8">
+            
+         
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-6 pb-3 border-b border-gray-200">Academic Details</h3>
+              
+              <div className="space-y-5">
+               
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">PUC Handling *</label>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button 
+                        className="w-full rounded-xl bg-gray-50 p-3 border border-gray-300 text-left transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <div className="flex justify-between items-center">
+                          <span>{profileData.pucHandling}</span>
+                          <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white shadow-lg border border-gray-300">
+                      <DropdownMenuLabel className="text-gray-700 font-medium">Select PUC Handling</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => handleSelectChange('pucHandling', '1st PUC')}>
+                        1st PUC
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleSelectChange('pucHandling', '2nd PUC')}>
+                        2nd PUC
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleSelectChange('pucHandling', 'Both 1st & 2nd PUC')}>
+                        Both 1st & 2nd PUC
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+           
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Qualification *</label>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button 
+                        className="w-full rounded-xl bg-gray-50 p-3 border border-gray-300 text-left transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <div className="flex justify-between items-center">
+                          <span>{profileData.qualification || "Select Qualification"}</span>
+                          <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white shadow-lg border border-gray-300">
+                      <DropdownMenuLabel className="text-gray-700 font-medium">Select Qualification</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => handleSelectChange('qualification', 'M.Sc Physics, B.Ed')}>
+                        M.Sc Physics, B.Ed
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleSelectChange('qualification', 'M.Sc Physics, Ph.D, B.Ed')}>
+                        M.Sc Physics, Ph.D, B.Ed
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleSelectChange('qualification', 'Ph.D Physics, M.Ed')}>
+                        Ph.D Physics, M.Ed
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleSelectChange('qualification', 'M.Sc, M.Phil, B.Ed')}>
+                        M.Sc, M.Phil, B.Ed
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+               
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Experience (Years) *</label>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button 
+                        className="w-full rounded-xl bg-gray-50 p-3 border border-gray-300 text-left transition-colors hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      >
+                        <div className="flex justify-between items-center">
+                          <span>{profileData.experience || "Select Experience"}</span>
+                          <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white shadow-lg border border-gray-300">
+                      <DropdownMenuLabel className="text-gray-700 font-medium">Select Experience</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => handleSelectChange('experience', '1-2 years')}>
+                        1-2 years
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleSelectChange('experience', '3-5 years')}>
+                        3-5 years
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleSelectChange('experience', '5-10 years')}>
+                        5-10 years
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleSelectChange('experience', '10+ years')}>
+                        10+ years
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleSelectChange('experience', '15+ years')}>
+                        15+ years
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleSelectChange('experience', '20+ years')}>
+                        20+ years
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Short Bio *</label>
+                  <textarea
+                    name="shortBio"
+                    value={profileData.shortBio}
+                    onChange={handleInputChange}
+                    rows={4}
+                    className="w-full rounded-xl bg-gray-50 p-3 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    placeholder="Brief about your teaching experience, specialization, etc."
+                    maxLength={500}
+                  />
+                  <p className="text-xs text-gray-500 mt-1 text-right">{profileData.shortBio.length}/500 characters</p>
+                </div>
+              </div>
+            </div>
+
+           
+            <div className="bg-gradient-to-br from-amber-50 to-white p-8 rounded-2xl border border-amber-200 shadow-md">
+              <div className="text-center mb-10">
+                <div className="w-20 h-20 mx-auto rounded-full bg-gradient-to-r from-amber-500 to-orange-500 flex items-center justify-center mb-4 shadow-lg">
+                  <span className="text-3xl font-bold text-white">P</span>
+                </div>
+                <h1 className="text-5xl font-bold text-amber-900 mb-2">Physics</h1>
+                <p className="text-amber-700 text-lg">Department Dashboard</p>
+              </div>
+
           
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Full name</label>
-              <input
-                type="text"
-                value={profileData.fullName}
-                readOnly
-                className="w-full rounded-xl bg-gray-100 p-3 border border-gray-300"
-              />
+              <div className="space-y-6">
+                <div className="flex gap-6">
+                  <button
+                    onClick={handleCancel}
+                    className="flex-1 bg-white text-gray-700 py-4 rounded-xl font-semibold hover:bg-gray-50 transition-all duration-200 border-2 border-gray-300 hover:border-gray-400 shadow-sm hover:shadow flex items-center justify-center gap-3 text-lg"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Cancel Changes
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    className="flex-1 bg-gradient-to-r from-blue-600 to-blue-500 text-white py-4 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-600 transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-3 text-lg"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                    </svg>
+                    Save All Changes
+                  </button>
+                </div>
+                
+              
+                <div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="w-full bg-amber-100 text-amber-800 py-3 rounded-lg font-medium hover:bg-amber-200 transition-colors flex items-center justify-center gap-2">
+                        <span>Quick Actions</span>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)] bg-white shadow-lg border border-gray-300">
+                      <DropdownMenuLabel className="text-gray-700 font-medium">Quick Actions</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem className="cursor-pointer">
+                        View Analytics
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer">
+                        Manage Content
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer">
+                        Student Reports
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer">
+                        Upload Notes
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="cursor-pointer">
+                        View Uploaded Notes
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Q1/Accum</label>
-              <input
-                type="text"
-                name="qualification"
-                value={profileData.qualification}
-                onChange={handleChange}
-                className="w-full rounded-xl bg-gray-100 p-3 border border-gray-300"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email: https://www.baerawar.com</label>
-                <input
-                  type="text"
-                  className="w-full rounded-xl bg-gray-100 p-3 border border-gray-300"
-                  placeholder="Email"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Email: https://www.baerawar.com</label>
-                <input
-                  type="text"
-                  className="w-full rounded-xl bg-gray-100 p-3 border border-gray-300"
-                  placeholder="Email"
-                />
-              </div>
-            </div>
+            {/* Empty Space to match layout */}
+            <div className="flex-1"></div>
           </div>
         </div>
       </div>
-
-      {/* RIGHT COLUMN */}
-      <div className="w-1/2 flex flex-col gap-6">
-        
-        {/* Basic Information Card (Right Side) */}
-        <div className="">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4">Basic Information</h3>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Course Password</label>
-              <input
-                type="password"
-                name="coursePassword"
-                value={profileData.coursePassword}
-                onChange={handleChange}
-                className="w-full rounded-xl bg-gray-100 p-3 border border-gray-300"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Non-Delivered</label>
-              <input
-                type="text"
-                name="nonDelivered"
-                value={profileData.nonDelivered}
-                onChange={handleChange}
-                className="w-full rounded-xl bg-gray-100 p-3 border border-gray-300"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Certified Password</label>
-              <input
-                type="password"
-                name="certifiedPassword"
-                value={profileData.certifiedPassword}
-                onChange={handleChange}
-                className="w-full rounded-xl bg-gray-100 p-3 border border-gray-300"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="">
-          <div className="flex gap-4">
-            <button
-              onClick={handleCancel}
-              className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-400 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSave}
-              className="flex-1 bg-gray-300 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-400 transition-colors"
-            >
-              Save Changes
-            </button>
-          </div>
-        </div>
-
-        {/* Empty Space to match layout */}
-        <div className="flex-1"></div>
-      </div>
-    </div>
     </div>
   );
 }

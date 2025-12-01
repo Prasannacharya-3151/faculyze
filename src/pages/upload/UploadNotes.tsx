@@ -44,7 +44,7 @@ export default function UploadNotes() {
     const selectedFiles = Array.from(e.target.files || []);
     
     selectedFiles.forEach(file => {
-      // Check file size (25MB limit)
+     
       if (file.size > 25 * 1024 * 1024) {
         alert(`File ${file.name} is too large. Maximum size is 25MB.`);
         return;
@@ -61,11 +61,11 @@ export default function UploadNotes() {
 
       setFiles(prev => [...prev, fileData]);
 
-      // Simulate upload progress
+    
       simulateFileUpload(fileData);
     });
 
-    // Reset file input
+    
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -102,7 +102,7 @@ export default function UploadNotes() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    // Validate form
+  
     if (!formData.courseTitle || !formData.pucYear || !formData.subject || !formData.language) {
       alert("Please fill all required fields");
       return;
@@ -113,7 +113,7 @@ export default function UploadNotes() {
       return;
     }
 
-    // Prepare form data for actual API call
+
     const uploadData = new FormData();
     uploadData.append("courseTitle", formData.courseTitle);
     uploadData.append("description", formData.description);
@@ -123,13 +123,13 @@ export default function UploadNotes() {
     uploadData.append("types", formData.types);
     uploadData.append("language", formData.language);
 
-    // Append all files
+   
     files.forEach(file => {
       uploadData.append("files", file.file);
     });
 
     try {
-      // Replace with your actual API endpoint
+    
       console.log("Uploading data:", {
         formData,
         files: files.map(f => f.name)
@@ -187,9 +187,9 @@ export default function UploadNotes() {
 
   return (
     <div className="w-full h-full flex gap-8 p-6">
-      {/* LEFT FORM SECTION */}
+    
       <div className="w-1/2 flex flex-col gap-4">
-        {/* Dropdown Menu Example */}
+   
         <div className="flex justify-end">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -400,9 +400,9 @@ export default function UploadNotes() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </div> {/* ← THIS WAS MISSING - CLOSING DIV FOR LEFT FORM SECTION */}
+      </div> 
 
-      {/* RIGHT UPLOAD BOX */}
+   
       <div className="w-1/2 bg-white rounded-2xl p-6 border-2 border-dashed border-gray-300">
         <div className="h-full flex flex-col">
           {/* Upload Header */}
@@ -410,7 +410,7 @@ export default function UploadNotes() {
             <h3 className="text-lg font-semibold text-gray-800 mb-2">Upload and attach files</h3>
             <p className="text-sm text-gray-600 mb-4">Attachments will be a part of this project.</p>
             
-            {/* File Upload Area */}
+       
             <label className="cursor-pointer">
               <input 
                 type="file" 
@@ -429,9 +429,9 @@ export default function UploadNotes() {
             </label>
           </div>
 
-          {/* Uploaded Files List */}
+       
           <div className="flex-1 overflow-y-auto">
-            {/* Completed Files */}
+          
             {completedFiles.length > 0 && (
               <div className="mb-4">
                 <div className="h-px bg-gray-200 my-4"></div>
@@ -449,7 +449,7 @@ export default function UploadNotes() {
               </div>
             )}
 
-            {/* Uploading Files */}
+     
             {uploadingFiles.length > 0 && (
               <div className="mb-4">
                 <div className="h-px bg-gray-200 my-4"></div>
@@ -482,7 +482,7 @@ export default function UploadNotes() {
             )}
           </div>
 
-          {/* Buttons */}
+      
           <div className="flex gap-3 pt-4 border-t border-gray-200">
             <button 
               onClick={handleCancel}

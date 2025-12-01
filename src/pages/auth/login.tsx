@@ -50,7 +50,7 @@ export default function LoginFormDemo() {
           />
         </LabelInputContainer>
 
-        {/* Forgot Password Link */}
+  
         <div className="mb-6 text-right">
           <Link 
             to="/forgot-password" 
@@ -70,7 +70,7 @@ export default function LoginFormDemo() {
 
         <div className="my-8 h-[1px] w-full bg-gradient-to-r from-transparent via-neutral-300 to-transparent dark:via-neutral-700" />
 
-        {/* Don't have an account section */}
+    
         <div className="text-center">
           <p className="text-sm text-neutral-600 dark:text-neutral-400">
             Don't have an account?{" "}

@@ -1,7 +1,7 @@
 import React from "react";
 
 export default function UploadedNotes() {
-  // Sample data - replace with your actual data
+ 
   const uploadedNotes = [
     {
       id: 1,
@@ -43,24 +43,22 @@ export default function UploadedNotes() {
 
   const handleEdit = (id: number) => {
     console.log("Edit note with id:", id);
-    // Add your edit logic here
-  };
+};
 
   const handleDelete = (id: number) => {
     console.log("Delete note with id:", id);
-    // Add your delete logic here
-  };
+};
 
   return (
     <div className="w-full p-6">
       {/* <h1 className="text-2xl font-bold text-gray-800 mb-6">Uploaded Notes</h1> */}
       
-      {/* Table Container */}
+   
       <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-        {/* Table */}
+     
         <div className="overflow-x-auto">
           <table className="w-full">
-            {/* Table Header */}
+          
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="text-left py-4 px-6 font-semibold text-gray-700">Title</th>
@@ -69,11 +67,10 @@ export default function UploadedNotes() {
                 <th className="text-left py-4 px-6 font-semibold text-gray-700">Type</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-700">Year</th>
                 <th className="text-left py-4 px-6 font-semibold text-gray-700">Date</th>
-                <th className="text-left py-4 px-6 font-semibold text-gray-700">Action</th>
+                <th className="text-left py-4 px-12 font-semibold text-gray-700">Action</th>
               </tr>
             </thead>
-            
-            {/* Table Body */}
+         
             <tbody className="divide-y divide-gray-200">
               {uploadedNotes.map((note) => (
                 <tr key={note.id} className="hover:bg-gray-50 transition-colors">
@@ -89,7 +86,7 @@ export default function UploadedNotes() {
                         onClick={() => handleEdit(note.id)}
                         className="text-blue-600 hover:text-blue-800 font-medium text-sm transition-colors"
                       >
-                        Edit
+                        Preview
                       </button>
                       <button
                         onClick={() => handleDelete(note.id)}
@@ -106,7 +103,7 @@ export default function UploadedNotes() {
         </div>
       </div>
 
-      {/* Empty State (if no notes) */}
+   
       {uploadedNotes.length === 0 && (
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg">No notes uploaded yet.</p>
