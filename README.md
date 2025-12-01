@@ -65,9 +65,55 @@ export default defineConfig([
       parserOptions: {
         project: ['./tsconfig.node.json', './tsconfig.app.json'],
         tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+
+
+
+react-pdf-preview
+
+markdown
+# PDF Viewer with React
+
+A React component that displays PDF files with preview functionality using react-pdf and PDF.js.
+
+## Features
+- 📄 PDF preview in modal
+- 🔄 Page navigation (Previous/Next)
+- 📱 Responsive design
+- ⚡ Fast loading
+- ❌ Error handling
+
+## Tech Stack
+- **React** - UI framework
+- **react-pdf@7.7.2** - PDF rendering
+- **pdfjs-dist@5.4.296** - PDF processing
+- **Tailwind CSS** - Styling
+
+## Installation
+```bash
+npm install react-pdf@7.7.2 pdfjs-dist@5.4.296
+Setup
+Import and configure in your component:
+
+javascript
+import { pdfjs } from 'react-pdf';
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@5.4.296/build/pdf.worker.min.js`;
+How It Works
+Displays uploaded notes in a table
+
+Click "Preview" to open PDF in modal
+
+Navigate pages with Previous/Next buttons
+
+Close modal with X button
+
+File Structure
+UploadedNotes.jsx - Main component
+
+Sample PDF files in assets folder
+
+Table view for uploaded documents
+
+Note
+Make sure the PDF.js worker version matches your pdfjs-dist version (5.4.296).
+
+
