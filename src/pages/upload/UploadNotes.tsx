@@ -2,17 +2,10 @@ import React, { useState, useRef } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
+import { FileUp, FileText, Book, Layers, Languages, FolderOpen } from "lucide-react";
 
 export default function UploadNotes() {
   const [formData, setFormData] = useState({
@@ -25,480 +18,335 @@ export default function UploadNotes() {
     language: "",
   });
 
-  const [files, setFiles] = useState<Array<{
-    name: string;
-    size: string;
-    progress: number;
-    status: "uploading" | "completed" | "error";
-    file: File;
-    time?: string;
-  }>>([]);
+  const [files, setFiles] = useState([]);
+  const fileInputRef = useRef(null);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDropdown = (field, value) => {
+    setFormData({ ...formData, [field]: value });
+  };
+
+  const handleFileUpload = (e) => {
     const selectedFiles = Array.from(e.target.files || []);
-    
-    selectedFiles.forEach(file => {
-     
+
+    selectedFiles.forEach((file) => {
       if (file.size > 25 * 1024 * 1024) {
         alert(`File ${file.name} is too large. Maximum size is 25MB.`);
         return;
       }
 
-      const fileData = {
+      const newFile = {
         name: file.name,
         size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
         progress: 0,
-        status: "uploading" as const,
+        status: "uploading",
         file: file,
-        time: "Calculating..."
+        time: "Calculating...",
       };
 
-      setFiles(prev => [...prev, fileData]);
-
-    
-      simulateFileUpload(fileData);
+      setFiles((prev) => [...prev, newFile]);
+      simulateFileUpload(newFile);
     });
 
-    
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const simulateFileUpload = (fileData: any) => {
+  const simulateFileUpload = (fileData) => {
     let progress = 0;
+
     const interval = setInterval(() => {
       progress += Math.random() * 10;
+
       if (progress >= 100) {
         progress = 100;
         clearInterval(interval);
-        
-        setFiles(prev => prev.map(f => 
-          f.name === fileData.name 
-            ? { ...f, progress: 100, status: "completed", time: "Completed" }
-            : f
-        ));
+
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.name === fileData.name
+              ? { ...f, progress: 100, status: "completed", time: "Completed" }
+              : f
+          )
+        );
       } else {
-        const timeLeft = `${Math.floor((100 - progress) / 10)} sec left`;
-        setFiles(prev => prev.map(f => 
-          f.name === fileData.name 
-            ? { ...f, progress: Math.min(progress, 100), time: timeLeft }
-            : f
-        ));
+        setFiles((prev) =>
+          prev.map((f) =>
+            f.name === fileData.name
+              ? {
+                  ...f,
+                  progress,
+                  time: `${Math.floor((100 - progress) / 10)} sec left`,
+                }
+              : f
+          )
+        );
       }
     }, 200);
   };
 
-  const removeFile = (fileName: string) => {
-    setFiles(prev => prev.filter(f => f.name !== fileName));
+  const removeFile = (fileName) => {
+    setFiles((prev) => prev.filter((f) => f.name !== fileName));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    
-  
+
     if (!formData.courseTitle || !formData.pucYear || !formData.subject || !formData.language) {
-      alert("Please fill all required fields");
+      alert("Please fill required fields.");
       return;
     }
 
     if (files.length === 0) {
-      alert("Please upload at least one file");
+      alert("Upload at least one file");
       return;
     }
 
-
-    const uploadData = new FormData();
-    uploadData.append("courseTitle", formData.courseTitle);
-    uploadData.append("description", formData.description);
-    uploadData.append("pucYear", formData.pucYear);
-    uploadData.append("subject", formData.subject);
-    uploadData.append("groups", formData.groups);
-    uploadData.append("types", formData.types);
-    uploadData.append("language", formData.language);
-
-   
-    files.forEach(file => {
-      uploadData.append("files", file.file);
-    });
-
-    try {
-    
-      console.log("Uploading data:", {
-        formData,
-        files: files.map(f => f.name)
-      });
-      
-      // Example API call (uncomment and replace with your endpoint)
-      /*
-      const response = await fetch('/api/upload-notes', {
-        method: 'POST',
-        body: uploadData,
-      });
-
-      if (response.ok) {
-        alert('Files uploaded successfully!');
-        // Reset form
-        setFormData({
-          courseTitle: "",
-          description: "",
-          pucYear: "",
-          subject: "",
-          groups: "",
-          types: "",
-          language: "",
-        });
-        setFiles([]);
-      } else {
-        alert('Upload failed. Please try again.');
-      }
-      */
-      
-      alert('Files would be uploaded in real implementation! Check console for data.');
-      console.log("Form Data to upload:", uploadData);
-      
-    } catch (error) {
-      console.error('Upload error:', error);
-      alert('Upload failed. Please try again.');
-    }
+    console.log("Uploading:", formData, files);
+    alert("Files would be uploaded in real implementation!");
   };
-
-  const handleCancel = () => {
-    setFormData({
-      courseTitle: "",
-      description: "",
-      pucYear: "",
-      subject: "",
-      groups: "",
-      types: "",
-      language: "",
-    });
-    setFiles([]);
-  };
-
-  const completedFiles = files.filter(f => f.status === "completed");
-  const uploadingFiles = files.filter(f => f.status === "uploading");
 
   return (
-    <div className="w-full h-full flex gap-8 p-6">
-    
-      <div className="w-1/2 flex flex-col gap-4">
-   
-        <div className="flex justify-end">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                Actions
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
-              <DropdownMenuLabel>File Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  New Upload
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  Save Draft
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  Export Data
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  Settings
-                </DropdownMenuItem>
-                <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>More Options</DropdownMenuSubTrigger>
-                  <DropdownMenuPortal>
-                    <DropdownMenuSubContent>
-                      <DropdownMenuItem>Template</DropdownMenuItem>
-                      <DropdownMenuItem>Archive</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>Help</DropdownMenuItem>
-                    </DropdownMenuSubContent>
-                  </DropdownMenuPortal>
-                </DropdownMenuSub>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white p-6 flex flex-col gap-8 lg:flex-row">
+      {/* LEFT SIDE FORM */}
+      <div className="w-full lg:w-1/2 space-y-6">
+        {/* Title */}
+        <h1 className="text-2xl font-bold text-gray-900">Upload Notes</h1>
+        <p className="text-xs text-gray-600">Share learning resources with students</p>
 
-        <div>
-          <label className="font-semibold text-sm text-gray-700">Course Title *</label>
-          <input
+        {/* COURSE TITLE */}
+        <InputBlock label="Course Title *">
+          <InputFull
             id="courseTitle"
-            type="text"
-            className="w-full rounded-2xl bg-gray-100 p-3 mt-2 border border-gray-200 focus:outline-none focus:border-blue-500"
-            placeholder="Enter course title"
+            placeholder="Enter Course Title"
             value={formData.courseTitle}
             onChange={handleChange}
-            required
+            icon={<Book className="w-4 h-4 text-gray-400" />}
           />
-        </div>
+        </InputBlock>
 
-        <div>
-          <label className="font-semibold text-sm text-gray-700">Description</label>
+        {/* DESCRIPTION */}
+        <InputBlock label="Description">
           <textarea
             id="description"
-            className="w-full rounded-2xl bg-gray-100 p-3 mt-2 h-24 border border-gray-200 focus:outline-none focus:border-blue-500 resize-none"
-            placeholder="Brief description..."
+            placeholder="Write something about this content..."
             value={formData.description}
             onChange={handleChange}
+            className="w-full rounded-2xl p-3 h-28 border bg-white border-gray-300 text-sm outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600 transition"
+          ></textarea>
+        </InputBlock>
+
+        {/* GRID */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          {/* PUC YEAR */}
+          <DropdownBlock
+            label="PUC Year *"
+            current={formData.pucYear ? `${formData.pucYear} PUC` : "Select Year"}
+            icon={<FolderOpen className="w-4 h-4 text-gray-400" />}
+            onSelect={(value) => handleDropdown("pucYear", value)}
+            options={[
+              { label: "1st PUC", value: "1st" },
+              { label: "2nd PUC", value: "2nd" },
+            ]}
+          />
+
+          {/* SUBJECT */}
+          <DropdownBlock
+            label="Subject *"
+            current={formData.subject || "Select Subject"}
+            icon={<FileText className="w-4 h-4 text-gray-400" />}
+            onSelect={(value) => handleDropdown("subject", value)}
+            options={[
+              { label: "Physics", value: "physics" },
+              { label: "Chemistry", value: "chemistry" },
+              { label: "Mathematics", value: "mathematics" },
+              { label: "Biology", value: "biology" },
+            ]}
+          />
+
+          {/* GROUP */}
+          <DropdownBlock
+            label="Group"
+            current={formData.groups || "Select Group"}
+            icon={<Layers className="w-4 h-4 text-gray-400" />}
+            onSelect={(value) => handleDropdown("groups", value)}
+            options={[
+              { label: "Science", value: "science" },
+              { label: "Commerce", value: "commerce" },
+              { label: "Arts", value: "arts" },
+            ]}
+          />
+
+          {/* TYPES */}
+          <DropdownBlock
+            label="Types"
+            current={formData.types || "Select Type"}
+            icon={<FileUp className="w-4 h-4 text-gray-400" />}
+            onSelect={(value) => handleDropdown("types", value)}
+            options={[
+              { label: "Notes", value: "notes" },
+              { label: "Assignment", value: "assignment" },
+              { label: "Question Paper", value: "question-paper" },
+              { label: "Syllabus", value: "syllabus" },
+            ]}
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className="font-semibold text-sm text-gray-700">PUC Year *</label>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="w-full rounded-2xl bg-gray-100 p-3 mt-2 border border-gray-200 focus:outline-none focus:border-blue-500 text-left">
-                  {formData.pucYear ? (formData.pucYear === "1st" ? "1st PUC" : "2nd PUC") : "Select Year"}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
-                <DropdownMenuLabel>Select PUC Year</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setFormData({...formData, pucYear: "1st"})}>
-                  1st PUC
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFormData({...formData, pucYear: "2nd"})}>
-                  2nd PUC
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+        {/* LANGUAGE */}
+        <DropdownBlock
+          label="Language *"
+          current={formData.language || "Select Language"}
+          icon={<Languages className="w-4 h-4 text-gray-400" />}
+          onSelect={(value) => handleDropdown("language", value)}
+          options={[
+            { label: "English", value: "english" },
+            { label: "Kannada", value: "kannada" },
+            { label: "Hindi", value: "hindi" },
+          ]}
+        />
+      </div>
 
-          <div>
-            <label className="font-semibold text-sm text-gray-700">Subject *</label>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="w-full rounded-2xl bg-gray-100 p-3 mt-2 border border-gray-200 focus:outline-none focus:border-blue-500 text-left">
-                  {formData.subject ? 
-                    formData.subject.charAt(0).toUpperCase() + formData.subject.slice(1) 
-                    : "Select Subject"
-                  }
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
-                <DropdownMenuLabel>Select Subject</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setFormData({...formData, subject: "physics"})}>
-                  Physics
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFormData({...formData, subject: "chemistry"})}>
-                  Chemistry
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFormData({...formData, subject: "mathematics"})}>
-                  Mathematics
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFormData({...formData, subject: "biology"})}>
-                  Biology
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFormData({...formData, subject: "computer-science"})}>
-                  Computer Science
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+      {/* RIGHT SECTION — FILE UPLOAD */}
+      <div className="w-full lg:w-1/2 rounded-2xl p-6 border bg-white shadow-lg">
+        {/* Upload Box */}
+        <div className="text-center mb-6">
+          <h3 className="text-lg font-semibold text-gray-900">Upload Files</h3>
+          <p className="text-xs text-gray-500 mb-4">Attach files to your notes.</p>
 
-          <div>
-            <label className="font-semibold text-sm text-gray-700">Groups</label>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="w-full rounded-2xl bg-gray-100 p-3 mt-2 border border-gray-200 focus:outline-none focus:border-blue-500 text-left">
-                  {formData.groups ? 
-                    formData.groups.charAt(0).toUpperCase() + formData.groups.slice(1) 
-                    : "Select Group"
-                  }
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
-                <DropdownMenuLabel>Select Group</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setFormData({...formData, groups: "science"})}>
-                  Science
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFormData({...formData, groups: "commerce"})}>
-                  Commerce
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFormData({...formData, groups: "arts"})}>
-                  Arts
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+          <label className="cursor-pointer">
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              onChange={handleFileUpload}
+              accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png"
+              className="hidden"
+            />
 
-          <div>
-            <label className="font-semibold text-sm text-gray-700">Types</label>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="w-full rounded-2xl bg-gray-100 p-3 mt-2 border border-gray-200 focus:outline-none focus:border-blue-500 text-left">
-                  {formData.types ? 
-                    formData.types.split('-').map(word => 
-                      word.charAt(0).toUpperCase() + word.slice(1)
-                    ).join(' ') 
-                    : "Select Type"
-                  }
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
-                <DropdownMenuLabel>Select Type</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setFormData({...formData, types: "notes"})}>
-                  Notes
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFormData({...formData, types: "assignment"})}>
-                  Assignment
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFormData({...formData, types: "question-paper"})}>
-                  Question Paper
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFormData({...formData, types: "syllabus"})}>
-                  Syllabus
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setFormData({...formData, types: "presentation"})}>
-                  Presentation
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+            <div className="p-10 rounded-xl border-2 border-dashed hover:border-purple-600 transition">
+              <p className="font-medium text-gray-600">Click to upload or drag & drop</p>
+              <p className="text-xs text-gray-400">Max size: 25MB</p>
+            </div>
+          </label>
         </div>
 
-        <div>
-          <label className="font-semibold text-sm text-gray-700">Language *</label>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="w-full rounded-2xl bg-gray-100 p-3 mt-2 border border-gray-200 focus:outline-none focus:border-blue-500 text-left">
-                {formData.language ? 
-                  formData.language.charAt(0).toUpperCase() + formData.language.slice(1) 
-                  : "Select Language"
-                }
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[var(--radix-dropdown-menu-trigger-width)]">
-              <DropdownMenuLabel>Select Language</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => setFormData({...formData, language: "english"})}>
-                English
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFormData({...formData, language: "kannada"})}>
-                Kannada
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFormData({...formData, language: "hindi"})}>
-                Hindi
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        {/* FILES LIST */}
+        <div className="h-72 overflow-y-auto space-y-4 pr-2">
+          {files.map((file, i) => (
+            <div key={i} className="p-4 rounded-xl bg-gray-50 border">
+              <div className="flex justify-between">
+                <p className="font-medium text-sm">{file.name}</p>
+                <button
+                  onClick={() => removeFile(file.name)}
+                  className="text-red-500 text-lg hover:text-red-700"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <p className="text-xs text-gray-500">
+                {file.size} • {file.time}
+              </p>
+
+              <div className="w-full bg-gray-300 h-2 rounded-full mt-2">
+                <div
+                  style={{ width: `${file.progress}%` }}
+                  className="h-2 rounded-full bg-purple-600 transition-all"
+                ></div>
+              </div>
+
+              <p className="text-right text-xs text-gray-400 mt-1">
+                {Math.round(file.progress)}%
+              </p>
+            </div>
+          ))}
         </div>
-      </div> 
 
-   
-      <div className="w-1/2 bg-white rounded-2xl p-6 border-2 border-dashed border-gray-300">
-        <div className="h-full flex flex-col">
-          {/* Upload Header */}
-          <div className="text-center mb-6">
-            <h3 className="text-lg font-semibold text-gray-800 mb-2">Upload and attach files</h3>
-            <p className="text-sm text-gray-600 mb-4">Attachments will be a part of this project.</p>
-            
-       
-            <label className="cursor-pointer">
-              <input 
-                type="file" 
-                multiple 
-                className="hidden" 
-                onChange={handleFileUpload}
-                ref={fileInputRef}
-                accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,.jpg,.jpeg,.png"
-              />
-              <div className="border-2 border-dashed border-gray-300 rounded-xl p-8 hover:border-blue-400 transition-colors">
-                <div className="text-gray-500">
-                  <p className="font-medium">Click to Upload or drag and drop</p>
-                  <p className="text-sm mt-1">(Max. File size: 25 MB)</p>
-                </div>
-              </div>
-            </label>
-          </div>
+        {/* BUTTONS */}
+        <div className="flex gap-4 mt-6">
+          <button
+            className="w-1/2 py-3 rounded-full font-medium bg-gray-200 text-gray-700 hover:bg-gray-300 transition"
+            onClick={() => setFiles([])}
+          >
+            Cancel
+          </button>
 
-       
-          <div className="flex-1 overflow-y-auto">
-          
-            {completedFiles.length > 0 && (
-              <div className="mb-4">
-                <div className="h-px bg-gray-200 my-4"></div>
-                {completedFiles.map((file, index) => (
-                  <div key={index} className="flex justify-between items-center py-1">
-                    <span className="text-sm text-gray-700">• {file.name}</span>
-                    <button 
-                      onClick={() => removeFile(file.name)}
-                      className="text-gray-400 hover:text-red-500 text-lg"
-                    >
-                      ✗
-                    </button>
-                  </div>
-                ))}
-              </div>
-            )}
-
-     
-            {uploadingFiles.length > 0 && (
-              <div className="mb-4">
-                <div className="h-px bg-gray-200 my-4"></div>
-                <p className="text-sm text-gray-500 mb-3">{uploadingFiles.length} files uploading...</p>
-                
-                {uploadingFiles.map((file, index) => (
-                  <div key={index} className="mb-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <p className="font-medium text-sm text-gray-800">• {file.name}</p>
-                        <p className="text-xs text-gray-500">{file.size} · {file.time}</p>
-                      </div>
-                      <button 
-                        onClick={() => removeFile(file.name)}
-                        className="text-gray-400 hover:text-gray-600"
-                      >
-                        ✗
-                      </button>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-500 h-2 rounded-full transition-all"
-                        style={{ width: `${file.progress}%` }}
-                      ></div>
-                    </div>
-                    <div className="text-right text-xs text-gray-500 mt-1">{Math.round(file.progress)}%</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-      
-          <div className="flex gap-3 pt-4 border-t border-gray-200">
-            <button 
-              onClick={handleCancel}
-              className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-200 transition-colors"
-            >
-              Cancel
-            </button>
-            <button 
-              onClick={handleSubmit}
-              className="flex-1 bg-blue-600 text-white py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors"
-            >
-              Upload Notes
-            </button>
-          </div>
+          <button
+            onClick={handleSubmit}
+            className="w-1/2 py-3 rounded-full text-white font-semibold bg-gradient-to-r from-purple-600 to-purple-900 hover:from-purple-900 hover:to-purple-600 shadow-lg transition"
+          >
+            Upload Notes
+          </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------- */
+/* REUSABLE COMPONENTS                         */
+/* ------------------------------------------- */
+
+function InputBlock({ label, children }) {
+  return (
+    <div className="space-y-1">
+      <label className="text-xs font-semibold text-gray-700">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function InputFull({ id, placeholder, value, onChange, icon }) {
+  return (
+    <div className="relative group">
+      <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+        {icon}
+      </div>
+
+      <input
+        id={id}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        className="w-full pl-10 pr-3 py-2 text-sm rounded-full border border-gray-300 outline-none 
+                   bg-white focus:border-purple-600 focus:ring-1 focus:ring-purple-600 transition"
+      />
+    </div>
+  );
+}
+
+function DropdownBlock({ label, current, icon, onSelect, options }) {
+  return (
+    <div className="space-y-1">
+      <label className="text-xs font-semibold text-gray-700">{label}</label>
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            className="w-full py-2 pl-10 pr-3 rounded-full border bg-white text-left text-sm shadow-sm 
+                       hover:bg-gray-50 transition outline-none border-gray-300 relative"
+          >
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              {icon}
+            </div>
+            <span>{current}</span>
+          </button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent className="rounded-xl shadow-lg min-w-[200px]">
+          {options.map((option) => (
+            <DropdownMenuItem
+              key={option.value}
+              onClick={() => onSelect(option.value)}
+              className="cursor-pointer"
+            >
+              {option.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }

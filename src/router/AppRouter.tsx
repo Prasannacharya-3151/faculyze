@@ -1,6 +1,4 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-// import  SidebarLayout from "../components/layout/Sidebar";
-// import Navbar from "../components/layout/Navabr";
 import SidebarLayout from "../components/layout/Sidebar";
 
 import Dashboard from "../pages/dashboard/Dashboard";
@@ -12,30 +10,40 @@ import LoginFormDemo from "../pages/auth/login";
 import RegisterFormDemo from "../pages/auth/register";
 import ProfileSetup from "../pages/auth/profilesetup";
 
+import { AuthProvider } from "../context/AuthContext";
+import ProtectedRoute from "../components/ProtectedRoute";
+
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      <Routes>
+      <AuthProvider>
+        <Routes>
 
-        {/* Public Routes */}
-        <Route path="/login" element={<LoginFormDemo />} />
-        <Route path="/register" element={<RegisterFormDemo />} />
+          {/* public router */}
+          <Route path="/login" element={<LoginFormDemo />} />
+          <Route path="/register" element={<RegisterFormDemo />} />
+          <Route path="/profile-setup" element={<ProfileSetup />} />
 
-        {/* Profile Setup Before Dashboard */}
-        <Route path="/profile-setup" element={<ProfileSetup />} />
+          {/* protected router  */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <SidebarLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route index element={<Dashboard />} />
+            <Route path="upload" element={<UploadNotes />} />
+            <Route path="uploaded" element={<UploadedNotes />} />
+            <Route path="profile" element={<Profile />} />
+          </Route>
 
-        {/* Protected Layout (Sidebar always visible) */}
-        <Route path="/" element={<SidebarLayout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="upload" element={<UploadNotes />} />
-          <Route path="uploaded" element={<UploadedNotes />} />
-          <Route path="profile" element={<Profile />} />
-        </Route>
+         
+          <Route path="*" element={<Navigate to="/" />} />
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" />} />
-
-      </Routes>
+        </Routes>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

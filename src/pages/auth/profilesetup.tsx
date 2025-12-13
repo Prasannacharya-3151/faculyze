@@ -1,8 +1,5 @@
 import React, { useState } from "react";
-import { Label } from "../../components/ui/label";
-import { Input } from "../../components/ui/input";
-import { cn } from "../../lib/utils";
-
+import { User, Phone, GraduationCap, Image as ImageIcon, BookOpen } from "lucide-react";
 
 export default function ProfileSetup() {
   const [formData, setFormData] = useState({
@@ -13,174 +10,196 @@ export default function ProfileSetup() {
     phone: "",
     bio: "",
     pucHandling: "",
-    profilePhoto: null as File | null
+    profilePhoto: null,
   });
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
+  const [previewPhoto, setPreviewPhoto] = useState(null);
+
+  const handleChange = (e) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, profilePhoto: e.target.files?.[0] || null });
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    setFormData({ ...formData, profilePhoto: file });
+
+    if (file) {
+      setPreviewPhoto(URL.createObjectURL(file));
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     console.log("PROFILE SETUP DATA:", formData);
   };
 
   return (
-    <div className="mx-auto w-full max-w-xl rounded-xl bg-white p-6 shadow-lg dark:bg-black">
-      <h1 className="mb-4 text-2xl font-bold text-gray-800 dark:text-white">
-        Complete Your Profile
-      </h1>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center p-3 sm:p-4">
+      <div className="w-full max-w-md">
 
-      <p className="mb-6 text-sm text-gray-600 dark:text-gray-400">
-        Please fill out the required information to continue.
-      </p>
-
-      <form className="space-y-5" onSubmit={handleSubmit}>
-        {/* Profile Photo Upload */}
-        <div className="flex flex-col items-center space-y-3">
-          <div className="h-28 w-28 rounded-full border-2 border-gray-300 bg-gray-100 dark:border-gray-600 dark:bg-gray-800"></div>
-          
-          <label
-            htmlFor="profilePhoto"
-            className="cursor-pointer rounded-md border border-blue-600 px-4 py-2 text-blue-600 transition-colors hover:bg-blue-50 dark:border-blue-400 dark:text-blue-400 dark:hover:bg-blue-900/20"
-          >
-            Upload Photo
-          </label>
-          <input 
-            type="file" 
-            id="profilePhoto" 
-            className="hidden" 
-            onChange={handleFileUpload}
-            accept="image/*"
-          />
+        {/* Heading */}
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold text-gray-900">Complete Your Profile</h1>
+          <p className="text-gray-600 text-xs">This helps us personalize your experience</p>
         </div>
 
-        {/* Full Name */}
-        <LabelInputContainer>
-          <Label htmlFor="fullName">Full Name</Label>
-          <Input
+        <form className="space-y-4" onSubmit={handleSubmit}>
+
+          {/* Profile Photo */}
+          <div className="flex flex-col items-center mb-4">
+            <div className="relative w-24 h-24 rounded-full bg-gray-200 shadow-md overflow-hidden flex items-center justify-center border border-gray-300">
+              {previewPhoto ? (
+                <img src={previewPhoto} className="w-full h-full object-cover" alt="Preview" />
+              ) : (
+                <ImageIcon className="w-8 h-8 text-gray-400" />
+              )}
+            </div>
+
+            <label
+              htmlFor="profilePhoto"
+              className="cursor-pointer mt-3 px-4 py-2 text-sm rounded-full border border-purple-600 text-purple-700 hover:bg-purple-50 transition"
+            >
+              Upload Photo
+            </label>
+
+            <input 
+              type="file" 
+              id="profilePhoto" 
+              className="hidden" 
+              accept="image/*"
+              onChange={handleFileUpload}
+            />
+          </div>
+
+          {/* Full Name */}
+          <InputField
             id="fullName"
-            type="text"
+            label="Full Name"
             placeholder="Dr. Sharma"
             value={formData.fullName}
             onChange={handleChange}
-            required
+            icon={<User className="w-4 h-4 text-gray-400" />}
           />
-        </LabelInputContainer>
 
-        {/* Gender */}
-        <LabelInputContainer>
-          <Label htmlFor="gender">Gender</Label>
-          <select
-            id="gender"
-            value={formData.gender}
-            onChange={handleChange}
-            required
-            className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-          >
-            <option value="">Select Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-          </select>
-        </LabelInputContainer>
-
-        {/* PUC Handling */}
-        <LabelInputContainer>
-          <Label htmlFor="pucHandling">PUC Handling</Label>
-          <select
-            id="pucHandling"
-            value={formData.pucHandling}
-            onChange={handleChange}
-            className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-            required
-          >
-            <option value="">Select</option>
-            <option value="1st puc">1st PUC</option>
-            <option value="2nd puc">2nd PUC</option>
-            <option value="both">Both</option>
-          </select>
-        </LabelInputContainer>
-
-        {/* Qualification */}
-        <LabelInputContainer>
-          <Label htmlFor="qualification">Qualification</Label>
-          <Input
-            id="qualification"
-            type="text"
-            placeholder="MSc Physics, B.Ed"
-            value={formData.qualification}
-            onChange={handleChange}
-            required
-          />
-        </LabelInputContainer>
-
-        {/* Experience */}
-        <LabelInputContainer>
-          <Label htmlFor="experience">Experience (Years)</Label>
-          <Input
-            id="experience"
-            type="number"
-            placeholder="5"
-            value={formData.experience}
-            onChange={handleChange}
-            required
-            min="0"
-            max="50"
-          />
-        </LabelInputContainer>
-
-        {/* Phone Number */}
-        <LabelInputContainer>
-          <Label htmlFor="phone">Phone Number</Label>
-          <Input
+          {/* Phone */}
+          <InputField
             id="phone"
-            type="tel"
+            label="Phone Number"
             placeholder="9876543210"
             value={formData.phone}
             onChange={handleChange}
-            required
-            pattern="[0-9]{10}"
+            icon={<Phone className="w-4 h-4 text-gray-400" />}
+            type="tel"
           />
-        </LabelInputContainer>
 
-        {/* Bio */}
-        <LabelInputContainer>
-          <Label htmlFor="bio">Short Bio</Label>
-          <textarea
-            id="bio"
-            placeholder="Physics faculty with 10+ years experience..."
-            value={formData.bio}
+          {/* Qualification */}
+          <InputField
+            id="qualification"
+            label="Qualification"
+            placeholder="MSc Physics, B.Ed"
+            value={formData.qualification}
             onChange={handleChange}
-            className="h-28 w-full rounded-md border border-gray-300 bg-white px-3 py-2 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
-            maxLength={500}
-          ></textarea>
-        </LabelInputContainer>
+            icon={<GraduationCap className="w-4 h-4 text-gray-400" />}
+          />
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          className="w-full rounded-md bg-blue-600 py-3 font-medium text-white transition-all hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-700 dark:hover:bg-blue-600"
-        >
-          Save Profile & Continue
-        </button>
-      </form>
+          {/* Experience */}
+          <InputField
+            id="experience"
+            label="Experience (Years)"
+            placeholder="5"
+            value={formData.experience}
+            onChange={handleChange}
+            icon={<BookOpen className="w-4 h-4 text-gray-400" />}
+            type="number"
+          />
+
+          {/* Gender */}
+          <DropdownField
+            id="gender"
+            label="Gender"
+            value={formData.gender}
+            onChange={handleChange}
+            options={["Male", "Female", "Other"]}
+          />
+
+          {/* PUC Handling */}
+          <DropdownField
+            id="pucHandling"
+            label="PUC Handling"
+            value={formData.pucHandling}
+            onChange={handleChange}
+            options={["1st PUC", "2nd PUC", "Both"]}
+          />
+
+          {/* Bio */}
+          <div className="space-y-1">
+            <label className="block text-xs font-semibold text-gray-700">Short Bio</label>
+            <textarea
+              id="bio"
+              placeholder="Physics faculty with 10+ years experience..."
+              value={formData.bio}
+              onChange={handleChange}
+              className="w-full h-28 px-4 py-2 text-sm rounded-xl border border-gray-300 bg-white outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600 transition"
+            ></textarea>
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            className="w-full bg-gradient-to-r from-purple-600 to-purple-900 text-white font-bold py-3 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition"
+          >
+            Save Profile
+          </button>
+
+        </form>
+      </div>
     </div>
   );
 }
 
-const LabelInputContainer = ({
-  children,
-  className,
-}: {
-  children: React.ReactNode;
-  className?: string;
-}) => {
-  return <div className={cn("flex w-full flex-col space-y-2", className)}>{children}</div>;
-};
+
+function InputField({ id, label, placeholder, value, onChange, icon, type = "text" }) {
+  return (
+    <div className="space-y-1">
+      <label htmlFor={id} className="block text-xs font-semibold text-gray-700">{label}</label>
+      <div className="relative group">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          {icon}
+        </div>
+
+        <input
+          id={id}
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          className="w-full pl-10 pr-3 py-2 text-sm rounded-full border border-gray-300 outline-none 
+                     focus:border-purple-600 focus:ring-1 focus:ring-purple-600 bg-white 
+                     transition duration-300 placeholder-gray-400"
+        />
+      </div>
+    </div>
+  );
+}
+
+
+function DropdownField({ id, label, value, onChange, options = [] }) {
+  return (
+    <div className="space-y-1">
+      <label htmlFor={id} className="block text-xs font-semibold text-gray-700">{label}</label>
+
+      <select
+        id={id}
+        value={value}
+        onChange={onChange}
+        className="w-full h-10 pl-4 pr-3 text-sm rounded-full border border-gray-300 outline-none 
+                   bg-white focus:border-purple-600 focus:ring-1 focus:ring-purple-600 transition"
+      >
+        <option value="">Select {label}</option>
+        {options.map((opt, i) => (
+          <option key={i} value={opt.toLowerCase()}>{opt}</option>
+        ))}
+      </select>
+    </div>
+  );
+}
