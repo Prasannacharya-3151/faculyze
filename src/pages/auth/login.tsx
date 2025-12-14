@@ -63,7 +63,10 @@ export default function LoginFormDemo() {
 
     // Your backend DOES NOT send user info, so skip this.
     // Just redirect to dashboard
-    navigate("/profile-setup");
+    setTimeout(()=>{
+      navigate("/profile-setup");
+    }, 800)
+    
 
   } catch (err: any) {
     console.error("Login failed:", err);

@@ -9,7 +9,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />
      {/* GLOBAL TOAST CONTAINER */}
-    <ToastContainer
+    {/* <ToastContainer
       position="top-right"
       autoClose={3000}
       hideProgressBar={false}
@@ -19,6 +19,6 @@ createRoot(document.getElementById('root')!).render(
       draggable
       theme="light" // or "dark"
       style={{ zIndex: 9999 }} 
-    />
+    /> */}
   </StrictMode>,
 )
