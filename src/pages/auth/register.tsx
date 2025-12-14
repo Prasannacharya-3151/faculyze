@@ -1,6 +1,6 @@
 import { useState, FormEvent } from "react";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 import { apiRequest } from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -78,7 +78,10 @@ export default function RegisterFormDemo() {
       } else if (res.message) {
         // If backend returns a success message
         toast.success(res.message);
-        navigate("/login");
+        setTimeout(()=>{
+          navigate("/login");
+        },800)
+        
       } else {
         // Generic success
         toast.success("Registration successful! Please login.");

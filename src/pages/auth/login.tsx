@@ -2,7 +2,7 @@ import React, { useState, FormEvent } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { apiRequest } from "../../lib/api";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 interface FormData {
