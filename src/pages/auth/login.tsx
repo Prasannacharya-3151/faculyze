@@ -45,7 +45,7 @@ export default function LoginFormDemo() {
 
     // Extract tokens from backend format
     const accessToken = res?.data?.access_token;
-    const refreshToken = res?.data?.refresh_token;
+    // const refreshToken = res?.data?.refresh_token;
 
     if (!accessToken) {
       throw new Error("Access token missing from server");

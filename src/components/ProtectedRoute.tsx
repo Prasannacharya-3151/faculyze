@@ -18,9 +18,9 @@ export default function ProtectedRoute({
   }
 
   // No token after validation
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
+  // if (!token) {
+  //   return <Navigate to="/login" replace />;
+  // }
 
   // Auth OK
   return children;
