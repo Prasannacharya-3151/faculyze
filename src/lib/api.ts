@@ -1,5 +1,11 @@
 export const API_BASE = "https://unfearingly-heterozygous-brittny.ngrok-free.dev"
-export async function apiRequest(endpoint, method = "GET", body = null, token = null) {
+export async function apiRequest(
+  endpoint: string,
+  method: string = "GET",
+  body: any = null,
+  token: string | null = null
+) {
+
   const headers: any = { "Content-Type": "application/json" };
   if (token) headers["Authorization"] = `Bearer ${token}`;
 

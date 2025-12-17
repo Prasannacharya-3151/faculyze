@@ -1,12 +1,12 @@
-import { Navigate } from "react-router-dom";
+// import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function ProtectedRoute({
   children,
 }: {
-  children: JSX.Element;
+children: React.ReactNode;
 }) {
-  const { token, authChecked } = useAuth();
+  const {  authChecked } = useAuth(); //here i have romvued token after i should add in here okayy {token, authChecked}
 
   // Wait until token validation finishes
   if (!authChecked) {

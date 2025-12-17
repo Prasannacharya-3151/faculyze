@@ -31,25 +31,27 @@ export default function ProfileSetup() {
     phone: "",
     bio: "",
     pucHandling: "",
-    profilePhoto: null,
+    profilePhoto: null as File | null,
   });
 
-  const [previewPhoto, setPreviewPhoto] = useState(null);
+const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
 
-  const handleChange = (e) => {
+  const handleChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  const handleFileUpload = (e) => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    setFormData({ ...formData, profilePhoto: file });
+    setFormData({ ...formData, profilePhoto: file ?? null });
 
     if (file) {
       setPreviewPhoto(URL.createObjectURL(file));
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("PROFILE SETUP DATA:", formData);
   };

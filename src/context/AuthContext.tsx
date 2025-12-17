@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       try {
-        const res = await apiRequest("/auth/me", "GET", null, token);
+        const res = await apiRequest("/auth/me", "GET", null, token as any);
         setUser(res.user);
       } catch {
         logout();

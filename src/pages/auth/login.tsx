@@ -40,7 +40,7 @@ export default function LoginFormDemo() {
   setIsSubmitting(true);
 
   try {
-    const res = await apiRequest("/faculty/signin", "POST", formData);
+    const res = await apiRequest("/faculty/signin", "POST", formData as any);
 
     console.log("SERVER RESPONSE:", res);
 
