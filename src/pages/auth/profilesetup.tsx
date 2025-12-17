@@ -1,6 +1,27 @@
 import React, { useState } from "react";
 import { User, Phone, GraduationCap, Image as ImageIcon, BookOpen } from "lucide-react";
 
+import type { ReactNode } from "react";
+
+interface InputFieldProps {
+  id: string;
+  label: string;
+  placeholder?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  icon?: ReactNode;
+  type?: string;
+}
+
+interface DropdownFieldProps {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+  options: string[];
+}
+
+
 export default function ProfileSetup() {
   const [formData, setFormData] = useState({
     fullName: "",
@@ -158,7 +179,15 @@ export default function ProfileSetup() {
 }
 
 
-function InputField({ id, label, placeholder, value, onChange, icon, type = "text" }) {
+function InputField({
+  id,
+  label,
+  placeholder,
+  value,
+  onChange,
+  icon,
+  type = "text",
+}: InputFieldProps) {
   return (
     <div className="space-y-1">
       <label htmlFor={id} className="block text-xs font-semibold text-gray-700">{label}</label>
@@ -183,7 +212,14 @@ function InputField({ id, label, placeholder, value, onChange, icon, type = "tex
 }
 
 
-function DropdownField({ id, label, value, onChange, options = [] }) {
+function DropdownField({
+  id,
+  label,
+  value,
+  onChange,
+  options,
+}: DropdownFieldProps) {
+
   return (
     <div className="space-y-1">
       <label htmlFor={id} className="block text-xs font-semibold text-gray-700">{label}</label>

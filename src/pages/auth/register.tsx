@@ -1,4 +1,5 @@
-import { useState, FormEvent } from "react";
+import { useState } from "react";
+import type { FormEvent } from "react";
 import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import { toast } from "react-toastify";
 import { apiRequest } from "../../lib/api";
@@ -54,7 +55,7 @@ export default function RegisterFormDemo() {
       const res = await apiRequest(
         "/faculty/signup",
         "POST",
-        formData
+        formData as any
       );
 
       console.log("Registration response:", res);
