@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -68,12 +68,12 @@ export default function Profile() {
     <div className="w-full p-6">
       <h1 className="text-2xl font-bold text-gray-800 mb-6">Profile Settings</h1>
       
-      <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm">
+      {/* <div className="bg-white p-8 rounded-3xl border border-gray-200 shadow-sm"> */}
         <div className="w-full flex flex-col lg:flex-row gap-8">
           {/* LEFT COLUMN */}
           <div className="w-full lg:w-1/2 flex flex-col gap-8">
             {/* Basic Information Card */}
-            <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+            {/* <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm"> */}
               <h3 className="text-lg font-semibold text-gray-800 mb-6 pb-3 border-b border-gray-200">Basic Information</h3>
               
               <div className="space-y-5">
@@ -183,7 +183,7 @@ export default function Profile() {
                   />
                 </div>
               </div>
-            </div>
+            {/* </div> */}
 
             {/* Password Card */}
             <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
@@ -463,7 +463,7 @@ export default function Profile() {
             </div>
           </div>
         </div>
-      </div>
+      {/* </div> */}
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { toast } from "react-toastify";
 import {
   
@@ -22,6 +22,35 @@ interface UploadFile {
   progress: number;
   file: File;
 }
+
+import type { ReactNode } from "react";
+
+interface InputBlockProps {
+  label: string;
+  children: ReactNode;
+}
+
+interface InputFullProps {
+  id: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string;
+  icon?: ReactNode;
+}
+
+interface DropdownOption {
+  label: string;
+  value: string;
+}
+
+interface DropdownBlockProps {
+  label: string;
+  current: string;
+  icon?: ReactNode;
+  onSelect: (value: string) => void;
+  options: DropdownOption[];
+}
+
 
 export default function UploadNotes() {
   const [formData, setFormData] = useState({
@@ -272,7 +301,7 @@ export default function UploadNotes() {
 
 /* -------------------- REUSABLE COMPONENTS -------------------- */
 
-function InputBlock({ label, children }: any) {
+function InputBlock({ label, children }: InputBlockProps) {
   return (
     <div className="space-y-1">
       <label className="text-xs font-semibold text-gray-700">{label}</label>
@@ -281,7 +310,13 @@ function InputBlock({ label, children }: any) {
   );
 }
 
-function InputFull({ id, value, onChange, placeholder, icon }: any) {
+function InputFull({
+  id,
+  value,
+  onChange,
+  placeholder,
+  icon,
+}: InputFullProps) {
   return (
     <div className="relative">
       <div className="absolute left-3 top-1/2 -translate-y-1/2">
@@ -299,7 +334,13 @@ function InputFull({ id, value, onChange, placeholder, icon }: any) {
   );
 }
 
-function DropdownBlock({ label, current, icon, onSelect, options }: any) {
+function DropdownBlock({
+  label,
+  current,
+  icon,
+  onSelect,
+  options,
+}: DropdownBlockProps) {
   return (
     <div className="space-y-1">
       <label className="text-xs font-semibold text-gray-700">{label}</label>
@@ -311,7 +352,7 @@ function DropdownBlock({ label, current, icon, onSelect, options }: any) {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          {options.map((o: any) => (
+          {options.map((o) => (
             <DropdownMenuItem key={o.value} onClick={() => onSelect(o.value)}>
               {o.label}
             </DropdownMenuItem>
