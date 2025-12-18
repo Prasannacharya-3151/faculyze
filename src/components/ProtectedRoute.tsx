@@ -6,7 +6,7 @@ export default function ProtectedRoute({
 }: {
 children: React.ReactNode;
 }) {
-  const {  authChecked } = useAuth(); //here i have romvued token after i should add in here okayy {token, authChecked}
+  const {  authChecked } = useAuth(); //here i have romvued token after i should add in here {token, authChecked}
 
   // Wait until token validation finishes
   if (!authChecked) {

@@ -1,4 +1,4 @@
-@import "tailwindcss";
+/* @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -121,6 +121,130 @@
 
 .border-muted {
   border-color: var(--color-muted);
+} */
+
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  
+  /* 🌈 YOUR ORIGINAL PURPLE COLOR PALETTE */
+  --color-primary: #7E49F2;      /* Primary Purple - for buttons, accents */
+  --color-primary-foreground: #FFFFFF; /* White text on purple */
+  
+  --color-secondary: #38208C;    /* Dark Blue-Purple - for headers, important text */
+  --color-secondary-foreground: #FFFFFF; /* White text on blue */
+  
+  --color-muted: #E9A2F2;        /* Light Purple - for secondary text, labels */
+  --color-muted-foreground: #1A1426; /* Dark text on light purple */
+  
+  --color-accent: #F2CB07;       /* Golden Yellow - for highlights, notifications */
+  --color-accent-foreground: #1A1426; /* Dark text on gold */
+  
+  --color-background: #FFFFFF;   /* White - page background */
+  --color-foreground: #1A1426;   /* Dark Purple - main text color */
+  
+  --color-border: #E9A2F2;       /* Light Purple - for borders */
+  --color-input: #FFFFFF;        /* White - input backgrounds */
+  --color-ring: #7E49F2;         /* Purple - focus rings (matches primary) */
+  
+  /* Optional: Card colors */
+  --color-card: #FFFFFF;         /* White - for cards, forms */
+  --color-card-foreground: #1A1426; /* Dark purple text on cards */
+
+  /* Keep other defaults if needed */
+  --color-popover: oklch(1 0 0);
+  --color-popover-foreground: #1A1426;
+  --color-destructive: oklch(0.577 0.245 27.325);
+  --color-chart-1: #7E49F2;  /* Purple */
+  --color-chart-2: #E9A2F2;  /* Light Purple */
+  --color-chart-3: #38208C;  /* Dark Blue-Purple */
+  --color-chart-4: #F2CB07;  /* Gold */
+  --color-chart-5: #1A1426;  /* Dark Purple */
+  --color-sidebar: #1A1426;  /* Dark Purple sidebar */
+  --color-sidebar-foreground: #FFFFFF;
+  --color-sidebar-primary: #7E49F2;
+  --color-sidebar-primary-foreground: #FFFFFF;
+  --color-sidebar-accent: #38208C;
+  --color-sidebar-accent-foreground: #FFFFFF;
+  --color-sidebar-border: #38208C;
+  --color-sidebar-ring: #7E49F2;
 }
 
+:root {
+  --radius: 0.625rem;
+}
 
+.dark {
+  /* Dark mode variants of your purple colors */
+  --color-background: #1A1426;      /* Dark Purple background */
+  --color-foreground: #FFFFFF;      /* White text */
+  --color-primary: #7E49F2;         /* Same purple */
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #38208C;       /* Dark Blue-Purple */
+  --color-secondary-foreground: #FFFFFF;
+  --color-muted: #E9A2F2;           /* Light Purple */
+  --color-muted-foreground: #1A1426;
+  --color-accent: #F2CB07;          /* Gold */
+  --color-accent-foreground: #1A1426;
+  --color-border: #38208C;          /* Dark Blue-Purple borders */
+  --color-input: #38208C;           /* Dark inputs */
+  --color-ring: #7E49F2;
+  --color-card: #38208C;            /* Dark cards */
+  --color-card-foreground: #FFFFFF;
+  --color-sidebar: #1A1426;         /* Dark sidebar */
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: Inter, system-ui, sans-serif;
+  }
+}
+
+/* Optional: Keep these utility classes if you want direct access */
+.bg-primary {
+  background-color: var(--color-primary);
+}
+
+.bg-secondary {
+  background-color: var(--color-secondary);
+}
+
+.bg-accent {
+  background-color: var(--color-accent);
+}
+
+.text-primary {
+  color: var(--color-primary);
+}
+
+.text-secondary {
+  color: var(--color-secondary);
+}
+
+.text-muted {
+  color: var(--color-muted);
+}
+
+.border-primary {
+  border-color: var(--color-primary);
+}
+
+.border-secondary {
+  border-color: var(--color-secondary);
+}
+
+.border-muted {
+  border-color: var(--color-muted);
+}
