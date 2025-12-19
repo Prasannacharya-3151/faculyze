@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { User, Phone, GraduationCap, Image as ImageIcon, BookOpen } from "lucide-react";
-
 import type { ReactNode } from "react";
 
 interface InputFieldProps {
@@ -57,30 +56,30 @@ const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white flex items-center justify-center p-3 sm:p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-3 sm:p-4">
       <div className="w-full max-w-md">
 
         {/* Heading */}
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Complete Your Profile</h1>
-          <p className="text-gray-600 text-xs">This helps us personalize your experience</p>
+          <h1 className="text-2xl font-bold text-foreground">Complete Your Profile</h1>
+          <p className="text-muted-foreground text-xs">This helps us personalize your experience</p>
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
 
           {/* Profile Photo */}
           <div className="flex flex-col items-center mb-4">
-            <div className="relative w-24 h-24 rounded-full bg-gray-200 shadow-md overflow-hidden flex items-center justify-center border border-gray-300">
+            <div className="relative w-24 h-24 rounded-full bg-muted/30 shadow-md overflow-hidden flex items-center justify-center border border-muted">
               {previewPhoto ? (
                 <img src={previewPhoto} className="w-full h-full object-cover" alt="Preview" />
               ) : (
-                <ImageIcon className="w-8 h-8 text-gray-400" />
+                <ImageIcon className="w-8 h-8 text-muted" />
               )}
             </div>
 
             <label
               htmlFor="profilePhoto"
-              className="cursor-pointer mt-3 px-4 py-2 text-sm rounded-full border border-purple-600 text-purple-700 hover:bg-purple-50 transition"
+              className="cursor-pointer mt-3 px-4 py-2 text-sm rounded-full border border-primary text-primary hover:bg-primary/10 transition"
             >
               Upload Photo
             </label>
@@ -101,7 +100,7 @@ const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
             placeholder="Dr. Sharma"
             value={formData.fullName}
             onChange={handleChange}
-            icon={<User className="w-4 h-4 text-gray-400" />}
+            icon={<User className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors" />}
           />
 
           {/* Phone */}
@@ -111,7 +110,7 @@ const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
             placeholder="9876543210"
             value={formData.phone}
             onChange={handleChange}
-            icon={<Phone className="w-4 h-4 text-gray-400" />}
+            icon={<Phone className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors" />}
             type="tel"
           />
 
@@ -122,7 +121,7 @@ const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
             placeholder="MSc Physics, B.Ed"
             value={formData.qualification}
             onChange={handleChange}
-            icon={<GraduationCap className="w-4 h-4 text-gray-400" />}
+            icon={<GraduationCap className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors" />}
           />
 
           {/* Experience */}
@@ -132,7 +131,7 @@ const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
             placeholder="5"
             value={formData.experience}
             onChange={handleChange}
-            icon={<BookOpen className="w-4 h-4 text-gray-400" />}
+            icon={<BookOpen className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors" />}
             type="number"
           />
 
@@ -156,20 +155,20 @@ const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
 
           {/* Bio */}
           <div className="space-y-1">
-            <label className="block text-xs font-semibold text-gray-700">Short Bio</label>
+            <label className="block text-xs font-semibold text-foreground">Short Bio</label>
             <textarea
               id="bio"
               placeholder="Physics faculty with 10+ years experience..."
               value={formData.bio}
               onChange={handleChange}
-              className="w-full h-28 px-4 py-2 text-sm rounded-xl border border-gray-300 bg-white outline-none focus:border-purple-600 focus:ring-1 focus:ring-purple-600 transition"
+              className="w-full h-28 px-4 py-2 text-sm rounded-xl border border-muted bg-card outline-none focus:border-primary focus:ring-1 focus:ring-ring transition"
             ></textarea>
           </div>
 
           {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-gradient-to-r from-purple-600 to-purple-900 text-white font-bold py-3 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition"
+            className="w-full bg-primary text-primary-foreground font-bold py-3 rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition"
           >
             Save Profile
           </button>
@@ -192,7 +191,7 @@ function InputField({
 }: InputFieldProps) {
   return (
     <div className="space-y-1">
-      <label htmlFor={id} className="block text-xs font-semibold text-gray-700">{label}</label>
+      <label htmlFor={id} className="block text-xs font-semibold text-foreground">{label}</label>
       <div className="relative group">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
           {icon}
@@ -204,9 +203,9 @@ function InputField({
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          className="w-full pl-10 pr-3 py-2 text-sm rounded-full border border-gray-300 outline-none 
-                     focus:border-purple-600 focus:ring-1 focus:ring-purple-600 bg-white 
-                     transition duration-300 placeholder-gray-400"
+          className="w-full pl-10 pr-3 py-2 text-sm rounded-full border border-muted outline-none 
+                     focus:border-primary focus:ring-1 focus:ring-ring bg-card 
+                     transition duration-300 placeholder:text-muted-foreground"
         />
       </div>
     </div>
@@ -224,16 +223,16 @@ function DropdownField({
 
   return (
     <div className="space-y-1">
-      <label htmlFor={id} className="block text-xs font-semibold text-gray-700">{label}</label>
+      <label htmlFor={id} className="block text-xs font-semibold text-foreground">{label}</label>
 
       <select
         id={id}
         value={value}
         onChange={onChange}
-        className="w-full h-10 pl-4 pr-3 text-sm rounded-full border border-gray-300 outline-none 
-                   bg-white focus:border-purple-600 focus:ring-1 focus:ring-purple-600 transition"
+        className="w-full h-10 pl-4 pr-3 text-sm rounded-full border border-muted outline-none 
+                   bg-card focus:border-primary focus:ring-1 focus:ring-ring transition"
       >
-        <option value="">Select {label}</option>
+        <option value="" className="text-muted-foreground">Select {label}</option>
         {options.map((opt, i) => (
           <option key={i} value={opt.toLowerCase()}>{opt}</option>
         ))}
