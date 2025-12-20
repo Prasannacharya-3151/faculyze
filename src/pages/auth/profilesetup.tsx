@@ -168,7 +168,7 @@ const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
           {/* Submit */}
           <button
             type="submit"
-            className="w-full bg-primary text-primary-foreground font-bold py-3 rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition"
+            className="w-full bg-primary text-primary-foreground font-bold py-2.5 rounded-full shadow-md hover:shadow-lg hover:opacity-90 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:shadow-md"
           >
             Save Profile
           </button>
