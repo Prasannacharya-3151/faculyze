@@ -1,6 +1,22 @@
 import React, { useState } from "react";
-import { User, Phone, GraduationCap, Image as ImageIcon, BookOpen } from "lucide-react";
+import {
+  User,
+  Phone,
+  GraduationCap,
+  Image as ImageIcon,
+  BookOpen,
+  Users,
+  School,
+} from "lucide-react";
 import type { ReactNode } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../../components/ui/dropdown-menu";
+
+/* ---------- TYPES ---------- */
 
 interface InputFieldProps {
   id: string;
@@ -12,14 +28,20 @@ interface InputFieldProps {
   type?: string;
 }
 
-interface DropdownFieldProps {
-  id: string;
+interface DropdownOption {
   label: string;
   value: string;
-  onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;
-  options: string[];
 }
 
+interface DropdownBlockProps {
+  label: string;
+  current: string;
+  icon?: ReactNode;
+  onSelect: (value: string) => void;
+  options: DropdownOption[];
+}
+
+/* ---------- MAIN ---------- */
 
 export default function ProfileSetup() {
   const [formData, setFormData] = useState({
@@ -33,21 +55,22 @@ export default function ProfileSetup() {
     profilePhoto: null as File | null,
   });
 
-const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
+  const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
 
   const handleChange = (
-  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-) => {
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    setFormData({ ...formData, profilePhoto: file ?? null });
+  const handleDropdown = (field: keyof typeof formData, value: string) => {
+    setFormData({ ...formData, [field]: value });
+  };
 
-    if (file) {
-      setPreviewPhoto(URL.createObjectURL(file));
-    }
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setFormData({ ...formData, profilePhoto: file });
+    if (file) setPreviewPhoto(URL.createObjectURL(file));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -56,22 +79,26 @@ const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-3 sm:p-4">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
 
-        {/* Heading */}
+        {/* HEADING */}
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-foreground">Complete Your Profile</h1>
-          <p className="text-muted-foreground text-xs">This helps us personalize your experience</p>
+          <h1 className="text-2xl font-bold text-foreground">
+            Complete Your Profile
+          </h1>
+          <p className="text-xs text-muted-foreground">
+            This helps us personalize your experience
+          </p>
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
 
-          {/* Profile Photo */}
-          <div className="flex flex-col items-center mb-4">
-            <div className="relative w-24 h-24 rounded-full bg-muted/30 shadow-md overflow-hidden flex items-center justify-center border border-muted">
+          {/* PROFILE PHOTO */}
+          <div className="flex flex-col items-center">
+            <div className="w-24 h-24 rounded-full bg-muted/30 overflow-hidden flex items-center justify-center">
               {previewPhoto ? (
-                <img src={previewPhoto} className="w-full h-full object-cover" alt="Preview" />
+                <img src={previewPhoto} className="w-full h-full object-cover" />
               ) : (
                 <ImageIcon className="w-8 h-8 text-muted" />
               )}
@@ -79,106 +106,111 @@ const [previewPhoto, setPreviewPhoto] = useState<string | null>(null);
 
             <label
               htmlFor="profilePhoto"
-              className="cursor-pointer mt-3 px-4 py-2 text-sm rounded-full border border-primary text-primary hover:bg-primary/10 transition"
+              className="mt-3 px-4 py-2 text-sm rounded-full border border-primary text-primary hover:bg-primary/10 transition cursor-pointer"
             >
               Upload Photo
             </label>
 
-            <input 
-              type="file" 
-              id="profilePhoto" 
-              className="hidden" 
+            <input
+              id="profilePhoto"
+              type="file"
               accept="image/*"
+              className="hidden"
               onChange={handleFileUpload}
             />
           </div>
 
-          {/* Full Name */}
+          {/* INPUTS */}
           <InputField
             id="fullName"
             label="Full Name"
             placeholder="Dr. Sharma"
             value={formData.fullName}
             onChange={handleChange}
-            icon={<User className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors" />}
+            icon={<User className="w-4 h-4 text-muted group-focus-within:text-primary" />}
           />
 
-          {/* Phone */}
           <InputField
             id="phone"
             label="Phone Number"
             placeholder="9876543210"
             value={formData.phone}
             onChange={handleChange}
-            icon={<Phone className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors" />}
             type="tel"
+            icon={<Phone className="w-4 h-4 text-muted group-focus-within:text-primary" />}
           />
 
-          {/* Qualification */}
           <InputField
             id="qualification"
             label="Qualification"
             placeholder="MSc Physics, B.Ed"
             value={formData.qualification}
             onChange={handleChange}
-            icon={<GraduationCap className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors" />}
+            icon={<GraduationCap className="w-4 h-4 text-muted group-focus-within:text-primary" />}
           />
 
-          {/* Experience */}
           <InputField
             id="experience"
             label="Experience (Years)"
             placeholder="5"
             value={formData.experience}
             onChange={handleChange}
-            icon={<BookOpen className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors" />}
             type="number"
+            icon={<BookOpen className="w-4 h-4 text-muted group-focus-within:text-primary" />}
           />
 
-          {/* Gender */}
-          <DropdownField
-            id="gender"
+          {/* DROPDOWNS */}
+          <DropdownBlock
             label="Gender"
-            value={formData.gender}
-            onChange={handleChange}
-            options={["Male", "Female", "Other"]}
+            current={formData.gender || "Select Gender"}
+            icon={<Users className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors" />}
+            onSelect={(v) => handleDropdown("gender", v)}
+            options={[
+              { label: "Male", value: "male" },
+              { label: "Female", value: "female" },
+              { label: "Others", value: "others" },
+            ]}
           />
 
-          {/* PUC Handling */}
-          <DropdownField
-            id="pucHandling"
+          <DropdownBlock
             label="PUC Handling"
-            value={formData.pucHandling}
-            onChange={handleChange}
-            options={["1st PUC", "2nd PUC", "Both"]}
+            current={formData.pucHandling || "Select PUC"}
+            icon={<School className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors" />}
+            onSelect={(v) => handleDropdown("pucHandling", v)}
+            options={[
+              { label: "1st PUC", value: "1st" },
+              { label: "2nd PUC", value: "2nd" },
+            ]}
           />
 
-          {/* Bio */}
+          {/* BIO */}
           <div className="space-y-1">
-            <label className="block text-xs font-semibold text-foreground">Short Bio</label>
+            <label className="text-xs font-semibold text-foreground">Short Bio</label>
             <textarea
               id="bio"
-              placeholder="Physics faculty with 10+ years experience..."
               value={formData.bio}
               onChange={handleChange}
-              className="w-full h-28 px-4 py-2 text-sm rounded-xl border border-muted bg-card outline-none focus:border-primary focus:ring-1 focus:ring-ring transition"
-            ></textarea>
+              placeholder="Physics faculty with 10+ years experience..."
+              className="w-full h-28 px-4 py-2 text-sm rounded-xl border border-muted bg-card
+                         outline-none focus:border-primary focus:ring-1 focus:ring-ring transition"
+            />
           </div>
 
-          {/* Submit */}
+          {/* SUBMIT */}
           <button
             type="submit"
-            className="w-full bg-primary text-primary-foreground font-bold py-2.5 rounded-full shadow-md hover:shadow-lg hover:opacity-90 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:shadow-md"
+            className="w-full bg-primary text-primary-foreground font-semibold
+                       py-2.5 rounded-full shadow-md hover:opacity-90 transition"
           >
             Save Profile
           </button>
-
         </form>
       </div>
     </div>
   );
 }
 
+/* ---------- REUSABLE INPUT ---------- */
 
 function InputField({
   id,
@@ -191,52 +223,59 @@ function InputField({
 }: InputFieldProps) {
   return (
     <div className="space-y-1">
-      <label htmlFor={id} className="block text-xs font-semibold text-foreground">{label}</label>
+      <label className="text-xs font-semibold text-foreground">{label}</label>
       <div className="relative group">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2">
           {icon}
-        </div>
-
+        </span>
         <input
           id={id}
           type={type}
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          className="w-full pl-10 pr-3 py-2 text-sm rounded-full border border-muted outline-none 
-                     focus:border-primary focus:ring-1 focus:ring-ring bg-card 
-                     transition duration-300 placeholder:text-muted-foreground"
+          className="w-full pl-10 pr-3 py-2 text-sm rounded-full
+                     border border-muted bg-card
+                     outline-none focus:border-primary focus:ring-1 focus:ring-ring
+                     transition placeholder:text-muted-foreground"
         />
       </div>
     </div>
   );
 }
 
+/* ---------- DROPDOWN BLOCK ---------- */
 
-function DropdownField({
-  id,
+
+function DropdownBlock({
   label,
-  value,
-  onChange,
+  current,
+  icon,
+  onSelect,
   options,
-}: DropdownFieldProps) {
-
+}: DropdownBlockProps) {
   return (
     <div className="space-y-1">
-      <label htmlFor={id} className="block text-xs font-semibold text-foreground">{label}</label>
-
-      <select
-        id={id}
-        value={value}
-        onChange={onChange}
-        className="w-full h-10 pl-4 pr-3 text-sm rounded-full border border-muted outline-none 
-                   bg-card focus:border-primary focus:ring-1 focus:ring-ring transition"
-      >
-        <option value="" className="text-muted-foreground">Select {label}</option>
-        {options.map((opt, i) => (
-          <option key={i} value={opt.toLowerCase()}>{opt}</option>
-        ))}
-      </select>
+      <label className="text-xs font-semibold text-foreground">{label}</label>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button className="w-full pl-10 pr-3 py-2 rounded-full border border-muted text-left text-sm relative bg-card text-foreground hover:bg-card/80 transition">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</span>
+            {current}
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="bg-card border-muted text-foreground">
+          {options.map((o) => (
+            <DropdownMenuItem 
+              key={o.value} 
+              onClick={() => onSelect(o.value)}
+              className="hover:bg-primary/10 focus:bg-primary/10 cursor-pointer"
+            >
+              {o.label}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 }

@@ -174,13 +174,13 @@ export default function UploadNotes() {
 
         {/* LEFT FORM */}
         <div className="space-y-5">
-          <h1 className="text-2xl font-bold text-foreground">Upload Notes</h1>
+          <h1 className="text-2xl font-bold text-foreground">Upload and attach notes</h1>
           <p className="text-xs text-muted-foreground">
-            Share learning resources with students
+            Attachment will be a part of this project
           </p>
 
           <InputBlock label="Course Title *">
-            <InputFull
+            <InputField
               id="courseTitle"
               value={formData.courseTitle}
               onChange={handleChange}
@@ -215,7 +215,7 @@ export default function UploadNotes() {
             <DropdownBlock
               label="Subject *"
               current={formData.subject || "Select Subject"}
-              icon={<FileText className="w-4 h-4 text-muted" />}
+              icon={<FileText className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors" />}
               onSelect={(v) => handleDropdown("subject", v)}
               options={[
                 { label: "Physics", value: "physics" },
@@ -229,7 +229,7 @@ export default function UploadNotes() {
           <DropdownBlock
             label="Language *"
             current={formData.language || "Select Language"}
-            icon={<Languages className="w-4 h-4 text-muted" />}
+            icon={<Languages className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors" />}
             onSelect={(v) => handleDropdown("language", v)}
             options={[
               { label: "English", value: "english" },
@@ -240,9 +240,9 @@ export default function UploadNotes() {
         </div>
 
         {/* RIGHT UPLOAD CARD */}
-        <div className="bg-card rounded-2xl p-6 border border-muted shadow-lg">
-          <h3 className="text-lg font-semibold text-foreground mb-2">Upload File</h3>
-          <p className="text-xs text-muted-foreground mb-4">Only one file allowed</p>
+        <div className="rounded-4xl p-6  border-muted shadow-lg">
+          <h3 className="text-lg font-semibold text-foreground items-center justify-center flex">Upload and attach files</h3>
+          <p className="text-xs text-muted-foreground mb-4 items-center justify-center flex">Only one file allowed</p>
 
           <label className="cursor-pointer block">
             <input
@@ -253,8 +253,9 @@ export default function UploadNotes() {
               accept=".pdf,.doc,.docx,.ppt,.pptx"
             />
             <div className="p-10 border-2 border-dashed border-muted rounded-xl text-center hover:border-primary transition">
-              <p className="font-medium text-foreground">Click to upload</p>
-              <p className="text-xs text-muted-foreground">Max 25MB</p>
+              <span className="font-medium text-primary">Click to upload</span>{" "}
+              <span className="font-medium">or drag and drop</span>
+              <p className="text-xs text-muted-foreground">(Max, File size: 25MB)</p>
             </div>
           </label>
 
@@ -281,7 +282,7 @@ export default function UploadNotes() {
             </div>
           ))}
 
-          <div className="flex flex-col sm:flex-row gap-4 mt-6">
+          <div className="flex flex-col sm:flex-row gap-4 mt-50">
             <button
               onClick={() => setFiles([])}
               className="w-full sm:w-1/2 py-3 rounded-full bg-muted text-foreground hover:bg-muted/80 transition"
@@ -314,7 +315,7 @@ function InputBlock({ label, children }: InputBlockProps) {
   );
 }
 
-function InputFull({
+function InputField({
   id,
   value,
   onChange,
@@ -322,7 +323,7 @@ function InputFull({
   icon,
 }: InputFullProps) {
   return (
-    <div className="relative">
+    <div className="relative group">
       <div className="absolute left-3 top-1/2 -translate-y-1/2">
         {icon}
       </div>
