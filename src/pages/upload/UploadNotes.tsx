@@ -6,6 +6,7 @@ import {
   Languages,
   FolderOpen,
 } from "lucide-react";
+import type { ReactNode } from "react";
 
 import {
   DropdownMenu,
@@ -14,6 +15,8 @@ import {
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
 
+/* ---------------- TYPES ---------------- */
+
 interface UploadFile {
   name: string;
   size: string;
@@ -21,14 +24,12 @@ interface UploadFile {
   file: File;
 }
 
-import type { ReactNode } from "react";
-
 interface InputBlockProps {
   label: string;
   children: ReactNode;
 }
 
-interface InputFullProps {
+interface InputFieldProps {
   id: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -49,25 +50,27 @@ interface DropdownBlockProps {
   options: DropdownOption[];
 }
 
+/* ---------------- MAIN ---------------- */
+
 export default function UploadNotes() {
   const [formData, setFormData] = useState({
     courseTitle: "",
     description: "",
     pucYear: "",
     subject: "",
-    groups: "",
-    types: "",
     language: "",
   });
 
   const [files, setFiles] = useState<UploadFile[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
-  const handleDropdown = (field: string, value: string) => {
+  const handleDropdown = (field: keyof typeof formData, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
 
@@ -76,12 +79,12 @@ export default function UploadNotes() {
     if (!file) return;
 
     if (files.length > 0) {
-      toast.error("Only one file is allowed");
+      toast.error("Only one file allowed");
       return;
     }
 
     if (file.size > 25 * 1024 * 1024) {
-      toast.error("File size must be under 25MB");
+      toast.error("Max file size is 25MB");
       return;
     }
 
@@ -94,22 +97,18 @@ export default function UploadNotes() {
 
     setFiles([newFile]);
     simulateProgress(newFile);
-    toast.success("File selected successfully");
 
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const simulateProgress = (fileData: UploadFile) => {
     let progress = 0;
-
     const interval = setInterval(() => {
       progress += 10;
-
       if (progress >= 100) {
         progress = 100;
         clearInterval(interval);
       }
-
       setFiles((prev) =>
         prev.map((f) =>
           f.name === fileData.name ? { ...f, progress } : f
@@ -118,65 +117,34 @@ export default function UploadNotes() {
     }, 200);
   };
 
-  const removeFile = () => {
-    setFiles([]);
-    toast.info("File removed");
-  };
+  const removeFile = () => setFiles([]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.courseTitle || !formData.pucYear || !formData.subject || !formData.language) {
-      toast.error("Please fill all required fields");
+      toast.error("Fill all required fields");
       return;
     }
 
     if (files.length === 0) {
-      toast.error("Please upload one file");
+      toast.error("Upload one file");
       return;
     }
 
-    try {
-      toast.info("Uploading notes...");
-
-      // 🔥 BACKEND API (READY – UNCOMMENT LATER)
-      /*
-      const payload = new FormData();
-      payload.append("courseTitle", formData.courseTitle);
-      payload.append("description", formData.description);
-      payload.append("pucYear", formData.pucYear);
-      payload.append("subject", formData.subject);
-      payload.append("group", formData.groups);
-      payload.append("type", formData.types);
-      payload.append("language", formData.language);
-      payload.append("file", files[0].file);
-
-      await fetch("/api/notes/upload", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer YOUR_TOKEN_HERE`,
-        },
-        body: payload,
-      });
-      */
-
-      toast.success("Notes uploaded successfully");
-      setFiles([]);
-
-    } catch (err) {
-      toast.error("Upload failed. Try again.");
-    }
+    toast.success("Notes uploaded successfully");
+    setFiles([]);
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-64px)] p-4 sm:p-6 bg-background">
+    <div className="w-full min-h-screen p-4 sm:p-6 bg-background">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* LEFT FORM */}
+        {/* LEFT */}
         <div className="space-y-5">
-          <h1 className="text-2xl font-bold text-foreground">Upload and attach notes</h1>
+          <h1 className="text-2xl font-bold text-foreground">Upload Notes</h1>
           <p className="text-xs text-muted-foreground">
-            Attachment will be a part of this project
+            Attach notes for students
           </p>
 
           <InputBlock label="Course Title *">
@@ -185,7 +153,7 @@ export default function UploadNotes() {
               value={formData.courseTitle}
               onChange={handleChange}
               placeholder="Enter course title"
-              icon={<Book className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors" />}
+              icon={<Book className="w-4 h-4" />}
             />
           </InputBlock>
 
@@ -194,9 +162,13 @@ export default function UploadNotes() {
               id="description"
               value={formData.description}
               onChange={handleChange}
-              className="w-full rounded-2xl p-3 h-28 border border-muted text-sm outline-none bg-card
-                         focus:border-primary focus:ring-1 focus:ring-ring transition placeholder:text-muted-foreground text-foreground"
               placeholder="Write something..."
+              className="w-full h-28 px-4 py-2 text-sm rounded-xl
+                         border border-muted bg-card
+                         outline-none focus:border-primary
+                         focus:ring-1 focus:ring-ring
+                         transition resize-none
+                         placeholder:text-muted-foreground"
             />
           </InputBlock>
 
@@ -204,24 +176,24 @@ export default function UploadNotes() {
             <DropdownBlock
               label="PUC Year *"
               current={formData.pucYear || "Select Year"}
-              icon={<FolderOpen className="w-4 h-4 text-muted" />}
+              icon={<FolderOpen className="w-4 h-4" />}
               onSelect={(v) => handleDropdown("pucYear", v)}
               options={[
-                { label: "1st PUC", value: "1st" },
-                { label: "2nd PUC", value: "2nd" },
+                { label: "1st PUC", value: "1st PUC" },
+                { label: "2nd PUC", value: "2nd PUC" },
               ]}
             />
 
             <DropdownBlock
               label="Subject *"
               current={formData.subject || "Select Subject"}
-              icon={<FileText className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors" />}
+              icon={<FileText className="w-4 h-4" />}
               onSelect={(v) => handleDropdown("subject", v)}
               options={[
-                { label: "Physics", value: "physics" },
-                { label: "Chemistry", value: "chemistry" },
-                { label: "Maths", value: "maths" },
-                { label: "Biology", value: "biology" },
+                { label: "Physics", value: "Physics" },
+                { label: "Chemistry", value: "Chemistry" },
+                { label: "Maths", value: "Maths" },
+                { label: "Biology", value: "Biology" },
               ]}
             />
           </div>
@@ -229,71 +201,78 @@ export default function UploadNotes() {
           <DropdownBlock
             label="Language *"
             current={formData.language || "Select Language"}
-            icon={<Languages className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors" />}
+            icon={<Languages className="w-4 h-4" />}
             onSelect={(v) => handleDropdown("language", v)}
             options={[
-              { label: "English", value: "english" },
-              { label: "Kannada", value: "kannada" },
-              { label: "Hindi", value: "hindi" },
+              { label: "English", value: "English" },
+              { label: "Kannada", value: "Kannada" },
+              { label: "Hindi", value: "Hindi" },
             ]}
           />
         </div>
 
-        {/* RIGHT UPLOAD CARD */}
-        <div className="rounded-4xl p-6  border-muted shadow-lg">
-          <h3 className="text-lg font-semibold text-foreground items-center justify-center flex">Upload and attach files</h3>
-          <p className="text-xs text-muted-foreground mb-4 items-center justify-center flex">Only one file allowed</p>
+        {/* RIGHT */}
+        <div className="p-6 rounded-3xl border border-muted shadow-lg">
+          <h3 className="text-lg font-semibold text-foreground text-center">
+            Upload File
+          </h3>
+          <p className="text-xs text-muted-foreground text-center mb-4">
+            Only one file allowed
+          </p>
 
-          <label className="cursor-pointer block">
+          <label className="block cursor-pointer">
             <input
               ref={fileInputRef}
               type="file"
+              accept=".pdf,.doc,.docx,.ppt,.pptx"
               onChange={handleFileUpload}
               className="hidden"
-              accept=".pdf,.doc,.docx,.ppt,.pptx"
             />
-            <div className="p-10 border-2 border-dashed border-muted rounded-xl text-center hover:border-primary transition">
-              <span className="font-medium text-primary">Click to upload</span>{" "}
-              <span className="font-medium">or drag and drop</span>
-              <p className="text-xs text-muted-foreground">(Max, File size: 25MB)</p>
+            <div className="p-10 border-2 border-dashed border-muted
+                            rounded-xl text-center hover:border-primary transition">
+              <span className="text-primary font-medium">Click to upload</span>
+              <p className="text-xs text-muted-foreground">(Max 25MB)</p>
             </div>
           </label>
 
-          {files.map((file) => (
-            <div key={file.name} className="mt-4 p-4 bg-muted/20 rounded-xl border border-muted">
-              <div className="flex justify-between items-center">
-                <p className="text-sm font-medium text-foreground truncate">{file.name}</p>
-                <button 
-                  onClick={removeFile} 
-                  className="text-destructive hover:text-destructive/80 font-bold"
-                >
-                  ✕
-                </button>
+          {/* RESERVED FILE SPACE */}
+          <div className="min-h-[120px] mt-4">
+            {files.map((file) => (
+              <div
+                key={file.name}
+                className="p-4 bg-muted/20 rounded-xl border border-muted"
+              >
+                <div className="flex justify-between items-center">
+                  <p className="text-sm font-medium truncate">{file.name}</p>
+                  <button onClick={removeFile} className="font-bold">✕</button>
+                </div>
+
+                <div className="w-full h-2 bg-muted/50 rounded-full mt-2">
+                  <div
+                    style={{ width: `${file.progress}%` }}
+                    className="h-2 bg-primary rounded-full transition-all"
+                  />
+                </div>
+
+                <p className="text-xs text-right mt-1">{file.progress}%</p>
               </div>
+            ))}
+          </div>
 
-              <div className="w-full h-2 bg-muted/50 rounded-full mt-2">
-                <div
-                  style={{ width: `${file.progress}%` }}
-                  className="h-2 bg-primary rounded-full transition-all"
-                />
-              </div>
-
-              <p className="text-xs text-right mt-1 text-foreground">{file.progress}%</p>
-            </div>
-          ))}
-
-          <div className="flex flex-col sm:flex-row gap-4 mt-50">
+          {/* BUTTONS */}
+          <div className="flex gap-4 mt-6">
             <button
-              onClick={() => setFiles([])}
-              className="w-full sm:w-1/2 py-3 rounded-full bg-muted text-foreground hover:bg-muted/80 transition"
+              onClick={removeFile}
+              className="w-1/2 py-3 rounded-full bg-muted hover:bg-muted/80 transition"
             >
               Cancel
             </button>
 
             <button
               onClick={handleSubmit}
-              className="w-full sm:w-1/2 py-3 rounded-full text-primary-foreground font-semibold
-                         bg-primary hover:bg-primary/90 shadow-lg transition"
+              className="w-1/2 py-3 rounded-full bg-primary
+                         text-primary-foreground font-semibold
+                         hover:bg-primary/90 transition"
             >
               Upload Notes
             </button>
@@ -304,12 +283,12 @@ export default function UploadNotes() {
   );
 }
 
-/* -------------------- REUSABLE COMPONENTS -------------------- */
+/* ---------------- REUSABLE ---------------- */
 
 function InputBlock({ label, children }: InputBlockProps) {
   return (
     <div className="space-y-1">
-      <label className="text-xs font-semibold text-foreground">{label}</label>
+      <label className="text-xs font-semibold">{label}</label>
       {children}
     </div>
   );
@@ -321,19 +300,27 @@ function InputField({
   onChange,
   placeholder,
   icon,
-}: InputFullProps) {
+}: InputFieldProps) {
+  const isFilled = value.length > 0;
+
   return (
     <div className="relative group">
-      <div className="absolute left-3 top-1/2 -translate-y-1/2">
+      <span
+        className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors
+        ${isFilled ? "text-primary/60" : "text-muted"}
+        group-focus-within:text-primary`}
+      >
         {icon}
-      </div>
+      </span>
+
       <input
         id={id}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className="w-full pl-10 pr-3 py-2 text-sm rounded-full border border-muted bg-card
-                   focus:border-primary focus:ring-1 focus:ring-ring outline-none transition placeholder:text-muted-foreground text-foreground"
+        className={`w-full pl-10 pr-3 py-2 text-sm rounded-full outline-none transition
+          ${isFilled ? "border border-primary/40 bg-primary/5" : "border border-muted bg-card"}
+          focus:border-primary focus:ring-1 focus:ring-ring`}
       />
     </div>
   );
@@ -346,22 +333,39 @@ function DropdownBlock({
   onSelect,
   options,
 }: DropdownBlockProps) {
+  const isSelected = !current.toLowerCase().startsWith("select");
+
   return (
     <div className="space-y-1">
-      <label className="text-xs font-semibold text-foreground">{label}</label>
+      <label className="text-xs font-semibold">{label}</label>
+
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="w-full pl-10 pr-3 py-2 rounded-full border border-muted text-left text-sm relative bg-card text-foreground hover:bg-card/80 transition">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2">{icon}</span>
-            {current}
+          <button
+            className={`relative group w-full pl-10 pr-3 py-2 rounded-full text-left text-sm outline-none transition
+              ${isSelected ? "border border-primary/40 bg-primary/5" : "border border-muted bg-card"}
+              data-[state=open]:border-primary data-[state=open]:ring-1 data-[state=open]:ring-ring`}
+          >
+            <span
+              className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors
+                ${isSelected ? "text-primary/60" : "text-muted"}
+                group-data-[state=open]:text-primary`}
+            >
+              {icon}
+            </span>
+
+            <span className={isSelected ? "text-foreground" : "text-muted-foreground"}>
+              {current}
+            </span>
           </button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="bg-card border-muted text-foreground">
+
+        <DropdownMenuContent className="bg-card border-muted">
           {options.map((o) => (
-            <DropdownMenuItem 
-              key={o.value} 
+            <DropdownMenuItem
+              key={o.value}
               onClick={() => onSelect(o.value)}
-              className="hover:bg-primary/10 focus:bg-primary/10 cursor-pointer"
+              className="hover:bg-primary/10 cursor-pointer"
             >
               {o.label}
             </DropdownMenuItem>
