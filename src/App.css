@@ -1,131 +1,140 @@
+/* -------------------------------------------------- */
+/* Tailwind + Animation imports */
+/* -------------------------------------------------- */
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Enable dark variant using `.dark` class */
 @custom-variant dark (&:is(.dark *));
 
+
+/* ================================================== */
+/* ROOT THEME VARIABLES (LIGHT MODE) */
+/* ================================================== */
 :root {
-  /* 🌈 YOUR PURPLE COLOR PALETTE */
-  --background: 255 255 255;     /* White background */
-  --foreground: 26 20 38;        /* #1A1426 - Dark Purple text */
-  
-  /* Primary Colors */
-  --primary: 126 73 242;         /* #7E49F2 - Main buttons/links */
-  --primary-foreground: 255 255 255; /* White text on purple */
-  
-  /* Secondary Colors */
-  --secondary: 56 32 140;        /* #38208C - Headers, accents */
-  --secondary-foreground: 255 255 255; /* White text on dark purple */
-  
-  /* Accent Colors */
-  --accent: 242 203 7;           /* #F2CB07 - Gold for alerts/highlights */
-  --accent-foreground: 26 20 38; /* Dark text on gold */
-  
-  /* Muted Colors */
-  --muted: 233 162 242;          /* #E9A2F2 - Light purple for borders */
-  --muted-foreground: 26 20 38;  /* Dark text on light purple */
-  
-  /* UI Colors */
-  --border: 233 162 242;         /* #E9A2F2 - Borders */
-  --input: 255 255 255;          /* White inputs */
-  --ring: 126 73 242;            /* #7E49F2 - Focus rings */
-  
-  /* Card Colors */
-  --card: 255 255 255;           /* White cards */
-  --card-foreground: 26 20 38;   /* Dark text on cards */
-  
-  /* Destructive */
+  /* ---------- Base background & text ---------- */
+  --background: 255 255 255;          /* Page background (white) */
+  --foreground: 26 20 38;             /* Main text color */
+
+  /* ---------- Brand / Primary ---------- */
+  --primary: 126 73 242;              /* Purple (buttons, focus) */
+  --primary-foreground: 255 255 255;  /* Text on primary */
+
+  /* ---------- Secondary ---------- */
+  --secondary: 56 32 140;
+  --secondary-foreground: 255 255 255;
+
+  /* ---------- Accent (highlights, indicators) ---------- */
+  --accent: 242 203 7;                /* Gold */
+  --accent-foreground: 26 20 38;
+
+  /* ---------- IMPORTANT FIXES ---------- */
+  --border: 209 213 219;              /* Gray border (inputs) */
+  --input: transparent;               /* ❌ NO input background */
+  --ring: 126 73 242;                 /* Focus ring color */
+
+  /* ---------- Muted text only (NO BG USE) ---------- */
+  --muted: 156 163 175;               /* Gray text */
+  --muted-foreground: 107 114 128;
+
+  /* ---------- Cards (containers only) ---------- */
+  --card: 255 255 255;
+  --card-foreground: 26 20 38;
+
+  /* ---------- Error ---------- */
   --destructive: 239 68 68;
   --destructive-foreground: 255 255 255;
-  
-  /* Charts */
-  --chart-1: 126 73 242;         /* Purple */
-  --chart-2: 233 162 242;        /* Light Purple */
-  --chart-3: 56 32 140;          /* Dark Purple */
-  --chart-4: 242 203 7;          /* Gold */
-  --chart-5: 26 20 38;           /* Dark Text */
-  
-  /* Sidebar */
-  --sidebar: 255 255 255;        /* White sidebar */
-  --sidebar-foreground: 26 20 38;
-  --sidebar-primary: 126 73 242;
-  --sidebar-primary-foreground: 255 255 255;
-  --sidebar-border: 233 162 242;
-  
+
+  /* ---------- Border radius ---------- */
   --radius: 0.625rem;
 }
 
+
+/* ================================================== */
+/* DARK MODE VARIABLES */
+/* ================================================== */
 .dark {
-  /* Dark Mode - Purple Theme */
-  --background: 26 20 38;        /* #1A1426 - Dark background */
-  --foreground: 255 255 255;     /* White text */
-  
-  --card: 56 32 140;             /* #38208C - Dark purple cards */
+  /* Page background + text */
+  --background: 26 20 38;
+  --foreground: 255 255 255;
+
+  /* Card containers */
+  --card: 26 20 38;
   --card-foreground: 255 255 255;
-  
-  --primary: 126 73 242;         /* Same purple */
-  --primary-foreground: 255 255 255;
-  
-  --secondary: 56 32 140;        /* Dark purple */
-  --secondary-foreground: 255 255 255;
-  
-  --muted: 233 162 242;          /* Light purple */
-  --muted-foreground: 26 20 38;
-  
-  --accent: 242 203 7;           /* Gold */
-  --accent-foreground: 26 20 38;
-  
-  --border: 56 32 140;           /* Dark purple borders */
-  --input: 56 32 140;            /* Dark purple inputs */
+
+  /* Input borders */
+  --border: 75 85 99;                 /* Gray-600 */
+
+  /* ❌ Still NO input background */
+  --input: transparent;
+
+  /* Focus ring stays purple */
   --ring: 126 73 242;
-  
-  --sidebar: 26 20 38;           /* Dark sidebar */
-  --sidebar-foreground: 255 255 255;
+
+  /* Muted text */
+  --muted: 156 163 175;
+  --muted-foreground: 209 213 219;
 }
 
+
+/* ================================================== */
+/* TAILWIND TOKEN MAPPING */
+/* (Connects CSS vars to Tailwind classes) */
+/* ================================================== */
 @theme inline {
   --color-background: rgb(var(--background));
   --color-foreground: rgb(var(--foreground));
+
   --color-card: rgb(var(--card));
   --color-card-foreground: rgb(var(--card-foreground));
+
   --color-primary: rgb(var(--primary));
   --color-primary-foreground: rgb(var(--primary-foreground));
+
   --color-secondary: rgb(var(--secondary));
   --color-secondary-foreground: rgb(var(--secondary-foreground));
+
   --color-muted: rgb(var(--muted));
   --color-muted-foreground: rgb(var(--muted-foreground));
+
   --color-accent: rgb(var(--accent));
   --color-accent-foreground: rgb(var(--accent-foreground));
+
   --color-border: rgb(var(--border));
-  --color-input: rgb(var(--input));
+  --color-input: var(--input);        /* Transparent inputs */
   --color-ring: rgb(var(--ring));
-  
-  /* Radius */
+
+  /* Radius helpers */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+
+/* ================================================== */
+/* BASE STYLES */
+/* ================================================== */
 @layer base {
-  * {
-    @apply border-border;
-  }
+  /* Page background + text */
   body {
     @apply bg-background text-foreground;
+  }
+
+  /* 🔥 FORCE all inputs to stay transparent */
+  input,
+  textarea,
+  select {
+    background-color: transparent;
   }
 }
 
 
+/* ================================================== */
+/* UTILITIES */
+/* ================================================== */
 
-
-
-
-
-
-
-
-
-/* Hide scrollbar but keep scroll */
+/* Hide scrollbar but keep scroll working */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }

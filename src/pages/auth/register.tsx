@@ -143,7 +143,7 @@ export default function RegisterFormDemo() {
                   placeholder="Choose a username"
                   value={formData.username}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-3 py-2 text-sm rounded-full border border-muted outline-none focus:border-primary focus:ring-1 focus:ring-ring transition-all duration-200 text-foreground placeholder:text-muted-foreground bg-card"
+                  className="w-full pl-10 pr-3 py-2 text-sm rounded-full border border-muted outline-none focus:border-primary focus:ring-1 focus:ring-ring transition-all duration-200 text-foreground placeholder:text-muted-foreground bg-transparent"
                   required
                 />
               </div>
@@ -163,7 +163,7 @@ export default function RegisterFormDemo() {
                   placeholder="you@example.com"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-3 py-2 text-sm rounded-full border border-muted outline-none focus:border-primary focus:ring-1 focus:ring-ring transition-all duration-200 text-foreground placeholder:text-muted-foreground bg-card"
+                  className="w-full pl-10 pr-3 py-2 text-sm rounded-full border border-muted outline-none focus:border-primary focus:ring-1 focus:ring-ring transition-all duration-200 text-foreground placeholder:text-muted-foreground bg-transparent"
                   required
                 />
               </div>
@@ -183,7 +183,7 @@ export default function RegisterFormDemo() {
                   placeholder="Create a strong password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full pl-10 pr-10 py-2 text-sm rounded-full border border-muted outline-none focus:border-primary focus:ring-1 focus:ring-ring transition-all duration-200 text-foreground placeholder:text-muted-foreground bg-card"
+                  className="w-full pl-10 pr-10 py-2 text-sm rounded-full border border-muted outline-none focus:border-primary focus:ring-1 focus:ring-ring transition-all duration-200 text-foreground placeholder:text-muted-foreground bg-transparent"
                   required
                   minLength={8}
                 />
