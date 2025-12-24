@@ -130,7 +130,7 @@ export default function SidebarLayout() {
       {/* SIDEBAR */}
       <aside
         className={`fixed lg:static z-50 h-full w-64
-        bg-primary text-primary-foreground
+        bg-secondary text-primary-foreground
         px-6 py-8
         transform transition-transform duration-300
         ${open ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
@@ -157,7 +157,7 @@ export default function SidebarLayout() {
                   transition-all duration-200
                   ${
                     isActive
-                      ? "bg-background text-primary shadow-md"
+                      ? "bg-background text-secondary shadow-md"
                       : "text-white/80 hover:bg-white/15 hover:text-white"
                   }
                 `
