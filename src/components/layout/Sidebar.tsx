@@ -95,6 +95,7 @@
 //   );
 // }
 
+
 import { Outlet, NavLink } from "react-router-dom";
 import { useState } from "react";
 import Navbar from "./Navabr";
@@ -129,18 +130,22 @@ export default function SidebarLayout() {
 
       {/* SIDEBAR */}
       <aside
-        className={`fixed lg:static z-50 h-full w-64
-        bg-secondary text-primary-foreground
-        px-6 py-8
-        transform transition-transform duration-300
-        ${open ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
+        className={`
+          fixed lg:static z-50 h-full w-64
+          bg-secondary text-primary-foreground
+          px-6 py-8
+          flex flex-col
+          transform transition-transform duration-300
+          ${open ? "translate-x-0" : "-translate-x-full"}
+          lg:translate-x-0
+        `}
       >
-        {/* TITLE */}
+        {/* BRAND / TITLE */}
         <h1 className="text-lg font-semibold tracking-wide mb-10">
-          Faculty Panel
+          Lorenta Ventures
         </h1>
 
-        {/* NAV */}
+        {/* NAVIGATION */}
         <nav className="flex flex-col gap-3">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -158,32 +163,35 @@ export default function SidebarLayout() {
                   ${
                     isActive
                       ? "bg-background text-secondary shadow-md"
-                      : "text-white/80 hover:bg-white/15 hover:text-white"
+                      : "text-primary-foreground/80 hover:bg-white/15 hover:text-primary-foreground"
                   }
                 `
                 }
               >
-                <Icon
-                  size={18}
-                  className="shrink-0"
-                />
+                <Icon size={18} className="shrink-0" />
                 <span>{item.label}</span>
               </NavLink>
             );
           })}
         </nav>
 
-        {/* LOGOUT */}
-        <div className="mt-auto pt-10">
+        {/* LOGOUT (STUCK TO BOTTOM) */}
+        <div className="mt-auto pt-8">
           <button
             className="
               flex items-center gap-3
               w-full px-5 py-3 rounded-full text-sm font-medium
-              text-white/80
-              hover:bg-white/15 hover:text-white
+              text-primary-foreground/80
+              hover:bg-white/15 hover:text-primary-foreground
               transition
             "
             onClick={() => {
+              // 🔴 API LOGOUT (ADD LATER)
+              /*
+              await apiRequest("/logout", "POST")
+              clearAuth()
+              navigate("/login")
+              */
               console.log("Logout clicked");
             }}
           >
@@ -193,7 +201,7 @@ export default function SidebarLayout() {
         </div>
       </aside>
 
-      {/* MAIN */}
+      {/* MAIN CONTENT */}
       <div className="flex-1 flex flex-col">
         <Navbar onMenuClick={() => setOpen(true)} />
         <main className="flex-1 bg-background p-4 sm:p-6 overflow-auto">
