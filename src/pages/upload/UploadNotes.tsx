@@ -5,6 +5,8 @@ import {
   Book,
   Languages,
   FolderOpen,
+  Upload,
+  X,
 } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -15,7 +17,7 @@ import {
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
 
-/* ---------------- TYPES ---------------- */
+/* ================= TYPES ================= */
 
 interface UploadFile {
   name: string;
@@ -24,17 +26,14 @@ interface UploadFile {
   file: File;
 }
 
-interface InputBlockProps {
-  label: string;
-  children: ReactNode;
-}
-
 interface InputFieldProps {
   id: string;
+  label: string;
+  placeholder?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
   icon?: ReactNode;
+  type?: string;
 }
 
 interface DropdownOption {
@@ -50,7 +49,7 @@ interface DropdownBlockProps {
   options: DropdownOption[];
 }
 
-/* ---------------- MAIN ---------------- */
+/* ================= MAIN ================= */
 
 export default function UploadNotes() {
   const [formData, setFormData] = useState({
@@ -61,8 +60,10 @@ export default function UploadNotes() {
     language: "",
   });
 
-  const [files, setFiles] = useState<UploadFile[]>([]);
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [file, setFile] = useState<UploadFile | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  /* ---------- HANDLERS ---------- */
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -74,105 +75,113 @@ export default function UploadNotes() {
     setFormData({ ...formData, [field]: value });
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (files.length > 0) {
+  const handleFileSelect = (uploaded: File) => {
+    if (file) {
       toast.error("Only one file allowed");
       return;
     }
 
-    if (file.size > 25 * 1024 * 1024) {
+    if (uploaded.size > 25 * 1024 * 1024) {
       toast.error("Max file size is 25MB");
       return;
     }
 
     const newFile: UploadFile = {
-      name: file.name,
-      size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+      name: uploaded.name,
+      size: `${(uploaded.size / (1024 * 1024)).toFixed(1)} MB`,
       progress: 0,
-      file,
+      file: uploaded,
     };
 
-    setFiles([newFile]);
-    simulateProgress(newFile);
-
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    setFile(newFile);
+    simulateProgress();
   };
 
-  const simulateProgress = (fileData: UploadFile) => {
-    let progress = 0;
+  const simulateProgress = () => {
+    let p = 0;
     const interval = setInterval(() => {
-      progress += 10;
-      if (progress >= 100) {
-        progress = 100;
+      p += 10;
+      if (p >= 100) {
+        p = 100;
         clearInterval(interval);
       }
-      setFiles((prev) =>
-        prev.map((f) =>
-          f.name === fileData.name ? { ...f, progress } : f
-        )
-      );
-    }, 200);
+      setFile((prev) => (prev ? { ...prev, progress: p } : prev));
+    }, 120);
   };
 
-  const removeFile = () => setFiles([]);
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const dropped = e.dataTransfer.files[0];
+    if (dropped) handleFileSelect(dropped);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.courseTitle || !formData.pucYear || !formData.subject || !formData.language) {
+    if (
+      !formData.courseTitle ||
+      !formData.pucYear ||
+      !formData.subject ||
+      !formData.language
+    ) {
       toast.error("Fill all required fields");
       return;
     }
 
-    if (files.length === 0) {
+    if (!file) {
       toast.error("Upload one file");
       return;
     }
 
+    // 🔴 API CALL (ADD LATER)
+    /*
+    const form = new FormData();
+    Object.entries(formData).forEach(([k, v]) => form.append(k, v));
+    form.append("file", file.file);
+
+    apiRequest("/notes/upload", "POST", form);
+    */
+
     toast.success("Notes uploaded successfully");
-    setFiles([]);
+    setFile(null);
   };
 
+  /* ================= UI ================= */
+
   return (
-    <div className="w-full min-h-screen p-4 sm:p-6 bg-background">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="h-[calc(100vh-64px)]  sm:overflow-auto bg-background p-4 sm:p-6">
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto"
+      >
+        {/* LEFT FORM */}
+        <div className="space-y-4">
+          <h1 className="text-2xl font-bold text-foreground">
+            Upload Notes
+          </h1>
 
-        {/* LEFT */}
-        <div className="space-y-5">
-          <h1 className="text-2xl font-bold text-foreground">Upload Notes</h1>
-          <p className="text-xs text-muted-foreground">
-            Attach notes for students
-          </p>
+          <InputField
+            id="courseTitle"
+            label="Course Title *"
+            placeholder="Enter course title"
+            value={formData.courseTitle}
+            onChange={handleChange}
+            icon={<Book className="w-4 h-4" />}
+          />
 
-          <InputBlock label="Course Title *">
-            <InputField
-              id="courseTitle"
-              value={formData.courseTitle}
-              onChange={handleChange}
-              placeholder="Enter course title"
-              icon={<Book className="w-4 h-4" />}
-            />
-          </InputBlock>
-
-          <InputBlock label="Description">
+          <div className="space-y-1">
+            <label className="block w-full px-3 py-1 rounded-md text-xs font-semibold">
+              Description
+            </label>
             <textarea
               id="description"
               value={formData.description}
               onChange={handleChange}
-              placeholder="Write something..."
-              className="w-full h-28 px-4 py-2 text-sm rounded-xl
-                         border border-muted bg-card
-                         outline-none focus:border-primary
-                         focus:ring-1 focus:ring-ring
-                         transition resize-none
-                         placeholder:text-muted-foreground"
+              className="w-full h-28 px-4 py-2 rounded-xl bg-transparent border border-muted outline-none focus:border-primary focus:ring-1 focus:ring-ring resize-none"
             />
-          </InputBlock>
+          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 gap-4">
             <DropdownBlock
               label="PUC Year *"
               current={formData.pucYear || "Select Year"}
@@ -211,8 +220,13 @@ export default function UploadNotes() {
           />
         </div>
 
-        {/* RIGHT */}
-        <div className="p-6 rounded-3xl border border-muted shadow-lg">
+        {/* RIGHT UPLOAD (FIXED UI) */}
+        <div
+          onDrop={handleDrop}
+          onDragOver={(e) => e.preventDefault()}
+          className="border border-border rounded-3xl p-6 flex flex-col"
+        >
+          {/* TITLE */}
           <h3 className="text-lg font-semibold text-foreground text-center">
             Upload File
           </h3>
@@ -220,112 +234,102 @@ export default function UploadNotes() {
             Only one file allowed
           </p>
 
-          <label className="block cursor-pointer">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf,.doc,.docx,.ppt,.pptx"
-              onChange={handleFileUpload}
-              className="hidden"
-            />
-            <div className="p-10 border-2 border-dashed border-muted
-                            rounded-xl text-center hover:border-primary transition">
-              <span className="text-primary font-medium">Click to upload</span>
-              <p className="text-xs text-muted-foreground">(Max 25MB)</p>
-            </div>
-          </label>
+          {/* UPLOAD BOX (ALWAYS VISIBLE) */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            hidden
+            accept=".pdf,.doc,.docx,.ppt,.pptx,.image/*,.photo/*"
+            onChange={(e) =>
+              e.target.files && handleFileSelect(e.target.files[0])
+            }
+          />
 
-          {/* RESERVED FILE SPACE */}
+          <div
+            onClick={() => fileInputRef.current?.click()}
+            className="border-2 border-dashed border-border rounded-xl p-10 text-center cursor-pointer hover:border-primary transition"
+          >
+            <Upload className="mx-auto mb-2 text-primary" />
+            <p className="text-sm font-medium">Click to upload</p>
+            <p className="text-xs text-muted-foreground">(Max 25MB)</p>
+          </div>
+
+          {/* FILE PREVIEW (BELOW BOX) */}
           <div className="min-h-[120px] mt-4">
-            {files.map((file) => (
-              <div
-                key={file.name}
-                className="p-4 bg-muted/20 rounded-xl border border-muted"
-              >
+            {file && (
+              <div className="p-4 rounded-xl border border-muted bg-primary/5 space-y-2">
                 <div className="flex justify-between items-center">
-                  <p className="text-sm font-medium truncate">{file.name}</p>
-                  <button onClick={removeFile} className="font-bold">✕</button>
+                  <p className="text-sm font-medium truncate">
+                    {file.name}
+                  </p>
+                  <button onClick={() => setFile(null)}>
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
 
-                <div className="w-full h-2 bg-muted/50 rounded-full mt-2">
+                <div className="h-2 bg-muted/40 rounded-full mt-2">
                   <div
-                    style={{ width: `${file.progress}%` }}
                     className="h-2 bg-primary rounded-full transition-all"
+                    style={{ width: `${file.progress}%` }}
                   />
                 </div>
 
-                <p className="text-xs text-right mt-1">{file.progress}%</p>
+                <p className="text-xs text-right mt-1">
+                  {file.progress}%
+                </p>
               </div>
-            ))}
+            )}
           </div>
 
-          {/* BUTTONS */}
-          <div className="flex gap-4 mt-6">
-            <button
-              onClick={removeFile}
-              className="w-1/2 py-3 rounded-full bg-muted hover:bg-muted/80 transition"
-            >
-              Cancel
-            </button>
-
-            <button
-              onClick={handleSubmit}
-              className="w-1/2 py-3 rounded-full bg-primary
-                         text-primary-foreground font-semibold
-                         hover:bg-primary/90 transition"
-            >
-              Upload Notes
-            </button>
-          </div>
+          {/* BUTTON */}
+          <button
+            type="submit"
+            className="mt-auto py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:opacity-90 transition"
+          >
+            Upload Notes
+          </button>
         </div>
+      </form>
+    </div>
+  );
+}
+
+/* ================= REUSABLE ================= */
+
+function InputField({
+  id,
+  label,
+  placeholder,
+  value,
+  onChange,
+  icon,
+  type = "text",
+}: InputFieldProps) {
+  return (
+    <div className="space-y-1 group">
+      <label className="block w-full px-3 py-1 rounded-md text-xs font-semibold ">
+        {label}
+      </label>
+
+      <div className="relative">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-primary transition-colors">
+          {icon}
+        </span>
+
+        <input
+          id={id}
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          className="w-full pl-10 pr-3 py-2 text-sm rounded-full bg-transparent border border-muted outline-none focus:border-primary focus:ring-1 focus:ring-ring"
+        />
       </div>
     </div>
   );
 }
 
-/* ---------------- REUSABLE ---------------- */
-
-function InputBlock({ label, children }: InputBlockProps) {
-  return (
-    <div className="space-y-1">
-      <label className="text-xs font-semibold">{label}</label>
-      {children}
-    </div>
-  );
-}
-
-function InputField({
-  id,
-  value,
-  onChange,
-  placeholder,
-  icon,
-}: InputFieldProps) {
-  const isFilled = value.length > 0;
-
-  return (
-    <div className="relative group">
-      <span
-        className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors
-        ${isFilled ? "text-primary/60" : "text-muted"}
-        group-focus-within:text-primary`}
-      >
-        {icon}
-      </span>
-
-      <input
-        id={id}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className={`w-full pl-10 pr-3 py-2 text-sm rounded-full outline-none transition
-          ${isFilled ? "border border-primary/40 bg-primary/5" : "border border-muted bg-card"}
-          focus:border-primary focus:ring-1 focus:ring-ring`}
-      />
-    </div>
-  );
-}
-
+/* ---------- DROPDOWN ---------- */
 function DropdownBlock({
   label,
   current,
@@ -333,39 +337,74 @@ function DropdownBlock({
   onSelect,
   options,
 }: DropdownBlockProps) {
-  const isSelected = !current.toLowerCase().startsWith("select");
-
   return (
-    <div className="space-y-1">
-      <label className="text-xs font-semibold">{label}</label>
+    <div className="space-y-1 group">
+      {/* LABEL */}
+      <label className="text-xs font-semibold text-foreground">
+        {label}
+      </label>
 
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
-            className={`relative group w-full pl-10 pr-3 py-2 rounded-full text-left text-sm outline-none transition
-              ${isSelected ? "border border-primary/40 bg-primary/5" : "border border-muted bg-card"}
-              data-[state=open]:border-primary data-[state=open]:ring-1 data-[state=open]:ring-ring`}
+            type="button"
+            className="
+              relative w-full pl-10 pr-10 py-2 rounded-full
+              text-left text-sm
+              bg-transparent border border-muted
+              outline-none transition
+              focus:border-primary focus:ring-1 focus:ring-ring
+            "
           >
+            {/* ICON */}
             <span
-              className={`absolute left-3 top-1/2 -translate-y-1/2 transition-colors
-                ${isSelected ? "text-primary/60" : "text-muted"}
-                group-data-[state=open]:text-primary`}
+              className="
+                absolute left-3 top-1/2 -translate-y-1/2
+                text-muted transition-colors
+                group-focus-within:text-primary
+              "
             >
               {icon}
             </span>
 
-            <span className={isSelected ? "text-foreground" : "text-muted-foreground"}>
+            {/* VALUE */}
+            <span
+              className={
+                current.startsWith("Select")
+                  ? "text-muted-foreground"
+                  : "text-foreground"
+              }
+            >
               {current}
+            </span>
+
+            {/* CHEVRON */}
+            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted">
+              ▼
             </span>
           </button>
         </DropdownMenuTrigger>
 
-        <DropdownMenuContent className="bg-card border-muted">
+        {/* DROPDOWN CONTENT */}
+        <DropdownMenuContent
+          className="
+            w-[var(--radix-dropdown-menu-trigger-width)]
+            bg-background border border-muted
+            rounded-xl shadow-lg
+          "
+        >
           {options.map((o) => (
             <DropdownMenuItem
               key={o.value}
               onClick={() => onSelect(o.value)}
-              className="hover:bg-primary/10 cursor-pointer"
+              className="
+                cursor-pointer
+                text-foreground
+                hover:bg-primary/10
+                focus:bg-primary/10
+                data-[highlighted]:bg-primary/10
+                data-[highlighted]:text-foreground
+              "
             >
               {o.label}
             </DropdownMenuItem>
