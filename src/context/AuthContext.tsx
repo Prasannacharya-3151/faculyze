@@ -33,9 +33,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       try {
-        const res = await apiRequest("/auth/me", "GET", null, token as any);
+        const res = await apiRequest("/faculty/me", "GET", null, token);
         setUser(res.user);
-      } catch {
+      } catch  {
         logout();
       } finally {
         setAuthChecked(true);

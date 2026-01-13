@@ -1,4 +1,5 @@
-export const API_BASE = "https://unfearingly-heterozygous-brittny.ngrok-free.dev"
+// export const API_BASE = "https://unfearingly-heterozygous-brittny.ngrok-free.dev"
+export const API_BASE = "https://sv0gotfhtb.execute-api.ap-south-1.amazonaws.com/Prod"
 export async function apiRequest(
   endpoint: string,
   method: string = "GET",
@@ -21,7 +22,6 @@ if (res.status === 204 || res.headers.get("content-length") === "0") {
 }
 
   const data = await res.json().catch(() => ({}));
-
   if (!res.ok) throw new Error(data.message || "Something went wrong");
 
   return data;

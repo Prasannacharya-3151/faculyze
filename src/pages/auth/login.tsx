@@ -52,13 +52,14 @@ export default function LoginFormDemo() {
       throw new Error("Access token missing from server");
     }
 
-    // Create minimal user object
-    const user = {
-      email: formData.email,
-    };
+    // // Create minimal user object
+    // const user = {
+    //   email: formData.email,
+    // };
 
-    // Save in AuthContext
-    login(user, accessToken);
+    // // Save in AuthContext
+    // login(user, accessToken);
+    login(accessToken);
 
     toast.success("Login successful!");
 
