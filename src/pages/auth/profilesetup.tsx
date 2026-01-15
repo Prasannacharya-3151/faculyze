@@ -6,12 +6,14 @@ import {
   BookOpen,
   Users,
   School,
+  ChevronDown,
+  Check,
+  X,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
 import { useAuth } from "../../context/AuthContext";
@@ -29,6 +31,7 @@ interface InputFieldProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   icon?: ReactNode;
   type?: string;
+  disabled?: boolean;
 }
 
 interface DropdownOption {
@@ -47,10 +50,43 @@ interface DropdownBlockProps {
 /* ---------- MAIN ---------- */
 
 export default function ProfileSetup() {
-  const { user, token } = useAuth();
+  const { user, token, refreshUser } = useAuth();
   const navigate = useNavigate();
 
-  const firstLetter = user?.username?.charAt(0).toUpperCase() || "";
+  // State for user data - maintain even after refresh
+  const [userData, setUserData] = useState({
+    username: "",
+    email: "",
+    profile_completed: false,
+  });
+
+  // Initialize user data from context or localStorage
+  useEffect(() => {
+    if (user) {
+      setUserData({
+        username: user.username || "",
+        email: user.email || "",
+        profile_completed: user.profile_completed || false,
+      });
+    } else {
+      // Try to get from localStorage as fallback
+      const savedUser = localStorage.getItem("user");
+      if (savedUser) {
+        try {
+          const parsedUser = JSON.parse(savedUser);
+          setUserData({
+            username: parsedUser.username || "",
+            email: parsedUser.email || "",
+            profile_completed: parsedUser.profile_completed || false,
+          });
+        } catch (error) {
+          console.error("Error parsing saved user:", error);
+        }
+      }
+    }
+  }, [user]);
+
+  const firstLetter = userData?.username?.charAt(0).toUpperCase() || "U";
 
   const [formData, setFormData] = useState({
     gender: "",
@@ -64,61 +100,99 @@ export default function ProfileSetup() {
   const [subjectsLoading, setSubjectsLoading] = useState(false);
   const [availableSubjects, setAvailableSubjects] = useState<string[]>([]);
   const [subjectError, setSubjectError] = useState("");
-  const [showSubjectPicker, setShowSubjectPicker] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   /* ---------- REDIRECT IF PROFILE ALREADY DONE ---------- */
   useEffect(() => {
-    if (user?.profile_completed) {
+    if (userData.profile_completed) {
       navigate("/", { replace: true });
     }
-  }, [user, navigate]);
+  }, [userData.profile_completed, navigate]);
+
+  /* ---------- PERSIST FORM DATA TO LOCALSTORAGE ---------- */
+  useEffect(() => {
+    // Save form data to localStorage
+    localStorage.setItem("profileFormData", JSON.stringify(formData));
+  }, [formData]);
+
+  /* ---------- LOAD SAVED FORM DATA ON MOUNT ---------- */
+  useEffect(() => {
+    const savedFormData = localStorage.getItem("profileFormData");
+    if (savedFormData) {
+      try {
+        const parsedData = JSON.parse(savedFormData);
+        setFormData(prev => ({
+          ...prev,
+          ...parsedData,
+          // Ensure subjects is always an array
+          subjects: Array.isArray(parsedData.subjects) ? parsedData.subjects : []
+        }));
+      } catch (error) {
+        console.error("Error parsing saved form data:", error);
+      }
+    }
+  }, []);
+
+  /* ---------- FETCH SUBJECTS ON MOUNT ---------- */
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      if (!token) return;
+      
+      setSubjectsLoading(true);
+      setSubjectError("");
+
+      try {
+        const res = await fetch(`${API_BASE}/faculty/subjects`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP error! status: ${res.status}`);
+        }
+
+        const data = await res.json();
+        
+        console.log("Subjects API Response:", data);
+        
+        if (data?.data?.subjects && Array.isArray(data.data.subjects)) {
+          setAvailableSubjects(data.data.subjects);
+        } else if (data?.subjects && Array.isArray(data.subjects)) {
+          setAvailableSubjects(data.subjects);
+        } else {
+          setSubjectError("No subjects available");
+        }
+      } catch (err: any) {
+        console.error("Error fetching subjects:", err);
+        setSubjectError("Failed to load subjects. Please try again.");
+      } finally {
+        setSubjectsLoading(false);
+      }
+    };
+
+    fetchSubjects();
+  }, [token]);
 
   /* ---------- HANDLERS ---------- */
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value });
+    const { id, value } = e.target;
+    setFormData(prev => ({ ...prev, [id]: value }));
   };
 
   const handleDropdown = (
     field: keyof typeof formData,
     value: string
   ) => {
-    setFormData({ ...formData, [field]: value });
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  /* ---------- FETCH SUBJECTS ---------- */
-
-  const handleAddSubjects = async () => {
-    setShowSubjectPicker(true);
-    setSubjectsLoading(true);
-    setSubjectError("");
-    setAvailableSubjects([]);
-
-    try {
-      const res = await fetch(`${API_BASE}/faculty/subjects`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) throw new Error();
-
-      const data = await res.json();
-
-      if (!data?.subjects || data.subjects.length === 0) {
-        setSubjectError("Subjects not available right now");
-      } else {
-        setAvailableSubjects(data.subjects);
-      }
-    } catch {
-      setSubjectError("Subjects not available right now");
-    } finally {
-      setSubjectsLoading(false);
-    }
-  };
+  /* ---------- SUBJECT HANDLERS ---------- */
 
   const toggleSubject = (subject: string) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       subjects: prev.subjects.includes(subject)
         ? prev.subjects.filter((s) => s !== subject)
@@ -126,11 +200,21 @@ export default function ProfileSetup() {
     }));
   };
 
+  const handleRemoveSubject = (subject: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent dropdown from opening
+    setFormData(prev => ({
+      ...prev,
+      subjects: prev.subjects.filter((s) => s !== subject),
+    }));
+  };
+
   /* ---------- SUBMIT ---------- */
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
+    // Validation
     if (
       !formData.phone_number ||
       !formData.qualification ||
@@ -139,6 +223,7 @@ export default function ProfileSetup() {
       formData.subjects.length === 0
     ) {
       toast.error("All fields are mandatory");
+      setIsSubmitting(false);
       return;
     }
 
@@ -152,8 +237,10 @@ export default function ProfileSetup() {
       subjects: formData.subjects,
     };
 
+    console.log("Submitting profile data:", payload);
+
     try {
-      const res = await fetch(`${API_BASE}/api/profile/update`, {
+      const res = await fetch(`${API_BASE}/faculty/profile/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -162,15 +249,27 @@ export default function ProfileSetup() {
         body: JSON.stringify(payload),
       });
 
+      const responseData = await res.json();
+
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.message || "Profile update failed");
+        throw new Error(responseData.message || "Profile update failed");
       }
 
-      toast.success("Profile updated successfully");
+      // Clear saved form data
+      localStorage.removeItem("profileFormData");
+      
+      // Update user context/profile completion status
+      if (refreshUser) {
+        await refreshUser();
+      }
+
+      toast.success("Profile updated successfully!");
       navigate("/", { replace: true });
     } catch (err: any) {
-      toast.error(err.message || "Profile update failed");
+      console.error("Profile update error:", err);
+      toast.error(err.message || "Profile update failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -190,22 +289,21 @@ export default function ProfileSetup() {
             </p>
           </div>
 
-          {/* AVATAR */}
-          <div className="flex justify-center">
+          {/* AVATAR & NAME */}
+          <div className="flex flex-col items-center gap-3 mb-6">
             <div className="w-24 h-24 rounded-full bg-primary text-primary-foreground
-              flex items-center justify-center text-3xl font-bold">
+              flex items-center justify-center text-3xl font-bold shadow-lg">
               {firstLetter}
             </div>
+            <div className="text-center">
+              <h2 className="text-lg font-semibold text-foreground">
+                {userData.username || ""}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {userData.email || ""}
+              </p>
+            </div>
           </div>
-
-          {/* NAME */}
-          <InputField
-            id="fullName"
-            label="Full Name"
-            value={user?.username || ""}
-            onChange={() => {}}
-            icon={<User className="w-4 h-4" />}
-          />
 
           {/* PHONE */}
           <InputField
@@ -214,7 +312,7 @@ export default function ProfileSetup() {
             placeholder="9876543210"
             value={formData.phone_number}
             onChange={handleChange}
-            icon={<Phone className="w-4 h-4" />}
+            icon={<Phone className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors duration-200" />}
           />
 
           {/* QUALIFICATION */}
@@ -224,67 +322,141 @@ export default function ProfileSetup() {
             placeholder="MSc Physics, B.Ed"
             value={formData.qualification}
             onChange={handleChange}
-            icon={<GraduationCap className="w-4 h-4" />}
+            icon={<GraduationCap className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors duration-200" />}
           />
 
-          {/* SUBJECTS */}
+          {/* SUBJECTS - ALL IN ONE INPUT FIELD */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold">Subjects</label>
+            <label className="text-xs font-semibold text-foreground flex items-center justify-between">
+              <span>Subjects *</span>
+              <span className="text-xs font-normal text-muted-foreground">
+                {formData.subjects.length} selected
+              </span>
+            </label>
 
-            <div className="flex flex-wrap gap-2">
-              {formData.subjects.map((s) => (
-                <span
-                  key={s}
-                  onClick={() => toggleSubject(s)}
-                  className="px-3 py-1 rounded-full text-xs
-                  bg-primary/10 text-primary cursor-pointer"
-                >
-                  {s} ✕
-                </span>
-              ))}
-            </div>
+            <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
+              <DropdownMenuTrigger asChild>
+                <div className="relative group">
+                  <div className="relative">
+                    {/* Selected subjects displayed inside the input */}
+                    <div className="w-full pl-5 pr-10 py-2.5 text-sm rounded-full
+                      border border-muted bg-transparent outline-none
+                      focus-within:border-primary focus-within:ring-1 focus-within:ring-ring
+                      cursor-pointer hover:bg-muted/5 transition-all duration-200
+                      min-h-[44px] flex items-center flex-wrap gap-1">
+                      
+                      {/* Icon */}
+                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
+                        <BookOpen className="w-4 h-4" />
+                      </div>
 
-            <button
-              type="button"
-              onClick={handleAddSubjects}
-              className="text-sm text-primary underline"
-            >
-              + Add Subjects
-            </button>
+                      {/* Selected subjects as chips */}
+                      {formData.subjects.length === 0 ? (
+                        <span className="text-muted-foreground pl-4">
+                          Select subjects
+                        </span>
+                      ) : (
+                        <div className="flex flex-wrap items-center gap-1 pl-4">
+                          {formData.subjects.slice(0, 3).map((subject) => (
+                            <span
+                              key={subject}
+                              className="inline-flex items-center gap-1 px-2 py-1 rounded-full 
+                                text-xs bg-primary/10 text-primary border border-primary/20
+                                whitespace-nowrap"
+                            >
+                              <span className="capitalize">{subject}</span>
+                              {/* <button
+                                type="button"
+                                onClick={(e) => handleRemoveSubject(subject, e)}
+                                className="text-primary hover:text-primary/70 focus:outline-none"
+                              >
+                                <X className="w-3 h-3" />
+                              </button> */}
+                            </span>
+                          ))}
+                          {formData.subjects.length > 3 && (
+                            <span className="text-xs text-muted-foreground">
+                              +{formData.subjects.length - 3} more
+                            </span>
+                          )}
+                        </div>
+                      )}
 
-            {subjectsLoading && (
-              <p className="text-xs text-muted-foreground">
-                Loading subjects…
-              </p>
-            )}
-
-            {subjectError && !subjectsLoading && (
-              <p className="text-xs text-muted-foreground">
-                {subjectError}
-              </p>
-            )}
-
-            {!subjectsLoading &&
-              !subjectError &&
-              showSubjectPicker &&
-              availableSubjects.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {availableSubjects.map((s) => (
-                    <button
-                      key={s}
-                      type="button"
-                      onClick={() => toggleSubject(s)}
-                      className={`px-3 py-1 rounded-full text-xs border ${
-                        formData.subjects.includes(s)
-                          ? "bg-primary text-primary-foreground"
-                          : "border-muted"
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  ))}
+                      {/* Dropdown arrow */}
+                      <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted 
+                        transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                  </div>
                 </div>
-              )}
+              </DropdownMenuTrigger>
+
+              {/* Subjects dropdown with checkboxes */}
+              <DropdownMenuContent
+                className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-64 overflow-y-auto 
+                  bg-background border border-muted rounded-xl shadow-lg p-2"
+                align="start"
+                sideOffset={4}
+              >
+                {subjectsLoading ? (
+                  <div className="flex items-center justify-center py-4">
+                    <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    <span className="ml-2 text-sm text-muted-foreground">Loading subjects...</span>
+                  </div>
+                ) : subjectError ? (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-destructive">{subjectError}</p>
+                  </div>
+                ) : availableSubjects.length === 0 ? (
+                  <div className="text-center py-4">
+                    <p className="text-sm text-muted-foreground">No subjects available</p>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    {availableSubjects.map((subject) => {
+                      const isSelected = formData.subjects.includes(subject);
+                      return (
+                        <div
+                          key={subject}
+                          className={`flex items-center gap-2 px-2 py-2 rounded-lg cursor-pointer
+                            transition-colors duration-150 ${isSelected ? 'bg-primary/10' : 'hover:bg-muted/50'}`}
+                          onClick={() => toggleSubject(subject)}
+                        >
+                          <div className={`w-4 h-4 flex items-center justify-center rounded border
+                            ${isSelected ? 'bg-primary border-primary' : 'border-muted'}`}>
+                            {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
+                          </div>
+                          <span className="text-sm text-foreground capitalize flex-1">
+                            {subject}
+                          </span>
+                          {isSelected && (
+                            <span className="text-xs text-primary font-medium">✓</span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+                
+                {formData.subjects.length > 0 && (
+                  <div className="mt-2 pt-2 border-t border-muted">
+                    <button
+                      type="button"
+                      onClick={() => setFormData(prev => ({ ...prev, subjects: [] }))}
+                      className="w-full text-xs text-destructive hover:text-destructive/80 
+                        py-1.5 px-2 rounded hover:bg-destructive/5 transition-colors"
+                    >
+                      Clear all selections
+                    </button>
+                  </div>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {formData.subjects.length === 0 && (
+              <p className="text-xs text-destructive mt-1">
+                Please select at least one subject
+              </p>
+            )}
           </div>
 
           {/* EXPERIENCE */}
@@ -323,12 +495,23 @@ export default function ProfileSetup() {
             ]}
           />
 
+          {/* SUBMIT BUTTON */}
           <button
             type="submit"
-            className="w-full bg-primary text-primary-foreground
-            font-semibold py-2.5 rounded-full shadow-md"
+            disabled={isSubmitting || formData.subjects.length === 0}
+            className="w-full bg-primary text-primary-foreground font-semibold 
+              py-2.5 rounded-full shadow-md hover:shadow-lg hover:opacity-90 
+              transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
+              disabled:hover:shadow-md mt-6"
           >
-            Save Profile
+            {isSubmitting ? (
+              <span className="flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Saving Profile...
+              </span>
+            ) : (
+              "Save Profile"
+            )}
           </button>
         </form>
       </div>
@@ -336,7 +519,7 @@ export default function ProfileSetup() {
   );
 }
 
-
+/* ---------- INPUT FIELD COMPONENT ---------- */
 function InputField({
   id,
   label,
@@ -345,200 +528,107 @@ function InputField({
   onChange,
   icon,
   type = "text",
+  disabled = false,
 }: InputFieldProps) {
   return (
-    <div className="space-y-1">
-      <label className="text-xs font-semibold">{label}</label>
+    <div className="space-y-1 group">
+      <label className="block w-full px-3 py-1 rounded-md text-xs font-semibold">
+        {label}
+      </label>
+
       <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-primary transition-colors">
           {icon}
         </span>
+
         <input
           id={id}
           type={type}
           placeholder={placeholder}
           value={value}
           onChange={onChange}
-          className="w-full pl-10 pr-3 py-2 text-sm rounded-full
-          bg-transparent border border-muted outline-none
-          focus:border-primary focus:ring-1 focus:ring-ring"
+          disabled={disabled}
+          className="w-full pl-10 pr-3 py-2 text-sm rounded-full bg-transparent border border-muted outline-none focus:border-primary focus:ring-1 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed"
         />
       </div>
     </div>
   );
 }
 
-/* ---------- DROPDOWN ---------- */
 
-
+/* ---------- DROPDOWN BLOCK COMPONENT ---------- */
 
 function DropdownBlock({
-
   label,
-
   current,
-
   icon,
-
   onSelect,
-
   options,
-
 }: DropdownBlockProps) {
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-
-    <div className="space-y-1 group">
-
-      {/* LABEL */}
-
+    <div className="space-y-1">
       <label className="text-xs font-semibold text-foreground">
-
         {label}
-
       </label>
 
-
-
-      <DropdownMenu>
-
+      <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
-
           <button
-
             type="button"
-
             className="
-
-              relative w-full pl-10 pr-10 py-2 rounded-full
-
+             relative w-full pl-10 pr-10 py-2 rounded-full
               text-left text-sm
-
               bg-transparent border border-muted
-
               outline-none transition
-
               focus:border-primary focus:ring-1 focus:ring-ring
-
+              disabled:opacity-50 disabled:cursor-not-allowed
             "
-
           >
-
             {/* ICON */}
-
-            <span
-
-              className="
-
-                absolute left-3 top-1/2 -translate-y-1/2
-
+            <span className=" absolute left-3 top-1/2 -translate-y-1/2
                 text-muted transition-colors
-
-                group-focus-within:text-primary
-
-              "
-
-            >
-
+                group-focus-within:text-primary">
               {icon}
-
             </span>
-
-
 
             {/* VALUE */}
-
-            <span
-
-              className={
-
-                current.startsWith("Select")
-
-                  ? "text-muted-foreground"
-
-                  : "text-foreground"
-
-              }
-
-            >
-
+            <span className={current.startsWith("Select") ? "text-muted-foreground" : "text-foreground"}>
               {current}
-
             </span>
-
-
 
             {/* CHEVRON */}
-
-            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted">
-
-              ▼
-
+            <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-muted transition-transform ${isOpen ? 'rotate-180' : ''}`}>
+              <ChevronDown className="w-4 h-4" />
             </span>
-
           </button>
-
         </DropdownMenuTrigger>
 
-
-
         {/* DROPDOWN CONTENT */}
-
         <DropdownMenuContent
-
-          className="
-
-            w-[var(--radix-dropdown-menu-trigger-width)]
-
-            bg-background border border-muted
-
-            rounded-xl shadow-lg
-
-          "
-
+          className="w-[var(--radix-dropdown-menu-trigger-width)] bg-background 
+            border border-muted rounded-xl shadow-lg p-1"
+          align="start"
+          sideOffset={4}
         >
-
           {options.map((o) => (
-
-            <DropdownMenuItem
-
+            <div
               key={o.value}
-
-              onClick={() => onSelect(o.value)}
-
+              onClick={() => {
+                onSelect(o.value);
+                setIsOpen(false);
+              }}
               className="
-
-                cursor-pointer
-
-                text-foreground
-
-                hover:bg-primary/10
-
-                focus:bg-primary/10
-
-                data-[highlighted]:bg-primary/10
-
-                data-[highlighted]:text-foreground
-
+                cursor-pointer px-3 py-2 rounded-lg text-sm text-foreground
+                hover:bg-primary/10 transition-colors duration-150
               "
-
             >
-
               {o.label}
-
-            </DropdownMenuItem>
-
+            </div>
           ))}
-
         </DropdownMenuContent>
-
       </DropdownMenu>
-
     </div>
-
   );
-
 }
-
-
-
