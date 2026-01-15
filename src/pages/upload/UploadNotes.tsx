@@ -7,7 +7,6 @@ import {
   Upload,
   X,
   Users,
-  User,
   Tag,
   Loader2,
   RefreshCw,
@@ -20,7 +19,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../../components/ui/dropdown-menu";
-import { apiRequest, API_BASE } from "../../lib/api"; // Import your existing apiRequest
+import { useAuth } from "../../context/AuthContext";
+import { apiRequest, API_BASE } from "../../lib/api";
 
 /* ================= TYPES ================= */
 
@@ -58,12 +58,6 @@ interface DropdownBlockProps {
   onRefresh?: () => void;
 }
 
-interface FacultySubject {
-  _id: string;
-  subject_name: string;
-  subject_code: string;
-}
-
 interface UploadResponse {
   success: boolean;
   message: string;
@@ -82,7 +76,7 @@ const getAuthToken = () => {
   return "";
 };
 
-const getFacultySubjects = async (): Promise<FacultySubject[]> => {
+const getFacultySubjects = async (): Promise<string[]> => {
   try {
     const token = getAuthToken();
     const response = await apiRequest(
@@ -92,7 +86,17 @@ const getFacultySubjects = async (): Promise<FacultySubject[]> => {
       token
     );
     
-    return response.data || response || [];
+    console.log("Faculty subjects response:", response);
+    
+    if (response?.data?.subjects && Array.isArray(response.data.subjects)) {
+      return response.data.subjects;
+    } else if (response?.subjects && Array.isArray(response.subjects)) {
+      return response.subjects;
+    } else if (response?.data && Array.isArray(response.data)) {
+      return response.data.map((subject: any) => subject.subject_name || subject.name || subject);
+    }
+    
+    return [];
   } catch (error) {
     console.error("Error fetching faculty subjects:", error);
     throw error;
@@ -102,9 +106,6 @@ const getFacultySubjects = async (): Promise<FacultySubject[]> => {
 const uploadNotes = async (formData: FormData): Promise<UploadResponse> => {
   try {
     const token = getAuthToken();
-    
-    
-   
     
     const response = await fetch(`${API_BASE}/files/upload`, {
       method: "POST",
@@ -130,13 +131,13 @@ const uploadNotes = async (formData: FormData): Promise<UploadResponse> => {
 /* ================= MAIN COMPONENT ================= */
 
 export default function UploadNotes() {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     courseTitle: "",
     description: "",
     grade: "",
     subject: "",
     category: "",
-    facultyId: "",
     allowedGroups: "",
   });
 
@@ -144,7 +145,6 @@ export default function UploadNotes() {
   const [subjects, setSubjects] = useState<DropdownOption[]>([]);
   const [isLoadingSubjects, setIsLoadingSubjects] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [facultyId, setFacultyId] = useState("");
   const [subjectError, setSubjectError] = useState("");
   
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -152,30 +152,17 @@ export default function UploadNotes() {
   /* ---------- EFFECTS ---------- */
 
   useEffect(() => {
-    const fetchFacultyId = () => {
-      if (typeof window !== 'undefined') {
-        const userData = localStorage.getItem("user");
-        const token = localStorage.getItem("token");
-        
-        if (userData) {
-          try {
-            const user = JSON.parse(userData);
-            const facultyId = user._id || user.id || user.facultyId || "";
-            setFacultyId(facultyId);
-            setFormData(prev => ({ ...prev, facultyId }));
-          } catch (error) {
-            console.error("Error parsing user data:", error);
-          }
-        }
-        
-        if (!token) {
-          toast.error("Please login to upload notes");
-        }
+    const fetchFacultyData = async () => {
+      const token = getAuthToken();
+      if (!token) {
+        toast.error("Please login to upload notes");
+        return;
       }
+
+      await fetchFacultySubjects();
     };
 
-    fetchFacultyId();
-    fetchFacultySubjects();
+    fetchFacultyData();
   }, []);
 
   /* ---------- HANDLERS ---------- */
@@ -186,9 +173,9 @@ export default function UploadNotes() {
     try {
       const facultySubjects = await getFacultySubjects();
       
-      const subjectOptions = facultySubjects.map((subject: FacultySubject) => ({
-        label: subject.subject_name,
-        value: subject.subject_name,
+      const subjectOptions = facultySubjects.map((subject: string) => ({
+        label: subject.charAt(0).toUpperCase() + subject.slice(1),
+        value: subject,
       }));
 
       setSubjects(subjectOptions);
@@ -198,12 +185,19 @@ export default function UploadNotes() {
       }
       
       if (subjectOptions.length === 0) {
-        setSubjectError("No subjects assigned to your faculty account");
+        setSubjectError("No subjects available. Please complete your profile setup first.");
+        toast.warning("No subjects found. Please complete your profile to select subjects.");
       }
     } catch (error: any) {
       const errorMessage = error.message || "Failed to load subjects";
       setSubjectError(errorMessage);
-      toast.error(`Failed to load subjects: ${errorMessage}`);
+      
+      if (errorMessage.includes("401") || errorMessage.includes("unauthorized")) {
+        toast.error("Session expired. Please login again.");
+      } else {
+        toast.error(`Failed to load subjects: ${errorMessage}`);
+      }
+      
       console.error("Error loading subjects:", error);
     } finally {
       setIsLoadingSubjects(false);
@@ -271,8 +265,8 @@ export default function UploadNotes() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!facultyId) {
-      toast.error("Faculty ID not found. Please login again.");
+    if (subjects.length === 0) {
+      toast.error("No subjects available. Please complete your profile setup first.");
       return;
     }
 
@@ -281,7 +275,6 @@ export default function UploadNotes() {
       "grade",
       "subject",
       "category",
-      "facultyId",
       "allowedGroups",
     ] as const;
 
@@ -314,7 +307,6 @@ export default function UploadNotes() {
       uploadFormData.append("grade", formData.grade);
       uploadFormData.append("subject", formData.subject);
       uploadFormData.append("category", formData.category);
-      uploadFormData.append("faculty_id", formData.facultyId);
       uploadFormData.append("group_allowed", formData.allowedGroups);
       uploadFormData.append("file", file.file);
       
@@ -333,6 +325,15 @@ export default function UploadNotes() {
       
       uploadFormData.append("file_type", fileTypeMap[fileExtension] || 'document');
 
+      console.log("Uploading file with data:", {
+        file_name: formData.courseTitle,
+        subject: formData.subject,
+        category: formData.category,
+        grade: formData.grade,
+        group_allowed: formData.allowedGroups,
+        file_type: fileTypeMap[fileExtension] || 'document'
+      });
+
       const response = await uploadNotes(uploadFormData);
 
       if (response.success) {
@@ -344,12 +345,9 @@ export default function UploadNotes() {
           grade: "",
           subject: "",
           category: "",
-          facultyId: facultyId,
           allowedGroups: "",
         });
         setFile(null);
-        
-        fetchFacultySubjects();
         
         console.log("File uploaded successfully:", response.data);
       } else {
@@ -390,7 +388,7 @@ export default function UploadNotes() {
 
           {/* Description */}
           <div className="space-y-1">
-            <label className="block w-full px-3 py-1 rounded-md text-xs font-semibold">
+            <label className="text-xs font-semibold text-foreground">
               Description
             </label>
             <textarea
@@ -424,56 +422,42 @@ export default function UploadNotes() {
               onSelect={(v) => handleDropdown("subject", v)}
               options={subjects}
               loading={isLoadingSubjects}
-              disabled={isUploading}
+              disabled={isUploading || subjects.length === 0}
               onRefresh={fetchFacultySubjects}
             />
           </div>
 
-          
-
-          {/* Category and Faculty ID */}
-          <div className="grid sm:grid-cols-2 gap-4">
-            <DropdownBlock
-              label="Category *"
-              current={formData.category || "Select Category"}
-              icon={<Tag className="w-4 h-4" />}
-              onSelect={(v) => handleDropdown("category", v)}
-              options={[
-                { label: "Toppers", value: "Toppers" },
-                { label: "High Achievers", value: "High Achievers" },
-                { label: "Medium Students", value: "Medium Students" },
-                { label: "Low Students", value: "Low Students" },
-                { label: "Beginner Level", value: "Beginner Level" },
-                { label: "Intermediate Level", value: "Intermediate Level" },
-                { label: "Advanced Level", value: "Advanced Level" },
-              ]}
-              disabled={isUploading}
-            />
-
-            <div className="space-y-1">
-              <label className="block w-full px-3 py-1 rounded-md text-xs font-semibold">
-                Faculty ID *
-              </label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
-                  <User className="w-4 h-4" />
-                </span>
-                <input
-                  type="text"
-                  value={facultyId || "Not found"}
-                  readOnly
-                  className="w-full pl-10 pr-3 py-2 text-sm rounded-full bg-muted/20 border border-muted outline-none cursor-not-allowed"
-                />
-                <p className="text-xs text-muted-foreground mt-1 ml-3">
-                  {facultyId ? "Auto-filled from your profile" : "Please login to upload notes"}
-                </p>
-              </div>
+          {/* Subject Error Message */}
+          {subjectError && (
+            <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+              <p className="text-sm text-destructive">{subjectError}</p>
+              <p className="text-xs text-destructive/80 mt-1">
+                Please complete your profile setup to select subjects.
+              </p>
             </div>
-          </div>
+          )}
+
+          {/* Category */}
+          <DropdownBlock
+            label="Category *"
+            current={formData.category || "Select Category"}
+            icon={<Tag className="w-4 h-4" />}
+            onSelect={(v) => handleDropdown("category", v)}
+            options={[
+              { label: "Toppers", value: "Toppers" },
+              { label: "High Achievers", value: "High Achievers" },
+              { label: "Medium Students", value: "Medium Students" },
+              { label: "Low Students", value: "Low Students" },
+              { label: "Beginner Level", value: "Beginner Level" },
+              { label: "Intermediate Level", value: "Intermediate Level" },
+              { label: "Advanced Level", value: "Advanced Level" },
+            ]}
+            disabled={isUploading}
+          />
 
           {/* Allowed Groups */}
           <div className="space-y-1">
-            <label className="block w-full px-3 py-1 rounded-md text-xs font-semibold">
+            <label className="text-xs font-semibold text-foreground">
               Allowed Groups *
             </label>
             <div className="relative">
@@ -487,7 +471,7 @@ export default function UploadNotes() {
                 value={formData.allowedGroups}
                 onChange={handleChange}
                 disabled={isUploading}
-                className="w-full pl-10 pr-3 py-2 text-sm rounded-full bg-transparent border border-muted outline-none focus:border-primary focus:ring-1 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full pl-10 pr-3 py-2.5 text-sm rounded-full bg-transparent border border-muted outline-none focus:border-primary focus:ring-1 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
               />
               <p className="text-xs text-muted-foreground mt-1 ml-3">
                 Example: Group A, Group B, Group C
@@ -520,17 +504,23 @@ export default function UploadNotes() {
             onChange={(e) =>
               e.target.files && handleFileSelect(e.target.files[0])
             }
-            disabled={isUploading}
+            disabled={isUploading || subjects.length === 0}
           />
 
           <div
-            onClick={() => !isUploading && fileInputRef.current?.click()}
-            className={`border-2 border-dashed border-border rounded-xl p-10 text-center cursor-pointer hover:border-primary transition ${
-              isUploading ? "opacity-50 cursor-not-allowed" : ""
+            onClick={() => !isUploading && subjects.length > 0 && fileInputRef.current?.click()}
+            className={`border-2 border-dashed border-border rounded-xl p-10 text-center transition ${
+              isUploading || subjects.length === 0 
+                ? "opacity-50 cursor-not-allowed" 
+                : "cursor-pointer hover:border-primary"
             }`}
           >
-            <Upload className="mx-auto mb-2 text-primary" />
-            <p className="text-sm font-medium">Click to upload</p>
+            <Upload className={`mx-auto mb-2 ${
+              subjects.length === 0 ? "text-muted" : "text-primary"
+            }`} />
+            <p className="text-sm font-medium">
+              {subjects.length === 0 ? "Complete profile to upload" : "Click to upload"}
+            </p>
             <p className="text-xs text-muted-foreground">(Max 25MB)</p>
           </div>
 
@@ -566,25 +556,47 @@ export default function UploadNotes() {
             )}
           </div>
 
-          {/* UPLOAD STATUS */}
+          {/* SUBJECTS INFO */}
           <div className="mt-4 space-y-2">
-            {!facultyId && (
-              <p className="text-sm text-destructive text-center">
-                Please login to upload notes
-              </p>
+            {subjects.length > 0 && (
+              <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+                <p className="text-sm font-medium text-foreground mb-1">
+                  Your Selected Subjects ({subjects.length})
+                </p>
+                <div className="flex flex-wrap gap-1">
+                  {subjects.slice(0, 3).map((subject, index) => (
+                    <span
+                      key={index}
+                      className="px-2 py-1 rounded-full text-xs bg-primary/10 text-primary"
+                    >
+                      {subject.label}
+                    </span>
+                  ))}
+                  {subjects.length > 3 && (
+                    <span className="px-2 py-1 rounded-full text-xs bg-muted text-muted-foreground">
+                      +{subjects.length - 3} more
+                    </span>
+                  )}
+                </div>
+              </div>
             )}
             
-            {subjects.length === 0 && !isLoadingSubjects && !subjectError && (
-              <p className="text-sm text-muted-foreground text-center">
-                No subjects found for your faculty account
-              </p>
+            {subjects.length === 0 && !isLoadingSubjects && (
+              <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
+                <p className="text-sm text-destructive">
+                  No subjects available
+                </p>
+                <p className="text-xs text-destructive/80 mt-1">
+                  Please complete your profile setup to select subjects.
+                </p>
+              </div>
             )}
           </div>
 
           {/* BUTTON */}
           <button
             type="submit"
-            disabled={isUploading || !file || file.progress < 100 || !facultyId || subjects.length === 0}
+            disabled={isUploading || !file || file.progress < 100 || subjects.length === 0}
             className="mt-auto py-3 rounded-full bg-primary text-primary-foreground font-semibold hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isUploading ? (
@@ -592,6 +604,8 @@ export default function UploadNotes() {
                 <Loader2 className="w-4 h-4 animate-spin" />
                 Uploading...
               </>
+            ) : subjects.length === 0 ? (
+              "Complete Profile First"
             ) : (
               "Upload Notes"
             )}
@@ -621,16 +635,17 @@ function InputField({
   disabled = false,
 }: InputFieldProps) {
   return (
-    <div className="space-y-1 group">
-      <label className="block w-full px-3 py-1 rounded-md text-xs font-semibold">
+    <div className="space-y-1">
+      <label htmlFor={id} className="text-xs font-semibold text-foreground">
         {label}
       </label>
 
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-primary transition-colors">
-          {icon}
-        </span>
-
+      <div className="relative group">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <span className="text-muted group-focus-within:text-primary transition-colors duration-200">
+            {icon}
+          </span>
+        </div>
         <input
           id={id}
           type={type}
@@ -638,7 +653,7 @@ function InputField({
           value={value}
           onChange={onChange}
           disabled={disabled}
-          className="w-full pl-10 pr-3 py-2 text-sm rounded-full bg-transparent border border-muted outline-none focus:border-primary focus:ring-1 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full pl-10 pr-3 py-2.5 text-sm rounded-full bg-transparent border border-muted outline-none focus:border-primary focus:ring-1 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
         />
       </div>
     </div>
@@ -656,7 +671,7 @@ function DropdownBlock({
   onRefresh,
 }: DropdownBlockProps) {
   return (
-    <div className="space-y-1 group">
+    <div className="space-y-1">
       <div className="flex items-center justify-between">
         <label className="text-xs font-semibold text-foreground">
           {label}
@@ -680,27 +695,25 @@ function DropdownBlock({
             type="button"
             disabled={loading || disabled}
             className="
-              relative w-full pl-10 pr-10 py-2 rounded-full
+              relative w-full pl-10 pr-10 py-2.5 rounded-full
               text-left text-sm
               bg-transparent border border-muted
-              outline-none transition
+              outline-none transition-all duration-200
               focus:border-primary focus:ring-1 focus:ring-ring
+              hover:bg-muted/5
               disabled:opacity-50 disabled:cursor-not-allowed
+              group
             "
           >
-            <span
-              className="
-                absolute left-3 top-1/2 -translate-y-1/2
-                text-muted transition-colors
-                group-focus-within:text-primary
-              "
-            >
-              {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                icon
-              )}
-            </span>
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <span className="text-muted group-focus-within:text-primary transition-colors duration-200">
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  icon
+                )}
+              </span>
+            </div>
 
             <span
               className={
@@ -712,7 +725,7 @@ function DropdownBlock({
               {loading ? "Loading..." : current}
             </span>
 
-            {!loading && (
+            {!loading && !disabled && (
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted">
                 ▼
               </span>
@@ -756,3 +769,6 @@ function DropdownBlock({
     </div>
   );
 }
+
+
+// Backend will extract faculty_id from JWT token automatically
