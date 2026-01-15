@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from "react";
 import {
-  User,
   Phone,
   GraduationCap,
   BookOpen,
   Users,
-  School,
   ChevronDown,
   Check,
-  X,
 } from "lucide-react";
 import type { ReactNode } from "react";
 import {
@@ -94,7 +91,6 @@ export default function ProfileSetup() {
     experience: "",
     phone_number: "",
     subjects: [] as string[],
-    pucHandling: "",
   });
 
   const [subjectsLoading, setSubjectsLoading] = useState(false);
@@ -200,102 +196,70 @@ export default function ProfileSetup() {
     }));
   };
 
-  const handleRemoveSubject = (subject: string, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent dropdown from opening
-    setFormData(prev => ({
-      ...prev,
-      subjects: prev.subjects.filter((s) => s !== subject),
-    }));
-  };
-
   /* ---------- SUBMIT ---------- */
 
-/* ---------- SUBMIT ---------- */
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setIsSubmitting(true);
+    // Validation
+    if (
+      !formData.phone_number ||
+      !formData.qualification ||
+      !formData.gender ||
+      !formData.experience ||
+      formData.subjects.length === 0
+    ) {
+      toast.error("All fields are mandatory");
+      setIsSubmitting(false);
+      return;
+    }
 
-  // Debug: Log current form data
-  console.log("Current form data for validation:", {
-    phone_number: formData.phone_number,
-    qualification: formData.qualification,
-    gender: formData.gender,
-    experience: formData.experience,
-    subjects: formData.subjects,
-    subjectsLength: formData.subjects.length,
-    // pucHandling: formData.pucHandling // Not required but good to see
-  });
+    const payload = {
+      phone_number: formData.phone_number.startsWith("+")
+        ? formData.phone_number
+        : `+91${formData.phone_number}`,
+      qualification: formData.qualification,
+      experience: Number(formData.experience),
+      gender: formData.gender.toLowerCase(),
+      subjects: formData.subjects,
+    };
 
-  // Validation
-  if (
-    !formData.phone_number ||
-    !formData.qualification ||
-    !formData.gender ||
-    !formData.experience ||
-    formData.subjects.length === 0
-  ) {
-    console.log("Validation failed! Missing fields:");
-    if (!formData.phone_number) console.log("- phone_number");
-    if (!formData.qualification) console.log("- qualification");
-    if (!formData.gender) console.log("- gender");
-    if (!formData.experience) console.log("- experience");
-    if (formData.subjects.length === 0) console.log("- subjects");
-    
-    toast.error("All fields are mandatory");
-    setIsSubmitting(false);
-    return;
-  }
+    console.log("Submitting profile data:", payload);
 
-  console.log("All validation passed!");
+    try {
+      const res = await fetch(`${API_BASE}/faculty/profileupdate`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
-  const payload = {
-    phone_number: formData.phone_number.startsWith("+")
-      ? formData.phone_number
-      : `+91${formData.phone_number}`,
-    qualification: formData.qualification,
-    experience: Number(formData.experience),
-    gender: formData.gender.toLowerCase(),
-    subjects: formData.subjects,
-    // Add pucHandling if your backend expects it
-    // puc_handling: formData.pucHandling || "",
+      const responseData = await res.json();
+
+      if (!res.ok) {
+        throw new Error(responseData.message || "Profile update failed");
+      }
+
+      // Clear saved form data
+      localStorage.removeItem("profileFormData");
+      
+      // Update user context/profile completion status
+      if (refreshUser) {
+        await refreshUser();
+      }
+
+      toast.success("Profile updated successfully!");
+      navigate("/", { replace: true });
+    } catch (err: any) {
+      console.error("Profile update error:", err);
+      toast.error(err.message || "Profile update failed. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
-
-  console.log("Submitting profile data:", payload);
-
-  try {
-    const res = await fetch(`${API_BASE}/faculty/profileupdate`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
-
-    const responseData = await res.json();
-
-    if (!res.ok) {
-      throw new Error(responseData.message || "Profile update failed");
-    }
-
-    // Clear saved form data
-    localStorage.removeItem("profileFormData");
-    
-    // Update user context/profile completion status
-    if (refreshUser) {
-      await refreshUser();
-    }
-
-    toast.success("Profile updated successfully!");
-    navigate("/", { replace: true });
-  } catch (err: any) {
-    console.error("Profile update error:", err);
-    toast.error(err.message || "Profile update failed. Please try again.");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
 
   /* ---------- UI ---------- */
 
@@ -336,7 +300,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             placeholder="9876543210"
             value={formData.phone_number}
             onChange={handleChange}
-            icon={<Phone className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors duration-200" />}
+            icon={<Phone className="w-4 h-4" />}
           />
 
           {/* QUALIFICATION */}
@@ -346,7 +310,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             placeholder="MSc Physics, B.Ed"
             value={formData.qualification}
             onChange={handleChange}
-            icon={<GraduationCap className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors duration-200" />}
+            icon={<GraduationCap className="w-4 h-4" />}
           />
 
           {/* SUBJECTS - ALL IN ONE INPUT FIELD */}
@@ -389,13 +353,6 @@ const handleSubmit = async (e: React.FormEvent) => {
                                 whitespace-nowrap"
                             >
                               <span className="capitalize">{subject}</span>
-                              {/* <button
-                                type="button"
-                                onClick={(e) => handleRemoveSubject(subject, e)}
-                                className="text-primary hover:text-primary/70 focus:outline-none"
-                              >
-                                <X className="w-3 h-3" />
-                              </button> */}
                             </span>
                           ))}
                           {formData.subjects.length > 3 && (
@@ -507,18 +464,6 @@ const handleSubmit = async (e: React.FormEvent) => {
             ]}
           />
 
-          {/* PUC */}
-          {/* <DropdownBlock
-            label="PUC Handling"
-            current={formData.pucHandling || "Select PUC"}
-            icon={<School className="w-4 h-4" />}
-            onSelect={(v) => handleDropdown("pucHandling", v)}
-            options={[
-              { label: "1st PUC", value: "1st PUC" },
-              { label: "2nd PUC", value: "2nd PUC" },
-            ]}
-          /> */}
-
           {/* SUBMIT BUTTON */}
           <button
             type="submit"
@@ -542,6 +487,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     </div>
   );
 }
+
 /* ---------- INPUT FIELD COMPONENT ---------- */
 function InputField({
   id,

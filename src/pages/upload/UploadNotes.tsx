@@ -132,7 +132,9 @@ const uploadNotes = async (formData: FormData) => {
 /* ================= MAIN COMPONENT ================= */
 
 export default function UploadNotes() {
-  const { user } = useAuth();
+  // Removed unused 'user' variable
+  useAuth(); // Keep this to ensure auth context is available
+  
   const [formData, setFormData] = useState({
     courseTitle: "",
     description: "",
@@ -665,14 +667,14 @@ function DropdownBlock({
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
-        <label className="text-xs font-semibold text-foreground">
+        <label className="text-xs font-semibold text-foreground truncate">
           {label}
         </label>
         {onRefresh && (
           <button
             onClick={onRefresh}
             disabled={loading || disabled}
-            className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1"
+            className="text-xs text-muted-foreground hover:text-primary flex items-center gap-1 flex-shrink-0 ml-2"
             type="button"
           >
             <RefreshCw className="w-3 h-3" />
@@ -687,7 +689,7 @@ function DropdownBlock({
             type="button"
             disabled={loading || disabled}
             className="
-              relative w-full pl-10 pr-10 py-2.5 rounded-full
+              relative w-full pl-10 pr-8 py-2.5 rounded-full
               text-left text-sm
               bg-transparent border border-muted
               outline-none transition-all duration-200
@@ -695,6 +697,8 @@ function DropdownBlock({
               hover:bg-muted/5
               disabled:opacity-50 disabled:cursor-not-allowed
               group
+              min-h-[44px]
+              overflow-hidden
             "
           >
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -708,17 +712,20 @@ function DropdownBlock({
             </div>
 
             <span
-              className={
-                current.startsWith("Select")
-                  ? "text-muted-foreground"
+              className={`
+                truncate block w-full pr-5
+                ${current.startsWith("Select") 
+                  ? "text-muted-foreground" 
                   : "text-foreground"
-              }
+                }
+              `}
+              title={current}
             >
               {loading ? "Loading..." : current}
             </span>
 
             {!loading && !disabled && (
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted">
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted text-xs">
                 ▼
               </span>
             )}
@@ -743,13 +750,15 @@ function DropdownBlock({
                   key={o.value}
                   onClick={() => onSelect(o.value)}
                   className="
-                    cursor-pointer
-                    text-foreground
+                    cursor-pointer px-3 py-2
+                    text-foreground text-sm
                     hover:bg-primary/10
                     focus:bg-primary/10
                     data-[highlighted]:bg-primary/10
                     data-[highlighted]:text-foreground
+                    truncate
                   "
+                  title={o.label}
                 >
                   {o.label}
                 </DropdownMenuItem>
