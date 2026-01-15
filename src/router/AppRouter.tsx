@@ -22,9 +22,15 @@ export default function AppRouter() {
           {/* public router */}
           <Route path="/login" element={<LoginFormDemo />} />
           <Route path="/register" element={<RegisterFormDemo />} />
-          <Route path="/profile-setup" element={<ProfileSetup />} />
 
-          {/* protected router  */}
+{/* protected router  */}
+          <Route path="/profile-setup" element={<ProtectedRoute>
+            <ProfileSetup />
+          </ProtectedRoute>
+        } 
+        />
+
+          
           <Route
             path="/"
             element={

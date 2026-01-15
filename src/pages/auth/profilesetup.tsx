@@ -1,5 +1,4 @@
-// src/pages/ProfileSetup.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   User,
   Phone,
@@ -17,7 +16,8 @@ import {
 } from "../../components/ui/dropdown-menu";
 import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-toastify";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { API_BASE } from "../../lib/api";
 
 /* ---------- TYPES ---------- */
 
@@ -50,13 +50,7 @@ export default function ProfileSetup() {
   const { user, token } = useAuth();
   const navigate = useNavigate();
 
-  // Redirect if user is not logged in
-  // if (!user) {
-  //   return <Navigate to="/auth/login" replace />;
-  // }
-
-  const firstLetter =
-    user?.username?.charAt(0).toUpperCase() || "";
+  const firstLetter = user?.username?.charAt(0).toUpperCase() || "";
 
   const [formData, setFormData] = useState({
     gender: "",
@@ -67,11 +61,17 @@ export default function ProfileSetup() {
     pucHandling: "",
   });
 
-  /* ---------- SUBJECT STATES ---------- */
   const [subjectsLoading, setSubjectsLoading] = useState(false);
   const [availableSubjects, setAvailableSubjects] = useState<string[]>([]);
   const [subjectError, setSubjectError] = useState("");
   const [showSubjectPicker, setShowSubjectPicker] = useState(false);
+
+  /* ---------- REDIRECT IF PROFILE ALREADY DONE ---------- */
+  useEffect(() => {
+    if (user?.profile_completed) {
+      navigate("/", { replace: true });
+    }
+  }, [user, navigate]);
 
   /* ---------- HANDLERS ---------- */
 
@@ -86,7 +86,7 @@ export default function ProfileSetup() {
     setFormData({ ...formData, [field]: value });
   };
 
-  /* ---------- SUBJECT FETCH ---------- */
+  /* ---------- FETCH SUBJECTS ---------- */
 
   const handleAddSubjects = async () => {
     setShowSubjectPicker(true);
@@ -95,7 +95,7 @@ export default function ProfileSetup() {
     setAvailableSubjects([]);
 
     try {
-      const res = await fetch("/api/subjects", {
+      const res = await fetch(`${API_BASE}/faculty/subjects`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -131,10 +131,9 @@ export default function ProfileSetup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // ✅ VALIDATION
     if (
-      !formData.phone_number.trim() ||
-      !formData.qualification.trim() ||
+      !formData.phone_number ||
+      !formData.qualification ||
       !formData.gender ||
       !formData.experience ||
       formData.subjects.length === 0
@@ -154,7 +153,7 @@ export default function ProfileSetup() {
     };
 
     try {
-      const res = await fetch("/api/profile/update", {
+      const res = await fetch(`${API_BASE}/api/profile/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -169,11 +168,7 @@ export default function ProfileSetup() {
       }
 
       toast.success("Profile updated successfully");
-      // ✅ redirect to home
-      setTimeout(() =>{
-        navigate("/");
-
-      }, 1200)
+      navigate("/", { replace: true });
     } catch (err: any) {
       toast.error(err.message || "Profile update failed");
     }
@@ -203,7 +198,7 @@ export default function ProfileSetup() {
             </div>
           </div>
 
-          {/* FULL NAME */}
+          {/* NAME */}
           <InputField
             id="fullName"
             label="Full Name"
@@ -273,7 +268,7 @@ export default function ProfileSetup() {
               !subjectError &&
               showSubjectPicker &&
               availableSubjects.length > 0 && (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 mt-2">
                   {availableSubjects.map((s) => (
                     <button
                       key={s}
@@ -303,7 +298,7 @@ export default function ProfileSetup() {
             type="number"
           />
 
-          {/* DROPDOWNS */}
+          {/* GENDER */}
           <DropdownBlock
             label="Gender"
             current={formData.gender || "Select Gender"}
@@ -316,6 +311,7 @@ export default function ProfileSetup() {
             ]}
           />
 
+          {/* PUC */}
           <DropdownBlock
             label="PUC Handling"
             current={formData.pucHandling || "Select PUC"}
@@ -327,7 +323,6 @@ export default function ProfileSetup() {
             ]}
           />
 
-          {/* SAVE */}
           <button
             type="submit"
             className="w-full bg-primary text-primary-foreground
@@ -341,7 +336,6 @@ export default function ProfileSetup() {
   );
 }
 
-/* ---------- INPUT ---------- */
 
 function InputField({
   id,
