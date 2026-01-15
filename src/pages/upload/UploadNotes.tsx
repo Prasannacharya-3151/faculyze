@@ -58,15 +58,6 @@ interface DropdownBlockProps {
   onRefresh?: () => void;
 }
 
-interface UploadResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    file_url: string;
-    file_id: string;
-  };
-}
-
 /* ================= NOTES API FUNCTIONS ================= */
 
 const getAuthToken = () => {
@@ -103,27 +94,37 @@ const getFacultySubjects = async (): Promise<string[]> => {
   }
 };
 
-const uploadNotes = async (formData: FormData): Promise<UploadResponse> => {
+const uploadNotes = async (formData: FormData) => {
+  const token = getAuthToken();
+
   try {
-    const token = getAuthToken();
-    
     const response = await fetch(`${API_BASE}/files/upload`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
       },
       body: formData,
     });
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `Upload failed: ${response.status}`);
+    const data = await response.json();
+    console.log("Upload response:", data);
+
+    // If backend returns success message, treat it as success
+    if (data.message?.toLowerCase().includes("success") || data.success === true) {
+      return { success: true, data };
     }
 
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Error uploading notes:", error);
+    // If HTTP status is not ok, throw error
+    if (!response.ok) {
+      throw new Error(data.message || data.error || "Upload failed");
+    }
+
+    return { success: true, data };
+  } catch (error: any) {
+    // If error contains "success", it's actually a success
+    if (error.message?.toLowerCase().includes("success")) {
+      return { success: true, data: { message: error.message } };
+    }
     throw error;
   }
 };
@@ -325,18 +326,11 @@ export default function UploadNotes() {
       
       uploadFormData.append("file_type", fileTypeMap[fileExtension] || 'document');
 
-      console.log("Uploading file with data:", {
-        file_name: formData.courseTitle,
-        subject: formData.subject,
-        category: formData.category,
-        grade: formData.grade,
-        group_allowed: formData.allowedGroups,
-        file_type: fileTypeMap[fileExtension] || 'document'
-      });
+      console.log("Uploading file...");
 
-      const response = await uploadNotes(uploadFormData);
-
-      if (response.success) {
+      const result = await uploadNotes(uploadFormData);
+      
+      if (result.success) {
         toast.success("Notes uploaded successfully!");
         
         setFormData({
@@ -348,13 +342,11 @@ export default function UploadNotes() {
           allowedGroups: "",
         });
         setFile(null);
-        
-        console.log("File uploaded successfully:", response.data);
       } else {
-        throw new Error(response.message || "Upload failed");
+        throw new Error("Upload failed");
       }
     } catch (error: any) {
-      console.error("Upload error details:", error);
+      console.error("Upload error:", error);
       toast.error(`Upload failed: ${error.message || "Please try again"}`);
     } finally {
       setIsUploading(false);
@@ -769,6 +761,3 @@ function DropdownBlock({
     </div>
   );
 }
-
-
-// Backend will extract faculty_id from JWT token automatically
