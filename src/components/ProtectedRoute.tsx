@@ -19,7 +19,7 @@ children: React.ReactNode;
 
   // No token after validation
   if (!token) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/register" replace />;
   }
 
   // Auth OK
