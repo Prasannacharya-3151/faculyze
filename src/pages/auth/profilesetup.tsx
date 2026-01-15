@@ -210,68 +210,92 @@ export default function ProfileSetup() {
 
   /* ---------- SUBMIT ---------- */
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
+/* ---------- SUBMIT ---------- */
 
-    // Validation
-    if (
-      !formData.phone_number ||
-      !formData.qualification ||
-      !formData.gender ||
-      !formData.experience ||
-      formData.subjects.length === 0
-    ) {
-      toast.error("All fields are mandatory");
-      setIsSubmitting(false);
-      return;
-    }
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsSubmitting(true);
 
-    const payload = {
-      phone_number: formData.phone_number.startsWith("+")
-        ? formData.phone_number
-        : `+91${formData.phone_number}`,
-      qualification: formData.qualification,
-      experience: Number(formData.experience),
-      gender: formData.gender.toLowerCase(),
-      subjects: formData.subjects,
-    };
+  // Debug: Log current form data
+  console.log("Current form data for validation:", {
+    phone_number: formData.phone_number,
+    qualification: formData.qualification,
+    gender: formData.gender,
+    experience: formData.experience,
+    subjects: formData.subjects,
+    subjectsLength: formData.subjects.length,
+    // pucHandling: formData.pucHandling // Not required but good to see
+  });
 
-    console.log("Submitting profile data:", payload);
+  // Validation
+  if (
+    !formData.phone_number ||
+    !formData.qualification ||
+    !formData.gender ||
+    !formData.experience ||
+    formData.subjects.length === 0
+  ) {
+    console.log("Validation failed! Missing fields:");
+    if (!formData.phone_number) console.log("- phone_number");
+    if (!formData.qualification) console.log("- qualification");
+    if (!formData.gender) console.log("- gender");
+    if (!formData.experience) console.log("- experience");
+    if (formData.subjects.length === 0) console.log("- subjects");
+    
+    toast.error("All fields are mandatory");
+    setIsSubmitting(false);
+    return;
+  }
 
-    try {
-      const res = await fetch(`${API_BASE}/faculty/profile/update`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
+  console.log("All validation passed!");
 
-      const responseData = await res.json();
-
-      if (!res.ok) {
-        throw new Error(responseData.message || "Profile update failed");
-      }
-
-      // Clear saved form data
-      localStorage.removeItem("profileFormData");
-      
-      // Update user context/profile completion status
-      if (refreshUser) {
-        await refreshUser();
-      }
-
-      toast.success("Profile updated successfully!");
-      navigate("/", { replace: true });
-    } catch (err: any) {
-      console.error("Profile update error:", err);
-      toast.error(err.message || "Profile update failed. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
+  const payload = {
+    phone_number: formData.phone_number.startsWith("+")
+      ? formData.phone_number
+      : `+91${formData.phone_number}`,
+    qualification: formData.qualification,
+    experience: Number(formData.experience),
+    gender: formData.gender.toLowerCase(),
+    subjects: formData.subjects,
+    // Add pucHandling if your backend expects it
+    // puc_handling: formData.pucHandling || "",
   };
+
+  console.log("Submitting profile data:", payload);
+
+  try {
+    const res = await fetch(`${API_BASE}/faculty/profileupdate`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const responseData = await res.json();
+
+    if (!res.ok) {
+      throw new Error(responseData.message || "Profile update failed");
+    }
+
+    // Clear saved form data
+    localStorage.removeItem("profileFormData");
+    
+    // Update user context/profile completion status
+    if (refreshUser) {
+      await refreshUser();
+    }
+
+    toast.success("Profile updated successfully!");
+    navigate("/", { replace: true });
+  } catch (err: any) {
+    console.error("Profile update error:", err);
+    toast.error(err.message || "Profile update failed. Please try again.");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   /* ---------- UI ---------- */
 
@@ -484,7 +508,7 @@ export default function ProfileSetup() {
           />
 
           {/* PUC */}
-          <DropdownBlock
+          {/* <DropdownBlock
             label="PUC Handling"
             current={formData.pucHandling || "Select PUC"}
             icon={<School className="w-4 h-4" />}
@@ -493,7 +517,7 @@ export default function ProfileSetup() {
               { label: "1st PUC", value: "1st PUC" },
               { label: "2nd PUC", value: "2nd PUC" },
             ]}
-          />
+          /> */}
 
           {/* SUBMIT BUTTON */}
           <button
@@ -518,7 +542,6 @@ export default function ProfileSetup() {
     </div>
   );
 }
-
 /* ---------- INPUT FIELD COMPONENT ---------- */
 function InputField({
   id,
@@ -531,16 +554,17 @@ function InputField({
   disabled = false,
 }: InputFieldProps) {
   return (
-    <div className="space-y-1 group">
-      <label className="block w-full px-3 py-1 rounded-md text-xs font-semibold">
+    <div className="space-y-1">
+      <label htmlFor={id} className="text-xs font-semibold text-foreground">
         {label}
       </label>
 
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted group-focus-within:text-primary transition-colors">
-          {icon}
-        </span>
-
+      <div className="relative group">
+        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <span className="text-muted group-focus-within:text-primary transition-colors duration-200">
+            {icon}
+          </span>
+        </div>
         <input
           id={id}
           type={type}
@@ -548,13 +572,16 @@ function InputField({
           value={value}
           onChange={onChange}
           disabled={disabled}
-          className="w-full pl-10 pr-3 py-2 text-sm rounded-full bg-transparent border border-muted outline-none focus:border-primary focus:ring-1 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full pl-10 pr-3 py-2.5 text-sm rounded-full
+          bg-transparent border border-muted outline-none
+          focus:border-primary focus:ring-1 focus:ring-ring 
+          text-foreground disabled:opacity-50 disabled:cursor-not-allowed
+          transition-all duration-200"
         />
       </div>
     </div>
   );
 }
-
 
 /* ---------- DROPDOWN BLOCK COMPONENT ---------- */
 
@@ -578,20 +605,21 @@ function DropdownBlock({
           <button
             type="button"
             className="
-             relative w-full pl-10 pr-10 py-2 rounded-full
+              relative w-full pl-10 pr-10 py-2.5 rounded-full
               text-left text-sm
               bg-transparent border border-muted
-              outline-none transition
+              outline-none transition-all duration-200
               focus:border-primary focus:ring-1 focus:ring-ring
-              disabled:opacity-50 disabled:cursor-not-allowed
+              hover:bg-muted/5
+              group
             "
           >
             {/* ICON */}
-            <span className=" absolute left-3 top-1/2 -translate-y-1/2
-                text-muted transition-colors
-                group-focus-within:text-primary">
-              {icon}
-            </span>
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <span className="text-muted group-focus-within:text-primary transition-colors duration-200">
+                {icon}
+              </span>
+            </div>
 
             {/* VALUE */}
             <span className={current.startsWith("Select") ? "text-muted-foreground" : "text-foreground"}>
