@@ -305,7 +305,8 @@ export default function UploadNotes() {
     try {
       const uploadFormData = new FormData();
       
-      uploadFormData.append("file_name", formData.courseTitle);
+      // uploadFormData.append("file_name", formData.courseTitle);
+      uploadFormData.append("title", formData.courseTitle);
       uploadFormData.append("description", formData.description || "");
       uploadFormData.append("grade", formData.grade);
       uploadFormData.append("subject", formData.subject);
@@ -403,8 +404,8 @@ export default function UploadNotes() {
               icon={<FolderOpen className="w-4 h-4" />}
               onSelect={(v) => handleDropdown("grade", v)}
               options={[
-                { label: "1st PUC", value: "1st PUC" },
-                { label: "2nd PUC", value: "2nd PUC" },
+                { label: "1PUC", value: "1PUC" },
+                { label: "2PUC", value: "2PUC" },
               ]}
               disabled={isUploading}
             />
@@ -455,9 +456,9 @@ export default function UploadNotes() {
               Allowed Groups *
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
-                <Users className="w-4 h-4" />
-              </span>
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none pb-5">
+  <Users className="w-4 h-4 text-muted" />
+</div>
               <input
                 id="allowedGroups"
                 type="text"
@@ -551,7 +552,7 @@ export default function UploadNotes() {
           </div>
 
           {/* SUBJECTS INFO */}
-          <div className="mt-4 space-y-2">
+          <div className=" space-y-2">
             {subjects.length > 0 && (
               <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
                 <p className="text-sm font-medium text-foreground mb-1">
@@ -752,7 +753,7 @@ function DropdownBlock({
                   className="
                     cursor-pointer px-3 py-2
                     text-foreground text-sm
-                    hover:bg-primary/10
+                    hover:-bg-primary/10
                     focus:bg-primary/10
                     data-[highlighted]:bg-primary/10
                     data-[highlighted]:text-foreground

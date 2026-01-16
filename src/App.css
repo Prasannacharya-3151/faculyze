@@ -1,16 +1,11 @@
-/* -------------------------------------------------- */
-/* Tailwind + Animation imports */
-/* -------------------------------------------------- */
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
-/* Enable dark variant using `.dark` class */
+
 @custom-variant dark (&:is(.dark *));
 
 
-/* ================================================== */
-/* ROOT THEME VARIABLES (LIGHT MODE) */
-/* ================================================== */
 :root {
   /* ---------- Base background & text ---------- */
   --background: 255 255 255;          /* Page background (white) */
@@ -30,7 +25,7 @@
 
   /* ---------- IMPORTANT FIXES ---------- */
   --border: 209 213 219;              /* Gray border (inputs) */
-  --input: transparent;               /* ❌ NO input background */
+  --input: transparent;               /* NO input background */
   --ring: 126 73 242;                 /* Focus ring color */
 
   /* ---------- Muted text only (NO BG USE) ---------- */
@@ -50,9 +45,6 @@
 }
 
 
-/* ================================================== */
-/* DARK MODE VARIABLES */
-/* ================================================== */
 .dark {
   /* Page background + text */
   --background: 26 20 38;
@@ -63,9 +55,9 @@
   --card-foreground: 255 255 255;
 
   /* Input borders */
-  --border: 75 85 99;                 /* Gray-600 */
+  --border: 75 85 99; /* Gray-600 */
 
-  /* ❌ Still NO input background */
+  /*  Still NO input background */
   --input: transparent;
 
   /* Focus ring stays purple */
@@ -76,11 +68,6 @@
   --muted-foreground: 209 213 219;
 }
 
-
-/* ================================================== */
-/* TAILWIND TOKEN MAPPING */
-/* (Connects CSS vars to Tailwind classes) */
-/* ================================================== */
 @theme inline {
   --color-background: rgb(var(--background));
   --color-foreground: rgb(var(--foreground));
@@ -101,7 +88,7 @@
   --color-accent-foreground: rgb(var(--accent-foreground));
 
   --color-border: rgb(var(--border));
-  --color-input: var(--input);        /* Transparent inputs */
+  --color-input: var(--input);        
   --color-ring: rgb(var(--ring));
 
   /* Radius helpers */
@@ -111,28 +98,19 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-
-/* ================================================== */
-/* BASE STYLES */
-/* ================================================== */
 @layer base {
   /* Page background + text */
   body {
     @apply bg-background text-foreground;
   }
 
-  /* 🔥 FORCE all inputs to stay transparent */
+  /* FORCE all inputs to stay transparent */
   input,
   textarea,
   select {
     background-color: transparent;
   }
 }
-
-
-/* ================================================== */
-/* UTILITIES */
-/* ================================================== */
 
 /* Hide scrollbar but keep scroll working */
 .scrollbar-hide::-webkit-scrollbar {

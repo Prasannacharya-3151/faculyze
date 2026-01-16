@@ -1,190 +1,29 @@
-// import React, { useState } from "react";
-// import { Document, Page, pdfjs } from "react-pdf";
-// import "react-pdf/dist/Page/AnnotationLayer.css";
-// import "react-pdf/dist/Page/TextLayer.css";
-
-// import acharyaPDF from "../../assets/sample.pdf";
-
-// pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
-
-// export default function UploadedNotes() {
-  
-//   const uploadedNotes = [
-//     {
-//       id: 1,
-//       title: "Physics Mechanics Notes",
-//       subject: "Physics",
-//       group: "Science",
-//       type: "Notes",
-//       year: "1st PUC",
-//       date: "2024-01-15",
-//       file: acharyaPDF,
-//     },
-//     {
-//       id: 2,
-//       title: "Organic Chemistry Assignment",
-//       subject: "Chemistry",
-//       group: "Science",
-//       type: "Assignment",
-//       year: "2nd PUC",
-//       date: "2024-01-14",
-//       file: acharyaPDF,
-//     },
-//   ];
-
-//   // Modal State
-//   const [isOpen, setIsOpen] = useState(false);
-//   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
-//   const [numPages, setNumPages] = useState(0);
-//   const [pageNumber, setPageNumber] = useState(1);
-//   const [pdfError, setPdfError] = useState(false);
-
-//   // Open Preview
-//   const openPreview = (file: string) => {
-//     setPdfUrl(file);
-//     setIsOpen(true);
-//     setPageNumber(1);
-//     setPdfError(false);
-//   };
-
-//   // Close Preview
-//   const closePreview = () => {
-//     setIsOpen(false);
-//     setPdfUrl(null);
-//   };
-
-//   return (
-//     <div className="w-full p-6">
-//       <h1 className="text-2xl font-bold mb-6">Uploaded Notes</h1>
-
-//       {/* Notes Table */}
-//       <div className="bg-white rounded-xl border overflow-hidden">
-//         <table className="w-full">
-//           <thead className="bg-gray-50 border-b">
-//             <tr>
-//               <th className="py-4 px-6 text-left font-semibold">Title</th>
-//               <th className="py-4 px-6 text-left font-semibold">Subject</th>
-//               <th className="py-4 px-6 text-left font-semibold">Group</th>
-//               <th className="py-4 px-6 text-left font-semibold">Type</th>
-//               <th className="py-4 px-6 text-left font-semibold">Year</th>
-//               <th className="py-4 px-6 text-left font-semibold">Date</th>
-//               <th className="py-4 px-6 text-left font-semibold">Action</th>
-//             </tr>
-//           </thead>
-
-//           <tbody>
-//             {uploadedNotes.map((note) => (
-//               <tr key={note.id} className="border-b hover:bg-gray-50">
-//                 <td className="py-4 px-6">{note.title}</td>
-//                 <td className="py-4 px-6">{note.subject}</td>
-//                 <td className="py-4 px-6">{note.group}</td>
-//                 <td className="py-4 px-6">{note.type}</td>
-//                 <td className="py-4 px-6">{note.year}</td>
-//                 <td className="py-4 px-6">{note.date}</td>
-//                 <td className="py-4 px-6">
-//                   <button
-//                     onClick={() => openPreview(note.file)}
-//                     className="text-blue-600 font-medium hover:text-blue-800"
-//                   >
-//                     Preview
-//                   </button>
-//                 </td>
-//               </tr>
-//             ))}
-//           </tbody>
-//         </table>
-//       </div>
-
-    
-//       {isOpen && (
-//         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 z-50">
-//           <div className="bg-white w-full max-w-5xl h-[90vh] rounded-xl shadow-xl flex flex-col">
-            
-//             {/* Header */}
-//             <div className="flex justify-between p-5 border-b">
-//               <h2 className="text-lg font-semibold">Document Preview</h2>
-//               <button
-//                 onClick={closePreview}
-//                 className="text-red-500 hover:text-red-700 text-lg font-semibold"
-//               >
-//                 ✕
-//               </button>
-//             </div>
-
-           
-//             <div className="flex-1 overflow-auto p-4 bg-gray-100 flex justify-center">
-//               {!pdfError ? (
-//                 <Document
-//                   file={pdfUrl!}
-//                   onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-//                   onLoadError={() => setPdfError(true)}
-//                   loading={
-//                     <div className="flex flex-col items-center mt-10">
-//                       <div className="animate-spin h-10 w-10 border-b-2 border-blue-600 rounded-full mb-3"></div>
-//                       <p className="text-gray-600">Loading PDF...</p>
-//                     </div>
-//                   }
-//                 >
-//                   <Page
-//                     pageNumber={pageNumber}
-//                     width={Math.min(800, window.innerWidth - 100)}
-//                   />
-//                 </Document>
-//               ) : (
-//                 <div className="text-center mt-20 text-red-500">
-//                   ⚠ Failed to load PDF
-//                 </div>
-//               )}
-//             </div>
-
-          
-//             {numPages > 0 && !pdfError && (
-//               <div className="flex justify-between items-center p-4 border-t bg-gray-50">
-//                 <button
-//                   onClick={() => setPageNumber((p) => Math.max(1, p - 1))}
-//                   disabled={pageNumber <= 1}
-//                   className="px-4 py-2 bg-blue-600 text-white rounded-md disabled:bg-gray-400"
-//                 >
-//                   Previous
-//                 </button>
-
-//                 <span className="text-gray-700 font-medium">
-//                   Page {pageNumber} of {numPages}
-//                 </span>
-
-//                 <button
-//                   onClick={() => setPageNumber((p) => Math.min(numPages, p + 1))}
-//                   disabled={pageNumber >= numPages}
-//                   className="px-4 py-2 bg-blue-600 text-white rounded-md disabled:bg-gray-400"
-//                 >
-//                   Next
-//                 </button>
-//               </div>
-//             )}
-//           </div>
-//         </div>
-//       )}
-//     </div>
-//   );
-// }
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
+import { cn } from "../../lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "../../components/ui/tooltip";
 import {
   FileText,
-  Download,
-  Share2,
+  RefreshCw,
   Trash2,
   MoreVertical,
   Search,
-  LayoutGrid,
-  List,
   Eye,
   Calendar,
-  BookOpen,
+  X,
+  Loader2,
   Users,
-  X
+  Tag,
+  Book,
+  School,
+  Clock,
+  User,
 } from "lucide-react";
+import { toast } from "react-toastify";
 
 import {
   Card,
@@ -193,9 +32,7 @@ import {
 import {
   Button
 } from "../../components/ui/button";
-import {
-  Input
-} from "../../components/ui/input";
+
 import {
   Badge
 } from "../../components/ui/badge";
@@ -206,8 +43,8 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "../../components/ui/dropdown-menu";
-
-import samplePDF from "../../assets/sample.pdf";
+import { useAuth } from "../../context/AuthContext";
+import { apiRequest } from "../../lib/api";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
@@ -216,396 +53,1562 @@ pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.vers
 type Note = {
   id: string;
   title: string;
+  description?: string;
+  grade: string;
   subject: string;
-  group: string;
-  type: string;
-  year: string;
-  date: string;
-  file: string;
-  size?: string;
+  category: string;
+  faculty_name: string;
+  group_allowed: string;
+  file_type: string;
+  uploaded_at: string;
+  file_size?: string;
+  file_name?: string;
+  signed_url?: string;
+  url?: string;
 };
 
-/* ================= MOCK DATA ================= */
+/* ================= INPUT COMPONENT ================= */
 
-const mockNotes: Note[] = [
-  {
-    id: "1",
-    title: "Physics Mechanics Notes",
-    subject: "Physics",
-    group: "Science",
-    type: "Notes",
-    year: "1st PUC",
-    date: "Jan 15, 2024",
-    file: samplePDF,
-    size: "2.4 MB"
-  },
-  {
-    id: "2",
-    title: "Organic Chemistry Assignment",
-    subject: "Chemistry",
-    group: "Science",
-    type: "Assignment",
-    year: "2nd PUC",
-    date: "Jan 14, 2024",
-    file: samplePDF,
-    size: "1.8 MB"
-  },
-  {
-    id: "3",
-    title: "Calculus Integration Problems",
-    subject: "Mathematics",
-    group: "Science",
-    type: "Problems",
-    year: "1st PUC",
-    date: "Jan 12, 2024",
-    file: samplePDF,
-    size: "3.1 MB"
-  },
-  {
-    id: "4",
-    title: "Biology Lab Report",
-    subject: "Biology",
-    group: "Science",
-    type: "Report",
-    year: "2nd PUC",
-    date: "Jan 10, 2024",
-    file: samplePDF,
-    size: "4.2 MB"
-  },
-];
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  // You can add custom props if needed
+}
+
+const Input = ({ className = "", ...props }: InputProps) => {
+  return (
+    <input
+      className={`
+        h-11 w-full pl-12 pr-10 rounded-full
+        bg-transparent border border-border
+        outline-none focus:border-primary focus:ring-1 focus:ring-ring
+        placeholder:text-muted-foreground
+        disabled:opacity-50 disabled:cursor-not-allowed
+        transition-all duration-200
+        ${className}
+      `}
+      {...props}
+    />
+  );
+};
+
+/* ================= CUSTOM SCROLLBAR STYLES ================= */
+
+const customScrollbarStyles = `
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+  /* Custom scrollbar styling using your variables */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgb(var(--muted));
+    border-radius: 3px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--muted-foreground));
+  }
+`;
 
 /* ================= MAIN ================= */
 
 export default function UploadedNotes() {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const { token } = useAuth();
   const [search, setSearch] = useState("");
-  const [notes, setNotes] = useState(mockNotes);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   /* ---- PDF PREVIEW ---- */
   const [previewOpen, setPreviewOpen] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [pages, setPages] = useState(0);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [currentPreviewNote, setCurrentPreviewNote] = useState<Note | null>(null);
 
-  const openPreview = (file: string) => {
-    setPdfUrl(file);
-    setPreviewOpen(true);
-    setPage(1);
+  /* ================= API FUNCTIONS ================= */
+
+  const fetchNotes = async () => {
+    setLoading(true);
+    try {
+      const response = await apiRequest("/files/recentfiles", "GET", null, token || "");
+      
+      if (response?.data && Array.isArray(response.data)) {
+        const formattedNotes = response.data.map((note: any) => {
+          
+          // TITLE: If API returns empty string, use description or create from subject
+          let noteTitle = note.title?.trim();
+          if (!noteTitle || noteTitle === "") {
+            // If description exists and is not empty, use it
+            if (note.description?.trim() && note.description.trim() !== "") {
+              noteTitle = note.description.trim();
+            } else {
+              // Create a title from subject and grade
+              const subject = note.subject?.trim() || "Unknown";
+              const grade = note.grade?.trim() || "";
+              noteTitle = `${subject.charAt(0).toUpperCase() + subject.slice(1)} Notes ${grade}`;
+            }
+          }
+          
+          // DESCRIPTION: Use description if it's different from title
+          let noteDescription = note.description?.trim() || "";
+          if (noteDescription === noteTitle) {
+            noteDescription = "";
+          }
+          
+          // GRADE: Format properly
+          const grade = note.grade?.trim() || "Not specified";
+          let formattedGrade = grade;
+          if (grade === "2PUC" || grade === "2puc") {
+            formattedGrade = "2ND PUC";
+          } else if (grade === "1PUC" || grade === "1puc") {
+            formattedGrade = "1ST PUC";
+          } else {
+            formattedGrade = grade.toUpperCase().includes("PUC") 
+              ? grade.toUpperCase() 
+              : grade;
+          }
+          
+          // SUBJECT: Capitalize properly - FIXED: Added type annotation for 'word'
+          const subject = note.subject?.trim() || "General";
+          const formattedSubject = subject
+            .split(' ')
+            .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+            .join(' ');
+          
+          // CATEGORY: If API returns empty, use a default based on group_allowed or subject
+          let category = note.category?.trim();
+          if (!category || category === "") {
+            // Try to infer category from group_allowed or use default
+            const group = note.group_allowed?.toUpperCase() || "";
+            if (group.includes("A") || group.includes("T") || group.includes("TOPPER")) {
+              category = "Toppers";
+            } else if (group.includes("B") || group.includes("H") || group.includes("HIGH")) {
+              category = "High Achievers";
+            } else if (group.includes("C") || group.includes("M") || group.includes("MEDIUM")) {
+              category = "Medium Students";
+            } else if (group.includes("D") || group.includes("L") || group.includes("LOW")) {
+              category = "Low Students";
+            } else if (group.includes("E") || group.includes("B") || group.includes("BEGINNER")) {
+              category = "Beginner Level";
+            } else if (group.includes("F") || group.includes("I") || group.includes("INTERMEDIATE")) {
+              category = "Intermediate Level";
+            } else if (group.includes("G") || group.includes("A") || group.includes("ADVANCED")) {
+              category = "Advanced Level";
+            } else {
+              category = "Study Material";
+            }
+          }
+          
+          // GROUP ALLOWED: Use what's in API or default
+          const groupAllowed = note.group_allowed?.trim() || "All Students";
+          
+          // FILE TYPE: If API returns empty, check file_url or use default
+          let fileType = note.file_type?.toLowerCase()?.trim();
+          if (!fileType || fileType === "") {
+            // Check if there's a file_url to extract extension
+            if (note.file_url) {
+              const url = note.file_url.toLowerCase();
+              if (url.includes('.pdf')) fileType = 'pdf';
+              else if (url.includes('.doc')) fileType = 'doc';
+              else if (url.includes('.docx')) fileType = 'docx';
+              else if (url.includes('.jpg') || url.includes('.jpeg')) fileType = 'image';
+              else if (url.includes('.png')) fileType = 'image';
+              else if (url.includes('.ppt') || url.includes('.pptx')) fileType = 'ppt';
+              else fileType = 'pdf';
+            } else {
+              fileType = 'pdf';
+            }
+          }
+          
+          // FILE NAME: Create from title and file type
+          const fileName = `${noteTitle.replace(/\s+/g, '_')}.${fileType}`;
+          
+          // FACULTY NAME
+          const facultyName = note.faculty_name?.trim() || "Faculty";
+          
+          // FILE SIZE
+          const fileSize = note.file_size || "0";
+          
+          // UPLOADED DATE
+          const uploadedAt = note.uploaded_at || note.created_at || new Date().toISOString();
+          
+          return {
+            id: note.id || Math.random().toString(),
+            title: noteTitle,
+            description: noteDescription,
+            grade: formattedGrade,
+            subject: formattedSubject,
+            category: category,
+            faculty_name: facultyName,
+            group_allowed: groupAllowed,
+            file_type: fileType,
+            uploaded_at: uploadedAt,
+            file_size: fileSize,
+            file_name: fileName,
+          };
+        });
+        
+        setNotes(formattedNotes);
+      } else {
+        console.error("Invalid response format:", response);
+        toast.error("No notes found");
+        setNotes([]);
+      }
+    } catch (error: any) {
+      console.error("Error fetching notes:", error);
+      toast.error(error.message || "Failed to load notes");
+      setNotes([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const deleteNote = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this note? This action cannot be undone.")) {
+      return;
+    }
+
+    setDeletingId(id);
+    try {
+      const response = await apiRequest(`/files/delete/${id}`, "DELETE", null, token || "");
+      
+      if (response.status === "success") {
+        toast.success("Note deleted successfully");
+        setNotes(prev => prev.filter(note => note.id !== id));
+      } else {
+        throw new Error(response.message || "Delete failed");
+      }
+    } catch (error: any) {
+      console.error("Error deleting note:", error);
+      toast.error(error.message || "Failed to delete note");
+      setNotes(prev => prev.filter(note => note.id !== id));
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const openPreview = async (note: Note) => {
+    setPreviewLoading(true);
+    setCurrentPreviewNote(note);
+    try {
+      if (!note.id) {
+        toast.error("File ID not available");
+        return;
+      }
+
+      toast.info("Loading preview...");
+      
+      const response = await apiRequest(`/files/accessfile/${note.id}`, "GET", null, token || "");
+      
+      if (response.status === "success" && response.data?.signed_url) {
+        setPdfUrl(response.data.signed_url);
+        setPreviewOpen(true);
+        setPage(1);
+      } else {
+        throw new Error(response.message || "Preview URL not available");
+      }
+    } catch (error: any) {
+      console.error("Error opening preview:", error);
+      toast.error(error.message || "Failed to open preview");
+    } finally {
+      setPreviewLoading(false);
+    }
   };
 
   const closePreview = () => {
     setPreviewOpen(false);
     setPdfUrl(null);
+    setPage(1);
+    setCurrentPreviewNote(null);
   };
 
-  /* ---- ACTIONS ---- */
-  const handleDownload = (note: Note) => {
-    console.log("Download:", note.title);
+  const formatFileSize = (bytes?: string) => {
+    if (!bytes || bytes === "0") return "Unknown";
+    try {
+      const size = parseFloat(bytes);
+      if (size < 1024) return size + " B";
+      if (size < 1024 * 1024) return (size / 1024).toFixed(1) + " KB";
+      return (size / (1024 * 1024)).toFixed(1) + " MB";
+    } catch {
+      return "Unknown";
+    }
   };
 
-  const handleShare = (note: Note) => {
-    console.log("Share:", note.title);
+  const formatDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    } catch {
+      return "Recent";
+    }
   };
 
-  const handleDelete = (id: string) => {
-    setNotes((prev) => prev.filter((n) => n.id !== id));
-  };
+  /* ================= EFFECTS ================= */
+
+  useEffect(() => {
+    if (token) {
+      fetchNotes();
+    }
+  }, [token]);
 
   const filteredNotes = notes.filter((n) => {
-    return n.title.toLowerCase().includes(search.toLowerCase()) ||
-           n.subject.toLowerCase().includes(search.toLowerCase());
+    if (!search.trim()) return true;
+    
+    const searchTerm = search.toLowerCase();
+    return (
+      n.title?.toLowerCase().includes(searchTerm) ||
+      n.subject?.toLowerCase().includes(searchTerm) ||
+      n.category?.toLowerCase().includes(searchTerm) ||
+      n.description?.toLowerCase().includes(searchTerm) ||
+      n.grade?.toLowerCase().includes(searchTerm) ||
+      n.group_allowed?.toLowerCase().includes(searchTerm)
+    );
   });
 
   /* ================= UI ================= */
 
   return (
-    <div className="space-y-6 p-4 md:p-6">
+    <>
+      <style>{customScrollbarStyles}</style>
+      
+      <div className="min-h-screen bg-background p-4 md:p-6 no-scrollbar">
 
-      {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-            Uploaded Notes
-          </h1>
-          <p className="text-gray-500 text-sm mt-1">
-            {notes.length} documents • {filteredNotes.length} filtered
-          </p>
-        </div>
+        {/* HEADER */}
+        <div className="mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                Uploaded Notes
+              </h1>
+              <p className="text-muted-foreground text-sm mt-1">
+                {notes.length} documents • {filteredNotes.length} filtered
+              </p>
+            </div>
 
-        <div className="flex items-center gap-2">
-          <div className="flex items-center border border-gray-300 rounded-md p-1">
-            <Button
-              variant={viewMode === "grid" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("grid")}
-              className="h-8 px-3 rounded"
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </Button>
-            <Button
-              variant={viewMode === "list" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => setViewMode("list")}
-              className="h-8 px-3 rounded"
-            >
-              <List className="w-4 h-4" />
-            </Button>
+             <div className="flex items-center gap-3">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={fetchNotes}
+                    disabled={loading}
+                    className="rounded-full border-border hover:border-primary transition-all"
+                  >
+                    <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  Refresh notes
+                </TooltipContent>
+              </Tooltip>
+            </div>
+          </div>
+
+          {/* SEARCH BAR */}
+          <div className="relative w-full max-w-md">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Search className="w-5 h-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
+            </div>
+
+            <Input
+              placeholder="Search notes by title, subject, category, or group..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                className="
+                  absolute inset-y-0 right-0 pr-3 flex items-center
+                  text-muted-foreground hover:text-foreground hover:bg-accent/10
+                  transition-colors rounded-full p-1
+                "
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
-      </div>
 
-      {/* SEARCH BAR */}
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-        <Input
-          placeholder="Search notes..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-10 h-11 text-base border border-gray-300 rounded-md"
-        />
-        {search && (
-          <button
-            onClick={() => setSearch("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        )}
-      </div>
-
-      {/* NOTES GRID/LIST VIEW */}
-      {filteredNotes.length === 0 ? (
-        <Card className="border border-gray-300">
-          <CardContent className="p-12 text-center">
-            <FileText className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
-              No notes found
-            </h3>
-            <p className="text-gray-500">
-              Try a different search term
-            </p>
-          </CardContent>
-        </Card>
-      ) : viewMode === "grid" ? (
-        /* GRID VIEW */
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredNotes.map((note) => (
-            <Card 
-              key={note.id} 
-              className="border border-gray-300"
-            >
-              <CardContent className="p-5 space-y-4">
-                {/* Header */}
-                <div className="flex justify-between items-start">
-                  <div className="p-3 rounded-lg bg-blue-50 border border-blue-100">
-                    <FileText className="text-blue-600 w-6 h-6" />
+        {/* CONTENT */}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20">
+            <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+            <p className="text-muted-foreground">Loading your notes...</p>
+          </div>
+        ) : filteredNotes.length === 0 ? (
+          <Card className="border border-border">
+            <CardContent className="p-12 text-center">
+              <FileText className="w-12 h-12 text-muted mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">
+                {notes.length === 0 ? "No notes uploaded yet" : "No notes found"}
+              </h3>
+              <p className="text-muted-foreground">
+                {notes.length === 0 
+                  ? "Upload your first note to get started!" 
+                  : "Try a different search term"}
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          /* GRID VIEW ONLY */
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredNotes.map((note) => (
+              <Card 
+                key={note.id} 
+                className="border border-border bg-card hover:border-accent/30 transition-all duration-300 hover:shadow-lg group"
+              >
+                <CardContent className="p-4">
+                  {/* Header */}
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-start gap-2 flex-1">
+                      <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-colors">
+                        <FileText className="text-primary w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-foreground text-sm mb-1 line-clamp-2">
+                          {note.title}
+                        </h3>
+                        <div className="flex items-center gap-1">
+                          <Badge variant="secondary" className="text-xs bg-muted/20 text-foreground px-1.5 py-0">
+                            {note.file_type.toUpperCase()}
+                          </Badge>
+                          {note.file_size && note.file_size !== "0" && (
+                            <span className="text-xs text-muted-foreground">
+                              • {formatFileSize(note.file_size)}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="h-7 w-7 p-0 hover:bg-accent/10"
+                        >
+                          <MoreVertical className="w-3.5 h-3.5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="border border-border bg-card w-40">
+                        <DropdownMenuItem 
+                          onClick={() => openPreview(note)}
+                          className="hover:bg-accent/10 focus:bg-accent/10 cursor-pointer text-sm"
+                          disabled={previewLoading}
+                        >
+                          {previewLoading && currentPreviewNote?.id === note.id ? (
+                            <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
+                          ) : (
+                            <Eye className="w-3.5 h-3.5 mr-2" />
+                          )}
+                          Preview
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => deleteNote(note.id)}
+                          className="text-destructive hover:bg-destructive/10 focus:bg-destructive/10 cursor-pointer text-sm"
+                          disabled={deletingId === note.id}
+                        >
+                          {deletingId === note.id ? (
+                            <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
+                          ) : (
+                            <Trash2 className="w-3.5 h-3.5 mr-2" />
+                          )}
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                  
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                      >
-                        <MoreVertical className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="border border-gray-300 w-40">
-                      <DropdownMenuItem onClick={() => openPreview(note.file)}>
-                        <Eye className="w-4 h-4 mr-2" /> Preview
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDownload(note)}>
-                        <Download className="w-4 h-4 mr-2" /> Download
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleShare(note)}>
-                        <Share2 className="w-4 h-4 mr-2" /> Share
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => handleDelete(note.id)}
-                        className="text-red-600"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" /> Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
 
-                {/* Content */}
-                <div>
-                  <h3 className="font-semibold text-gray-900 text-base mb-2">
-                    {note.title}
-                  </h3>
-                  
-                  <div className="flex flex-wrap gap-2 mb-3">
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-800">
+                  {/* Description */}
+                  {note.description && note.description.trim() !== "" && (
+                    <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+                      {note.description}
+                    </p>
+                  )}
+
+                  {/* Info Badges */}
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    <Badge variant="secondary" className="text-xs bg-primary/10 text-primary px-2 py-0.5">
+                      <School className="w-2.5 h-2.5 mr-1" />
+                      {note.grade}
+                    </Badge>
+                    <Badge variant="secondary" className="text-xs bg-muted/20 text-foreground px-2 py-0.5">
+                      <Book className="w-2.5 h-2.5 mr-1" />
                       {note.subject}
                     </Badge>
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-800">
-                      {note.type}
+                    <Badge variant="secondary" className="text-xs bg-muted/20 text-foreground px-2 py-0.5">
+                      <Tag className="w-2.5 h-2.5 mr-1" />
+                      {note.category}
                     </Badge>
-                    <Badge variant="secondary" className="bg-gray-100 text-gray-800">
-                      {note.year}
+                    <Badge variant="secondary" className="text-xs bg-muted/20 text-foreground px-2 py-0.5">
+                      <Users className="w-2.5 h-2.5 mr-1" />
+                      {note.group_allowed}
                     </Badge>
                   </div>
 
-                  <div className="flex items-center justify-between text-sm text-gray-500">
-                    <div className="flex items-center gap-4">
-                      <span className="flex items-center gap-1">
-                        <Users className="w-3 h-3" />
-                        {note.group}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {note.date}
-                      </span>
+                  {/* Footer */}
+                  <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border">
+                    <div className="flex items-center gap-1">
+                      <User className="w-3 h-3" />
+                      <span>{note.faculty_name}</span>
                     </div>
-                    {note.size && (
-                      <span className="text-xs font-medium">{note.size}</span>
+                    <div className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      <span>{formatDate(note.uploaded_at)}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+
+        {/* PDF PREVIEW MODAL - FIXED */}
+        {previewOpen && (
+          <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+            <div className="bg-card w-full max-w-6xl h-[90vh] rounded-2xl flex flex-col overflow-hidden border border-border shadow-2xl">
+              {/* Header */}
+              <div className="flex items-center justify-between p-6 border-b border-border bg-card/95 backdrop-blur-sm">
+                <div className="flex items-center gap-3">
+                  <FileText className="w-6 h-6 text-primary" />
+                  <div>
+                    <h2 className="font-semibold text-xl text-foreground">PDF Preview</h2>
+                    {currentPreviewNote && (
+                      <p className="text-sm text-muted-foreground">{currentPreviewNote.title}</p>
                     )}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      ) : (
-        /* LIST VIEW */
-        <Card className="border border-gray-300">
-          <CardContent className="p-0">
-            <div className="divide-y divide-gray-300">
-              {filteredNotes.map((note) => (
-                <div
-                  key={note.id}
-                  className="flex items-center gap-4 p-4"
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={closePreview}
+                  className="h-10 w-10 p-0 hover:bg-destructive/10 hover:text-destructive rounded-full"
                 >
-                  <div className="p-2 rounded-lg bg-blue-50 border border-blue-100">
-                    <FileText className="text-blue-600 w-5 h-5" />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-1">
-                      <p className="font-medium text-gray-900 truncate">
-                        {note.title}
-                      </p>
-                      {note.size && (
-                        <span className="text-xs text-gray-500 px-2 py-1 bg-gray-100 rounded">
-                          {note.size}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-gray-500">
-                      <span className="flex items-center gap-1">
-                        <BookOpen className="w-3 h-3" />
-                        {note.subject}
-                      </span>
-                      <span>•</span>
-                      <span>{note.type}</span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1">
-                        <Users className="w-3 h-3" />
-                        {note.year}
-                      </span>
-                      <span>•</span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        {note.date}
-                      </span>
-                    </div>
-                  </div>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <MoreVertical className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="border border-gray-300 w-40">
-                      <DropdownMenuItem onClick={() => openPreview(note.file)}>
-                        <Eye className="w-4 h-4 mr-2" /> Preview
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDownload(note)}>
-                        <Download className="w-4 h-4 mr-2" /> Download
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleShare(note)}>
-                        <Share2 className="w-4 h-4 mr-2" /> Share
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => handleDelete(note.id)}
-                        className="text-red-600"
-                      >
-                        <Trash2 className="w-4 h-4 mr-2" /> Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* PDF PREVIEW MODAL */}
-      {previewOpen && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-4xl h-[85vh] rounded-xl flex flex-col overflow-hidden border border-gray-300">
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-300">
-              <h2 className="font-semibold text-lg text-gray-900">PDF Preview</h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={closePreview}
-                className="h-8 w-8 p-0"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-
-            {/* PDF Content */}
-            <div className="flex-1 overflow-auto p-4 flex justify-center">
-              <Document
-                file={pdfUrl!}
-                onLoadSuccess={({ numPages }) => setPages(numPages)}
-              >
-                <Page 
-                  pageNumber={page} 
-                  width={Math.min(800, window.innerWidth - 64)} 
-                />
-              </Document>
-            </div>
-
-            {/* Footer Controls */}
-            <div className="p-4 border-t border-gray-300 flex items-center justify-between">
-              <Button
-                variant="outline"
-                disabled={page <= 1}
-                onClick={() => setPage((p) => p - 1)}
-                className="border border-gray-300"
-              >
-                Previous
-              </Button>
-              
-              <div className="flex items-center gap-4">
-                <span className="text-sm text-gray-600">
-                  Page <span className="font-medium">{page}</span> of <span className="font-medium">{pages}</span>
-                </span>
+                  <X className="w-5 h-5" />
+                </Button>
               </div>
-              
-              <Button
-                variant="outline"
-                disabled={page >= pages}
-                onClick={() => setPage((p) => p + 1)}
-                className="border border-gray-300"
-              >
-                Next
-              </Button>
+
+              {/* PDF Content */}
+              <div className="flex-1 overflow-auto p-4 md:p-6 flex justify-center custom-scrollbar bg-background/30">
+                {pdfUrl ? (
+                  <Document
+                    file={pdfUrl}
+                    onLoadSuccess={({ numPages }) => setPages(numPages)}
+                    loading={
+                      <div className="flex flex-col items-center justify-center h-full">
+                        <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+                        <p className="text-muted-foreground">Loading document...</p>
+                      </div>
+                    }
+                    onLoadError={(error) => {
+                      console.error("PDF load error:", error);
+                      toast.error("Failed to load PDF. Please try downloading the file instead.");
+                    }}
+                    error={
+                      <div className="flex flex-col items-center justify-center h-full">
+                        <FileText className="w-16 h-16 text-destructive mb-4" />
+                        <p className="text-destructive font-medium mb-2">Failed to load PDF</p>
+                        <p className="text-muted-foreground text-sm">The PDF preview is not available.</p>
+                        <p className="text-muted-foreground text-sm mt-1">Please check if the file exists and try again.</p>
+                      </div>
+                    }
+                  >
+                    <Page 
+                      pageNumber={page} 
+                      width={Math.min(1000, window.innerWidth - 96)} 
+                      className="shadow-lg rounded-lg bg-white"
+                      renderTextLayer={true}
+                      renderAnnotationLayer={true}
+                    />
+                  </Document>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full">
+                    <FileText className="w-16 h-16 text-muted mb-4" />
+                    <p className="text-muted-foreground">Unable to load document</p>
+                    <p className="text-muted-foreground text-sm mt-1">No PDF URL available</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer Controls */}
+              {pages > 0 && (
+                <div className="p-4 border-t border-border flex items-center justify-between bg-card/95 backdrop-blur-sm">
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="outline"
+                      disabled={page <= 1}
+                      onClick={() => setPage(p => p - 1)}
+                      className="border-border hover:bg-accent hover:text-accent-foreground px-4"
+                    >
+                      Previous
+                    </Button>
+                    <Button
+                      variant="outline"
+                      disabled={page >= pages}
+                      onClick={() => setPage(p => p + 1)}
+                      className="border-border hover:bg-accent hover:text-accent-foreground px-4"
+                    >
+                      Next
+                    </Button>
+                  </div>
+                  
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm text-muted-foreground">
+                      Page <span className="font-medium text-foreground">{page}</span> of <span className="font-medium text-foreground">{pages}</span>
+                    </span>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      Preview expires in 15 minutes
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+    </>
   );
 }
+
+// import { useState, useEffect, useRef } from "react";
+// import { Document, Page, pdfjs } from "react-pdf";
+// import { cn } from "../../lib/utils";
+// import {
+//   Tooltip,
+//   TooltipContent,
+//   TooltipTrigger,
+// } from "../../components/ui/tooltip";
+// import {
+//   FileText,
+//   RefreshCw,
+//   Trash2,
+//   MoreVertical,
+//   Search,
+//   Eye,
+//   Calendar,
+//   X,
+//   Loader2,
+//   Users,
+//   Tag,
+//   Book,
+//   School,
+//   Clock,
+//   User,
+//   Download,
+//   AlertCircle,
+//   ExternalLink,
+// } from "lucide-react";
+// import { toast } from "react-toastify";
+
+// import {
+//   Card,
+//   CardContent,
+// } from "../../components/ui/card";
+// import {
+//   Button
+// } from "../../components/ui/button";
+
+// import {
+//   Badge
+// } from "../../components/ui/badge";
+// import {
+//   DropdownMenu,
+//   DropdownMenuTrigger,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuSeparator,
+// } from "../../components/ui/dropdown-menu";
+// import { useAuth } from "../../context/AuthContext";
+// import { apiRequest } from "../../lib/api";
+
+// // Use a compatible version - v2.16.105 works well with react-pdf@7.7.2
+// // Try different CDN options
+// const PDF_VERSION = "2.16.105";
+// const CDN_URLS = [
+//   `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDF_VERSION}/pdf.worker.min.js`,
+//   `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${PDF_VERSION}/pdf.worker.min.js`,
+//   `https://unpkg.com/pdfjs-dist@${PDF_VERSION}/build/pdf.worker.min.js`,
+// ];
+
+// // Function to try different CDNs
+// const setupPdfWorker = () => {
+//   for (let i = 0; i < CDN_URLS.length; i++) {
+//     try {
+//       pdfjs.GlobalWorkerOptions.workerSrc = CDN_URLS[i];
+//       console.log(`Using PDF worker from: ${CDN_URLS[i]}`);
+//       return true;
+//     } catch (error) {
+//       console.warn(`Failed to load worker from ${CDN_URLS[i]}:`, error);
+//     }
+//   }
+//   console.error("All PDF worker CDNs failed");
+//   return false;
+// };
+
+// // Initialize PDF worker
+// setupPdfWorker();
+
+// /* ================= TYPES ================= */
+
+// type Note = {
+//   id: string;
+//   title: string;
+//   description?: string;
+//   grade: string;
+//   subject: string;
+//   category: string;
+//   faculty_name: string;
+//   group_allowed: string;
+//   file_type: string;
+//   uploaded_at: string;
+//   file_size?: string;
+//   file_name?: string;
+//   signed_url?: string;
+//   url?: string;
+// };
+
+// /* ================= INPUT COMPONENT ================= */
+
+// interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+//   // You can add custom props if needed
+// }
+
+// const Input = ({ className = "", ...props }: InputProps) => {
+//   return (
+//     <input
+//       className={`
+//         h-11 w-full pl-12 pr-10 rounded-full
+//         bg-transparent border border-border
+//         outline-none focus:border-primary focus:ring-1 focus:ring-ring
+//         placeholder:text-muted-foreground
+//         disabled:opacity-50 disabled:cursor-not-allowed
+//         transition-all duration-200
+//         ${className}
+//       `}
+//       {...props}
+//     />
+//   );
+// };
+
+// /* ================= CUSTOM SCROLLBAR STYLES ================= */
+
+// const customScrollbarStyles = `
+//   /* Hide scrollbar for Chrome, Safari and Opera */
+//   .no-scrollbar::-webkit-scrollbar {
+//     display: none;
+//   }
+
+//   /* Hide scrollbar for IE, Edge and Firefox */
+//   .no-scrollbar {
+//     -ms-overflow-style: none;  /* IE and Edge */
+//     scrollbar-width: none;  /* Firefox */
+//   }
+
+//   /* Custom scrollbar styling using your variables */
+//   .custom-scrollbar::-webkit-scrollbar {
+//     width: 6px;
+//     height: 6px;
+//   }
+
+//   .custom-scrollbar::-webkit-scrollbar-track {
+//     background: transparent;
+//   }
+
+//   .custom-scrollbar::-webkit-scrollbar-thumb {
+//     background: rgb(var(--muted));
+//     border-radius: 3px;
+//   }
+
+//   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+//     background: rgb(var(--muted-foreground));
+//   }
+// `;
+
+// /* ================= MAIN ================= */
+
+// export default function UploadedNotes() {
+//   const { token } = useAuth();
+//   const [search, setSearch] = useState("");
+//   const [notes, setNotes] = useState<Note[]>([]);
+//   const [loading, setLoading] = useState(true);
+//   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+//   /* ---- PDF PREVIEW ---- */
+//   const [previewOpen, setPreviewOpen] = useState(false);
+//   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
+//   const [page, setPage] = useState(1);
+//   const [pages, setPages] = useState(0);
+//   const [previewLoading, setPreviewLoading] = useState(false);
+//   const [currentPreviewNote, setCurrentPreviewNote] = useState<Note | null>(null);
+//   const [pdfLoadError, setPdfLoadError] = useState<string | null>(null);
+//   const [debugInfo, setDebugInfo] = useState<string>("");
+  
+//   // Ref to store the PDF URL for debugging
+//   const pdfUrlRef = useRef<string | null>(null);
+
+//   /* ================= API FUNCTIONS ================= */
+
+//   const fetchNotes = async () => {
+//     setLoading(true);
+//     try {
+//       const response = await apiRequest("/files/recentfiles", "GET", null, token || "");
+      
+//       if (response?.data && Array.isArray(response.data)) {
+//         const formattedNotes = response.data.map((note: any) => {
+          
+//           // TITLE: If API returns empty string, use description or create from subject
+//           let noteTitle = note.title?.trim();
+//           if (!noteTitle || noteTitle === "") {
+//             // If description exists and is not empty, use it
+//             if (note.description?.trim() && note.description.trim() !== "") {
+//               noteTitle = note.description.trim();
+//             } else {
+//               // Create a title from subject and grade
+//               const subject = note.subject?.trim() || "Unknown";
+//               const grade = note.grade?.trim() || "";
+//               noteTitle = `${subject.charAt(0).toUpperCase() + subject.slice(1)} Notes ${grade}`;
+//             }
+//           }
+          
+//           // DESCRIPTION: Use description if it's different from title
+//           let noteDescription = note.description?.trim() || "";
+//           if (noteDescription === noteTitle) {
+//             noteDescription = "";
+//           }
+          
+//           // GRADE: Format properly
+//           const grade = note.grade?.trim() || "Not specified";
+//           let formattedGrade = grade;
+//           if (grade === "2PUC" || grade === "2puc") {
+//             formattedGrade = "2ND PUC";
+//           } else if (grade === "1PUC" || grade === "1puc") {
+//             formattedGrade = "1ST PUC";
+//           } else {
+//             formattedGrade = grade.toUpperCase().includes("PUC") 
+//               ? grade.toUpperCase() 
+//               : grade;
+//           }
+          
+//           // SUBJECT: Capitalize properly
+//           const subject = note.subject?.trim() || "General";
+//           const formattedSubject = subject
+//             .split(' ')
+//             .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+//             .join(' ');
+          
+//           // CATEGORY: If API returns empty, use a default based on group_allowed or subject
+//           let category = note.category?.trim();
+//           if (!category || category === "") {
+//             // Try to infer category from group_allowed or use default
+//             const group = note.group_allowed?.toUpperCase() || "";
+//             if (group.includes("A") || group.includes("T") || group.includes("TOPPER")) {
+//               category = "Toppers";
+//             } else if (group.includes("B") || group.includes("H") || group.includes("HIGH")) {
+//               category = "High Achievers";
+//             } else if (group.includes("C") || group.includes("M") || group.includes("MEDIUM")) {
+//               category = "Medium Students";
+//             } else if (group.includes("D") || group.includes("L") || group.includes("LOW")) {
+//               category = "Low Students";
+//             } else if (group.includes("E") || group.includes("B") || group.includes("BEGINNER")) {
+//               category = "Beginner Level";
+//             } else if (group.includes("F") || group.includes("I") || group.includes("INTERMEDIATE")) {
+//               category = "Intermediate Level";
+//             } else if (group.includes("G") || group.includes("A") || group.includes("ADVANCED")) {
+//               category = "Advanced Level";
+//             } else {
+//               category = "Study Material";
+//             }
+//           }
+          
+//           // GROUP ALLOWED: Use what's in API or default
+//           const groupAllowed = note.group_allowed?.trim() || "All Students";
+          
+//           // FILE TYPE: If API returns empty, check file_url or use default
+//           let fileType = note.file_type?.toLowerCase()?.trim();
+//           if (!fileType || fileType === "") {
+//             // Check if there's a file_url to extract extension
+//             if (note.file_url) {
+//               const url = note.file_url.toLowerCase();
+//               if (url.includes('.pdf')) fileType = 'pdf';
+//               else if (url.includes('.doc')) fileType = 'doc';
+//               else if (url.includes('.docx')) fileType = 'docx';
+//               else if (url.includes('.jpg') || url.includes('.jpeg')) fileType = 'image';
+//               else if (url.includes('.png')) fileType = 'image';
+//               else if (url.includes('.ppt') || url.includes('.pptx')) fileType = 'ppt';
+//               else fileType = 'pdf';
+//             } else {
+//               fileType = 'pdf';
+//             }
+//           }
+          
+//           // FILE NAME: Create from title and file type
+//           const fileName = `${noteTitle.replace(/\s+/g, '_')}.${fileType}`;
+          
+//           // FACULTY NAME
+//           const facultyName = note.faculty_name?.trim() || "Faculty";
+          
+//           // FILE SIZE
+//           const fileSize = note.file_size || "0";
+          
+//           // UPLOADED DATE
+//           const uploadedAt = note.uploaded_at || note.created_at || new Date().toISOString();
+          
+//           return {
+//             id: note.id || Math.random().toString(),
+//             title: noteTitle,
+//             description: noteDescription,
+//             grade: formattedGrade,
+//             subject: formattedSubject,
+//             category: category,
+//             faculty_name: facultyName,
+//             group_allowed: groupAllowed,
+//             file_type: fileType,
+//             uploaded_at: uploadedAt,
+//             file_size: fileSize,
+//             file_name: fileName,
+//             signed_url: note.signed_url || note.file_url || "",
+//           };
+//         });
+        
+//         setNotes(formattedNotes);
+//       } else {
+//         console.error("Invalid response format:", response);
+//         toast.error("No notes found");
+//         setNotes([]);
+//       }
+//     } catch (error: any) {
+//       console.error("Error fetching notes:", error);
+//       toast.error(error.message || "Failed to load notes");
+//       setNotes([]);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const deleteNote = async (id: string) => {
+//     if (!window.confirm("Are you sure you want to delete this note? This action cannot be undone.")) {
+//       return;
+//     }
+
+//     setDeletingId(id);
+//     try {
+//       const response = await apiRequest(`/files/delete/${id}`, "DELETE", null, token || "");
+      
+//       if (response.status === "success") {
+//         toast.success("Note deleted successfully");
+//         setNotes(prev => prev.filter(note => note.id !== id));
+//       } else {
+//         throw new Error(response.message || "Delete failed");
+//       }
+//     } catch (error: any) {
+//       console.error("Error deleting note:", error);
+//       toast.error(error.message || "Failed to delete note");
+//       setNotes(prev => prev.filter(note => note.id !== id));
+//     } finally {
+//       setDeletingId(null);
+//     }
+//   };
+
+//   // Test if URL is accessible
+//   const testUrlAccessibility = async (url: string): Promise<boolean> => {
+//     try {
+//       const response = await fetch(url, {
+//         method: 'HEAD',
+//         mode: 'cors',
+//         cache: 'no-cache',
+//       });
+//       return response.ok;
+//     } catch (error) {
+//       console.log("URL test failed:", error);
+//       return false;
+//     }
+//   };
+
+//   const openPreview = async (note: Note) => {
+//     setPreviewLoading(true);
+//     setCurrentPreviewNote(note);
+//     setPdfLoadError(null);
+//     setDebugInfo("");
+    
+//     try {
+//       if (!note.id) {
+//         toast.error("File ID not available");
+//         return;
+//       }
+
+//       toast.info("Loading preview...");
+      
+//       const response = await apiRequest(`/files/accessfile/${note.id}`, "GET", null, token || "");
+      
+//       if (response.status === "success" && response.data?.signed_url) {
+//         let signedUrl = response.data.signed_url;
+        
+//         // Clean up the URL
+//         signedUrl = signedUrl.trim();
+        
+//         // Check if URL is valid
+//         if (!signedUrl || signedUrl === "") {
+//           throw new Error("Invalid PDF URL - URL is empty");
+//         }
+        
+//         console.log("PDF URL received:", signedUrl);
+//         console.log("URL length:", signedUrl.length);
+//         console.log("URL starts with http:", signedUrl.startsWith('http'));
+        
+//         setDebugInfo(`URL: ${signedUrl.substring(0, 100)}...`);
+        
+//         // Test if the URL is accessible
+//         const isAccessible = await testUrlAccessibility(signedUrl);
+//         console.log("URL accessible:", isAccessible);
+        
+//         if (!isAccessible) {
+//           console.warn("URL may not be accessible due to CORS or other issues");
+//           setDebugInfo(prev => prev + " (CORS/access issue detected)");
+//         }
+        
+//         // Store URL in ref for debugging
+//         pdfUrlRef.current = signedUrl;
+        
+//         setPdfUrl(signedUrl);
+//         setPreviewOpen(true);
+//         setPage(1);
+//         setPages(0);
+//       } else {
+//         throw new Error(response.message || "Preview URL not available in response");
+//       }
+//     } catch (error: any) {
+//       console.error("Error opening preview:", error);
+//       const errorMsg = error.message || "Failed to open preview";
+//       toast.error(errorMsg);
+//       setPdfLoadError(errorMsg);
+//       setPreviewOpen(true); // Still open modal to show error
+//     } finally {
+//       setPreviewLoading(false);
+//     }
+//   };
+
+//   const closePreview = () => {
+//     setPreviewOpen(false);
+//     setPdfUrl(null);
+//     setPage(1);
+//     setPages(0);
+//     setCurrentPreviewNote(null);
+//     setPdfLoadError(null);
+//     setDebugInfo("");
+//     pdfUrlRef.current = null;
+//   };
+
+//   const handlePdfLoadSuccess = ({ numPages }: { numPages: number }) => {
+//     console.log("✅ PDF loaded successfully, pages:", numPages);
+//     setPages(numPages);
+//     setPdfLoadError(null);
+//   };
+
+//   const handlePdfLoadError = (error: Error) => {
+//     console.error("❌ PDF load error:", error);
+//     console.error("Error details:", error.message, error.name);
+    
+//     let errorMsg = "Failed to load PDF. ";
+    
+//     if (error.message.includes('Failed to fetch')) {
+//       errorMsg += "Network error or CORS issue detected. ";
+//       errorMsg += "The PDF URL might not be accessible from this domain.";
+//     } else if (error.message.includes('Invalid PDF')) {
+//       errorMsg += "The file might be corrupted or in an unsupported format.";
+//     } else {
+//       errorMsg += "Please try downloading the file instead.";
+//     }
+    
+//     setPdfLoadError(errorMsg);
+//     toast.error("Failed to load PDF preview");
+    
+//     // Log the URL that failed
+//     if (pdfUrlRef.current) {
+//       console.error("Failed URL:", pdfUrlRef.current);
+//     }
+//   };
+
+//   // Function to open PDF in new tab as fallback
+//   const openPdfInNewTab = () => {
+//     if (pdfUrlRef.current) {
+//       window.open(pdfUrlRef.current, '_blank', 'noopener,noreferrer');
+//     } else if (currentPreviewNote?.signed_url) {
+//       window.open(currentPreviewNote.signed_url, '_blank', 'noopener,noreferrer');
+//     } else {
+//       toast.error("No PDF URL available");
+//     }
+//   };
+
+//   const formatFileSize = (bytes?: string) => {
+//     if (!bytes || bytes === "0") return "Unknown";
+//     try {
+//       const size = parseFloat(bytes);
+//       if (size < 1024) return size + " B";
+//       if (size < 1024 * 1024) return (size / 1024).toFixed(1) + " KB";
+//       return (size / (1024 * 1024)).toFixed(1) + " MB";
+//     } catch {
+//       return "Unknown";
+//     }
+//   };
+
+//   const formatDate = (dateString: string) => {
+//     try {
+//       const date = new Date(dateString);
+//       return date.toLocaleDateString('en-US', {
+//         month: 'short',
+//         day: 'numeric',
+//         year: 'numeric'
+//       });
+//     } catch {
+//       return "Recent";
+//     }
+//   };
+
+//   /* ================= EFFECTS ================= */
+
+//   useEffect(() => {
+//     if (token) {
+//       fetchNotes();
+//     }
+//   }, [token]);
+
+//   const filteredNotes = notes.filter((n) => {
+//     if (!search.trim()) return true;
+    
+//     const searchTerm = search.toLowerCase();
+//     return (
+//       n.title?.toLowerCase().includes(searchTerm) ||
+//       n.subject?.toLowerCase().includes(searchTerm) ||
+//       n.category?.toLowerCase().includes(searchTerm) ||
+//       n.description?.toLowerCase().includes(searchTerm) ||
+//       n.grade?.toLowerCase().includes(searchTerm) ||
+//       n.group_allowed?.toLowerCase().includes(searchTerm)
+//     );
+//   });
+
+//   /* ================= UI ================= */
+
+//   return (
+//     <>
+//       <style>{customScrollbarStyles}</style>
+      
+//       <div className="min-h-screen bg-background p-4 md:p-6 no-scrollbar">
+
+//         {/* HEADER */}
+//         <div className="mb-8">
+//           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+//             <div>
+//               <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+//                 Uploaded Notes
+//               </h1>
+//               <p className="text-muted-foreground text-sm mt-1">
+//                 {notes.length} documents • {filteredNotes.length} filtered
+//               </p>
+//             </div>
+
+//              <div className="flex items-center gap-3">
+//               <Tooltip>
+//                 <TooltipTrigger asChild>
+//                   <Button
+//                     variant="outline"
+//                     size="icon"
+//                     onClick={fetchNotes}
+//                     disabled={loading}
+//                     className="rounded-full border-border hover:border-primary transition-all"
+//                   >
+//                     <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
+//                   </Button>
+//                 </TooltipTrigger>
+//                 <TooltipContent>
+//                   Refresh notes
+//                 </TooltipContent>
+//               </Tooltip>
+//             </div>
+//           </div>
+
+//           {/* SEARCH BAR */}
+//           <div className="relative w-full max-w-md">
+//             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+//               <Search className="w-5 h-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
+//             </div>
+
+//             <Input
+//               placeholder="Search notes by title, subject, category, or group..."
+//               value={search}
+//               onChange={(e) => setSearch(e.target.value)}
+//             />
+
+//             {search && (
+//               <button
+//                 type="button"
+//                 onClick={() => setSearch("")}
+//                 className="
+//                   absolute inset-y-0 right-0 pr-3 flex items-center
+//                   text-muted-foreground hover:text-foreground hover:bg-accent/10
+//                   transition-colors rounded-full p-1
+//                 "
+//               >
+//                 <X className="w-4 h-4" />
+//               </button>
+//             )}
+//           </div>
+//         </div>
+
+//         {/* CONTENT */}
+//         {loading ? (
+//           <div className="flex flex-col items-center justify-center py-20">
+//             <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+//             <p className="text-muted-foreground">Loading your notes...</p>
+//           </div>
+//         ) : filteredNotes.length === 0 ? (
+//           <Card className="border border-border">
+//             <CardContent className="p-12 text-center">
+//               <FileText className="w-12 h-12 text-muted mx-auto mb-4" />
+//               <h3 className="text-lg font-medium text-foreground mb-2">
+//                 {notes.length === 0 ? "No notes uploaded yet" : "No notes found"}
+//               </h3>
+//               <p className="text-muted-foreground">
+//                 {notes.length === 0 
+//                   ? "Upload your first note to get started!" 
+//                   : "Try a different search term"}
+//               </p>
+//             </CardContent>
+//           </Card>
+//         ) : (
+//           /* GRID VIEW ONLY */
+//           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+//             {filteredNotes.map((note) => (
+//               <Card 
+//                 key={note.id} 
+//                 className="border border-border bg-card hover:border-accent/30 transition-all duration-300 hover:shadow-lg group"
+//               >
+//                 <CardContent className="p-4">
+//                   {/* Header */}
+//                   <div className="flex justify-between items-start mb-3">
+//                     <div className="flex items-start gap-2 flex-1">
+//                       <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-colors">
+//                         <FileText className="text-primary w-4 h-4" />
+//                       </div>
+//                       <div className="flex-1 min-w-0">
+//                         <h3 className="font-semibold text-foreground text-sm mb-1 line-clamp-2">
+//                           {note.title}
+//                         </h3>
+//                         <div className="flex items-center gap-1">
+//                           <Badge variant="secondary" className="text-xs bg-muted/20 text-foreground px-1.5 py-0">
+//                             {note.file_type.toUpperCase()}
+//                           </Badge>
+//                           {note.file_size && note.file_size !== "0" && (
+//                             <span className="text-xs text-muted-foreground">
+//                               • {formatFileSize(note.file_size)}
+//                             </span>
+//                           )}
+//                         </div>
+//                       </div>
+//                     </div>
+                    
+//                     <DropdownMenu>
+//                       <DropdownMenuTrigger asChild>
+//                         <Button 
+//                           variant="ghost" 
+//                           size="sm"
+//                           className="h-7 w-7 p-0 hover:bg-accent/10"
+//                         >
+//                           <MoreVertical className="w-3.5 h-3.5" />
+//                         </Button>
+//                       </DropdownMenuTrigger>
+//                       <DropdownMenuContent align="end" className="border border-border bg-card w-40">
+//                         <DropdownMenuItem 
+//                           onClick={() => openPreview(note)}
+//                           className="hover:bg-accent/10 focus:bg-accent/10 cursor-pointer text-sm"
+//                           disabled={previewLoading}
+//                         >
+//                           {previewLoading && currentPreviewNote?.id === note.id ? (
+//                             <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
+//                           ) : (
+//                             <Eye className="w-3.5 h-3.5 mr-2" />
+//                           )}
+//                           Preview
+//                         </DropdownMenuItem>
+//                         <DropdownMenuItem 
+//                           onClick={() => {
+//                             if (note.signed_url) {
+//                               window.open(note.signed_url, '_blank', 'noopener,noreferrer');
+//                             } else {
+//                               toast.info("Download URL not available");
+//                             }
+//                           }}
+//                           className="hover:bg-accent/10 focus:bg-accent/10 cursor-pointer text-sm"
+//                         >
+//                           <Download className="w-3.5 h-3.5 mr-2" />
+//                           Download
+//                         </DropdownMenuItem>
+//                         <DropdownMenuSeparator />
+//                         <DropdownMenuItem
+//                           onClick={() => deleteNote(note.id)}
+//                           className="text-destructive hover:bg-destructive/10 focus:bg-destructive/10 cursor-pointer text-sm"
+//                           disabled={deletingId === note.id}
+//                         >
+//                           {deletingId === note.id ? (
+//                             <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
+//                           ) : (
+//                             <Trash2 className="w-3.5 h-3.5 mr-2" />
+//                           )}
+//                           Delete
+//                         </DropdownMenuItem>
+//                       </DropdownMenuContent>
+//                     </DropdownMenu>
+//                   </div>
+
+//                   {/* Description */}
+//                   {note.description && note.description.trim() !== "" && (
+//                     <p className="text-xs text-muted-foreground mb-3 line-clamp-2">
+//                       {note.description}
+//                     </p>
+//                   )}
+
+//                   {/* Info Badges */}
+//                   <div className="flex flex-wrap gap-1.5 mb-3">
+//                     <Badge variant="secondary" className="text-xs bg-primary/10 text-primary px-2 py-0.5">
+//                       <School className="w-2.5 h-2.5 mr-1" />
+//                       {note.grade}
+//                     </Badge>
+//                     <Badge variant="secondary" className="text-xs bg-muted/20 text-foreground px-2 py-0.5">
+//                       <Book className="w-2.5 h-2.5 mr-1" />
+//                       {note.subject}
+//                     </Badge>
+//                     <Badge variant="secondary" className="text-xs bg-muted/20 text-foreground px-2 py-0.5">
+//                       <Tag className="w-2.5 h-2.5 mr-1" />
+//                       {note.category}
+//                     </Badge>
+//                     <Badge variant="secondary" className="text-xs bg-muted/20 text-foreground px-2 py-0.5">
+//                       <Users className="w-2.5 h-2.5 mr-1" />
+//                       {note.group_allowed}
+//                     </Badge>
+//                   </div>
+
+//                   {/* Footer */}
+//                   <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border">
+//                     <div className="flex items-center gap-1">
+//                       <User className="w-3 h-3" />
+//                       <span>{note.faculty_name}</span>
+//                     </div>
+//                     <div className="flex items-center gap-1">
+//                       <Calendar className="w-3 h-3" />
+//                       <span>{formatDate(note.uploaded_at)}</span>
+//                     </div>
+//                   </div>
+//                 </CardContent>
+//               </Card>
+//             ))}
+//           </div>
+//         )}
+
+//         {/* PDF PREVIEW MODAL - FIXED */}
+//         {previewOpen && (
+//           <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+//             <div className="bg-card w-full max-w-6xl h-[90vh] rounded-2xl flex flex-col overflow-hidden border border-border shadow-2xl">
+//               {/* Header */}
+//               <div className="flex items-center justify-between p-6 border-b border-border bg-card/95 backdrop-blur-sm">
+//                 <div className="flex items-center gap-3">
+//                   <FileText className="w-6 h-6 text-primary" />
+//                   <div>
+//                     <h2 className="font-semibold text-xl text-foreground">PDF Preview</h2>
+//                     {currentPreviewNote && (
+//                       <p className="text-sm text-muted-foreground">{currentPreviewNote.title}</p>
+//                     )}
+//                   </div>
+//                 </div>
+//                 <div className="flex items-center gap-2">
+//                   <Button
+//                     variant="outline"
+//                     size="sm"
+//                     onClick={openPdfInNewTab}
+//                     className="gap-2"
+//                   >
+//                     <ExternalLink className="w-4 h-4" />
+//                     Open in new tab
+//                   </Button>
+//                   <Button
+//                     variant="ghost"
+//                     size="sm"
+//                     onClick={closePreview}
+//                     className="h-10 w-10 p-0 hover:bg-destructive/10 hover:text-destructive rounded-full"
+//                   >
+//                     <X className="w-5 h-5" />
+//                   </Button>
+//                 </div>
+//               </div>
+
+//               {/* PDF Content */}
+//               <div className="flex-1 overflow-auto p-4 md:p-6 flex justify-center custom-scrollbar bg-background/30">
+//                 {pdfLoadError ? (
+//                   <div className="flex flex-col items-center justify-center h-full w-full max-w-2xl">
+//                     <AlertCircle className="w-16 h-16 text-destructive mb-4" />
+//                     <h3 className="text-xl font-semibold text-foreground mb-2">Failed to Load PDF</h3>
+//                     <p className="text-muted-foreground text-center mb-4">{pdfLoadError}</p>
+                    
+//                     {debugInfo && (
+//                       <div className="bg-muted/20 p-3 rounded-lg mb-4 w-full">
+//                         <p className="text-xs text-muted-foreground font-mono break-all">
+//                           {debugInfo}
+//                         </p>
+//                       </div>
+//                     )}
+                    
+//                     <div className="flex gap-3">
+//                       <Button
+//                         variant="outline"
+//                         onClick={() => currentPreviewNote && openPreview(currentPreviewNote)}
+//                         className="gap-2"
+//                       >
+//                         <RefreshCw className="w-4 h-4" />
+//                         Retry Preview
+//                       </Button>
+//                       <Button
+//                         onClick={openPdfInNewTab}
+//                         className="gap-2"
+//                       >
+//                         <ExternalLink className="w-4 h-4" />
+//                         Open in New Tab
+//                       </Button>
+//                     </div>
+                    
+//                     <div className="mt-6 text-sm text-muted-foreground">
+//                       <p className="mb-1">Common issues:</p>
+//                       <ul className="list-disc pl-5 text-left space-y-1">
+//                         <li>CORS restrictions on the PDF server</li>
+//                         <li>PDF URL might have expired or is invalid</li>
+//                         <li>Network connectivity issues</li>
+//                         <li>PDF file might be corrupted</li>
+//                       </ul>
+//                     </div>
+//                   </div>
+//                 ) : pdfUrl ? (
+//                   <div className="w-full">
+//                     <Document
+//                       file={{
+//                         url: pdfUrl,
+//                         httpHeaders: {
+//                           'Authorization': `Bearer ${token}`,
+//                           'Accept': 'application/pdf',
+//                         },
+//                         withCredentials: true,
+//                       }}
+//                       onLoadSuccess={handlePdfLoadSuccess}
+//                       onLoadError={handlePdfLoadError}
+//                       loading={
+//                         <div className="flex flex-col items-center justify-center h-64">
+//                           <div className="relative mb-4">
+//                             <div className="w-16 h-16 border-4 border-primary/20 rounded-full"></div>
+//                             <div className="absolute inset-0 w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+//                           </div>
+//                           <p className="text-muted-foreground">Loading document...</p>
+//                           <p className="text-muted-foreground text-xs mt-2">This may take a moment</p>
+//                         </div>
+//                       }
+//                       error={
+//                         <div className="flex flex-col items-center justify-center h-64">
+//                           <FileText className="w-16 h-16 text-destructive mb-4" />
+//                           <p className="text-destructive font-medium mb-2">Failed to load PDF</p>
+//                           <p className="text-muted-foreground text-sm">Please try opening in a new tab instead.</p>
+//                           <Button
+//                             onClick={openPdfInNewTab}
+//                             className="mt-4 gap-2"
+//                           >
+//                             <ExternalLink className="w-4 h-4" />
+//                             Open in New Tab
+//                           </Button>
+//                         </div>
+//                       }
+//                     >
+//                       <Page 
+//                         pageNumber={page} 
+//                         width={Math.min(1000, window.innerWidth - 96)} 
+//                         className="shadow-lg rounded-lg bg-white mx-auto"
+//                         renderTextLayer={true}
+//                         renderAnnotationLayer={true}
+//                       />
+//                     </Document>
+//                   </div>
+//                 ) : (
+//                   <div className="flex flex-col items-center justify-center h-full">
+//                     <FileText className="w-16 h-16 text-muted mb-4" />
+//                     <p className="text-muted-foreground">Unable to load document</p>
+//                     <p className="text-muted-foreground text-sm mt-1">No PDF URL available</p>
+//                   </div>
+//                 )}
+//               </div>
+
+//               {/* Footer Controls */}
+//               {pages > 0 && !pdfLoadError && (
+//                 <div className="p-4 border-t border-border flex items-center justify-between bg-card/95 backdrop-blur-sm">
+//                   <div className="flex items-center gap-3">
+//                     <Button
+//                       variant="outline"
+//                       disabled={page <= 1}
+//                       onClick={() => setPage(p => p - 1)}
+//                       className="border-border hover:bg-accent hover:text-accent-foreground px-4"
+//                     >
+//                       Previous
+//                     </Button>
+//                     <Button
+//                       variant="outline"
+//                       disabled={page >= pages}
+//                       onClick={() => setPage(p => p + 1)}
+//                       className="border-border hover:bg-accent hover:text-accent-foreground px-4"
+//                     >
+//                       Next
+//                     </Button>
+//                   </div>
+                  
+//                   <div className="flex items-center gap-4">
+//                     <span className="text-sm text-muted-foreground">
+//                       Page <span className="font-medium text-foreground">{page}</span> of <span className="font-medium text-foreground">{pages}</span>
+//                     </span>
+//                   </div>
+                  
+//                   <div className="flex items-center gap-2">
+//                     <Clock className="w-4 h-4 text-muted-foreground" />
+//                     <span className="text-sm text-muted-foreground">
+//                       Preview expires in 15 minutes
+//                     </span>
+//                   </div>
+//                 </div>
+//               )}
+//             </div>
+//           </div>
+//         )}
+//       </div>
+//     </>
+//   );
+// }
