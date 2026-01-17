@@ -4,7 +4,7 @@ import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { apiRequest } from "../../lib/api";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
 
 interface FormData {
   email: string;
@@ -69,13 +69,20 @@ const user = {
     
 
   } catch (err: any) {
-    console.error("Login failed:", err);
-    toast.error(err.message || "Unable to login");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
-
+      console.error("Login failed:", err);
+      
+      // Better error handling based on response status
+      if (err.response?.status === 401 || err.response?.status === 404) {
+        toast.error("Invalid email or password. Please check your credentials.");
+      } else if (err.response?.status === 400) {
+        toast.error("Account not found. Please register first.");
+      } else {
+        toast.error(err.message || "Unable to login");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const isFormValid = formData.email && formData.password;
 
@@ -189,9 +196,9 @@ const user = {
             <div className="text-center pt-1">
               <p className="text-muted-foreground text-xs">
                 Don't have an account?{" "}
-                <a href="/register" className="font-bold text-primary hover:text-secondary transition-colors duration-200">
+                <Link to="/register" className="font-bold text-primary hover:text-secondary transition-colors duration-200">
                   Create one
-                </a>
+                </Link>
               </p>
             </div>
           </div>
