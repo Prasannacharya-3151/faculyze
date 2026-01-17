@@ -4,12 +4,12 @@ import {
   FileText,
   Book,
   FolderOpen,
-  Upload,
   X,
   Users,
   Tag,
   Loader2,
   RefreshCw,
+  FileUp,
 } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -229,10 +229,23 @@ export default function UploadNotes() {
     }
 
     const fileExtension = uploaded.name.split('.').pop()?.toLowerCase() || '';
-    const allowedExtensions = ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'jpg', 'jpeg', 'png', 'gif'];
     
-    if (!allowedExtensions.includes(fileExtension)) {
-      toast.error(`File type not allowed. Allowed types: ${allowedExtensions.join(', ')}`);
+    // Only allow PDF files
+    if (fileExtension !== 'pdf') {
+      toast.error(
+        <div>
+          Only PDF files are allowed. <br />
+          Please convert your file to PDF using an online converter like 
+          <a 
+            href="https://www.ilovepdf.com" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-500 underline ml-1"
+          >
+            ILovePDF
+          </a>
+        </div>
+      );
       return;
     }
 
@@ -305,7 +318,6 @@ export default function UploadNotes() {
     try {
       const uploadFormData = new FormData();
       
-      // uploadFormData.append("file_name", formData.courseTitle);
       uploadFormData.append("title", formData.courseTitle);
       uploadFormData.append("description", formData.description || "");
       uploadFormData.append("grade", formData.grade);
@@ -314,20 +326,8 @@ export default function UploadNotes() {
       uploadFormData.append("group_allowed", formData.allowedGroups);
       uploadFormData.append("file", file.file);
       
-      const fileExtension = file.file.name.split('.').pop()?.toLowerCase() || '';
-      const fileTypeMap: Record<string, string> = {
-        'pdf': 'pdf',
-        'doc': 'doc',
-        'docx': 'docx',
-        'ppt': 'ppt',
-        'pptx': 'pptx',
-        'jpg': 'image',
-        'jpeg': 'image',
-        'png': 'image',
-        'gif': 'image'
-      };
-      
-      uploadFormData.append("file_type", fileTypeMap[fileExtension] || 'document');
+      // Always set file_type to 'pdf' since we only accept PDF files
+      uploadFormData.append("file_type", "pdf");
 
       console.log("Uploading file...");
 
@@ -439,13 +439,9 @@ export default function UploadNotes() {
             icon={<Tag className="w-4 h-4" />}
             onSelect={(v) => handleDropdown("category", v)}
             options={[
-              { label: "Toppers", value: "Toppers" },
-              { label: "High Achievers", value: "High Achievers" },
-              { label: "Medium Students", value: "Medium Students" },
-              { label: "Low Students", value: "Low Students" },
-              { label: "Beginner Level", value: "Beginner Level" },
-              { label: "Intermediate Level", value: "Intermediate Level" },
-              { label: "Advanced Level", value: "Advanced Level" },
+              { label: "Notes", value: "Notes" },
+              { label: "Exam Papers", value: "Exam Papers" },
+              { label: "Other Study Materials", value: "Other Study Materials" },
             ]}
             disabled={isUploading}
           />
@@ -457,8 +453,8 @@ export default function UploadNotes() {
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none pb-5">
-  <Users className="w-4 h-4 text-muted" />
-</div>
+                <Users className="w-4 h-4 text-muted" />
+              </div>
               <input
                 id="allowedGroups"
                 type="text"
@@ -487,7 +483,7 @@ export default function UploadNotes() {
             Upload File
           </h3>
           <p className="text-xs text-muted-foreground text-center mb-4">
-            Only one file allowed (PDF, DOC, DOCX, PPT, PPTX, Images)
+            Only PDF files allowed (Max 25MB)
           </p>
 
           {/* UPLOAD BOX (ALWAYS VISIBLE) */}
@@ -495,7 +491,7 @@ export default function UploadNotes() {
             ref={fileInputRef}
             type="file"
             hidden
-            accept=".pdf,.doc,.docx,.ppt,.pptx,.jpg,.jpeg,.png,.gif"
+            accept=".pdf"
             onChange={(e) =>
               e.target.files && handleFileSelect(e.target.files[0])
             }
@@ -510,26 +506,46 @@ export default function UploadNotes() {
                 : "cursor-pointer hover:border-primary"
             }`}
           >
-            <Upload className={`mx-auto mb-2 ${
-              subjects.length === 0 ? "text-muted" : "text-primary"
-            }`} />
+            <FileUp className={`mx-auto mb-2 ${subjects.length === 0 ? "text-muted" : "text-primary"}`} />
             <p className="text-sm font-medium">
-              {subjects.length === 0 ? "Complete profile to upload" : "Click to upload"}
+              {subjects.length === 0 ? "Complete profile to upload" : "Click to upload PDF"}
             </p>
             <p className="text-xs text-muted-foreground">(Max 25MB)</p>
           </div>
 
+          {/* PDF CONVERTER MESSAGE */}
+         <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/20">
+  <p className="text-sm text-primary font-medium flex items-center gap-2">
+    <FileUp className="w-4 h-4" />
+    File not in PDF format?
+  </p>
+  <p className="text-xs text-muted-foreground mt-1">
+    Convert your files to PDF using:{" "}
+    <a 
+      href="https://www.ilovepdf.com" 
+      target="_blank" 
+      rel="noopener noreferrer"
+      className="underline font-semibold text-primary transition-colors"
+    >
+      ILovePDF Converter
+    </a>
+  </p>
+</div>
+
           {/* FILE PREVIEW (BELOW BOX) */}
           <div className="min-h-[120px] mt-4">
             {file && (
-              <div className="p-4 rounded-xl border border-muted bg-primary/5 space-y-2">
+              <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 space-y-2">
                 <div className="flex justify-between items-center">
-                  <p className="text-sm font-medium truncate">
-                    {file.name}
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-primary" />
+                    <p className="text-sm font-medium truncate">
+                      {file.name}
+                    </p>
+                  </div>
                   <button 
                     onClick={() => setFile(null)}
-                    className="hover:bg-muted/20 p-1 rounded"
+                    className="hover:bg-muted/20 p-1 rounded-full transition disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={isUploading}
                   >
                     <X className="w-4 h-4" />
@@ -552,18 +568,22 @@ export default function UploadNotes() {
           </div>
 
           {/* SUBJECTS INFO */}
-          <div className=" space-y-2">
-            {subjects.length > 0 && (
-              <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
-                <p className="text-sm font-medium text-foreground mb-1">
-                  Your Selected Subjects ({subjects.length})
-                </p>
-                <div className="flex flex-wrap gap-1">
+          {/* <div className="space-y-2"> */}
+            {/* {subjects.length > 0 && ( */}
+              {/* // <div className="p-3 rounded-lg bg-primary/5 border border-primary/20"> */}
+                {/* <div className="flex items-center gap-2 mb-2">
+                  <FileText className="w-4 h-4 text-primary" />
+                  <p className="text-sm font-medium text-foreground">
+                    Your Selected Subjects ({subjects.length})
+                  </p>
+                </div> */}
+                {/* <div className="flex flex-wrap gap-1">
                   {subjects.slice(0, 3).map((subject, index) => (
                     <span
                       key={index}
-                      className="px-2 py-1 rounded-full text-xs bg-primary/10 text-primary"
+                      className="px-2 py-1 rounded-full text-xs bg-primary/10 text-primary flex items-center gap-1"
                     >
+                      <FileText className="w-3 h-3" />
                       {subject.label}
                     </span>
                   ))}
@@ -572,11 +592,11 @@ export default function UploadNotes() {
                       +{subjects.length - 3} more
                     </span>
                   )}
-                </div>
-              </div>
-            )}
+                </div> */}
+              {/* // </div> */}
+            {/* )} */}
             
-            {subjects.length === 0 && !isLoadingSubjects && (
+            {/* {subjects.length === 0 && !isLoadingSubjects && (
               <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
                 <p className="text-sm text-destructive">
                   No subjects available
@@ -586,7 +606,7 @@ export default function UploadNotes() {
                 </p>
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* BUTTON */}
           <button
@@ -602,7 +622,10 @@ export default function UploadNotes() {
             ) : subjects.length === 0 ? (
               "Complete Profile First"
             ) : (
-              "Upload Notes"
+              <>
+                <FileUp className="w-4 h-4" />
+                Upload Notes
+              </>
             )}
           </button>
           
@@ -753,7 +776,7 @@ function DropdownBlock({
                   className="
                     cursor-pointer px-3 py-2
                     text-foreground text-sm
-                    hover:-bg-primary/10
+                    hover:bg-primary/10
                     focus:bg-primary/10
                     data-[highlighted]:bg-primary/10
                     data-[highlighted]:text-foreground

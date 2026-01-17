@@ -22,6 +22,10 @@ import {
   School,
   Clock,
   User,
+  FolderOpen,
+  FileType,
+  Filter,
+  FileUp,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -124,6 +128,24 @@ const customScrollbarStyles = `
   }
 `;
 
+/* ================= CATEGORY MAPPING ================= */
+
+const CATEGORY_OPTIONS = [
+  "Notes",
+  "Exam Papers", 
+  "Other Study Materials"
+];
+
+const getCategoryIcon = (category: string) => {
+  if (category.toLowerCase().includes("exam")) {
+    return <FileText className="w-3 h-3 mr-1" />;
+  } else if (category.toLowerCase().includes("notes")) {
+    return <Book className="w-3 h-3 mr-1" />;
+  } else {
+    return <FolderOpen className="w-3 h-3 mr-1" />;
+  }
+};
+
 /* ================= MAIN ================= */
 
 export default function UploadedNotes() {
@@ -132,6 +154,11 @@ export default function UploadedNotes() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  /* ---- FILTERS ---- */
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
+  const [selectedSubject, setSelectedSubject] = useState<string>("All");
+  const [selectedGrade, setSelectedGrade] = useState<string>("All");
 
   /* ---- PDF PREVIEW ---- */
   const [previewOpen, setPreviewOpen] = useState(false);
@@ -171,68 +198,55 @@ export default function UploadedNotes() {
             noteDescription = "";
           }
           
-          // GRADE: Format properly
+          // GRADE: FIXED - Keep as 1PUC/2PUC (don't convert to 1ST PUC/2ND PUC)
           const grade = note.grade?.trim() || "Not specified";
           let formattedGrade = grade;
-          if (grade === "2PUC" || grade === "2puc") {
-            formattedGrade = "2ND PUC";
-          } else if (grade === "1PUC" || grade === "1puc") {
-            formattedGrade = "1ST PUC";
+          // Keep the grade as is from API (1PUC or 2PUC)
+          if (grade === "2PUC" || grade === "2puc" || grade === "2ND PUC" || grade === "2nd puc") {
+            formattedGrade = "2PUC";
+          } else if (grade === "1PUC" || grade === "1puc" || grade === "1ST PUC" || grade === "1st puc") {
+            formattedGrade = "1PUC";
           } else {
-            formattedGrade = grade.toUpperCase().includes("PUC") 
-              ? grade.toUpperCase() 
-              : grade;
+            // For any other format, keep it as is
+            formattedGrade = grade.toUpperCase();
           }
           
-          // SUBJECT: Capitalize properly - FIXED: Added type annotation for 'word'
+          // SUBJECT: Capitalize properly
           const subject = note.subject?.trim() || "General";
           const formattedSubject = subject
             .split(' ')
             .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
             .join(' ');
           
-          // CATEGORY: If API returns empty, use a default based on group_allowed or subject
+          // CATEGORY: Use from API or default to "Notes"
           let category = note.category?.trim();
-          if (!category || category === "") {
-            // Try to infer category from group_allowed or use default
-            const group = note.group_allowed?.toUpperCase() || "";
-            if (group.includes("A") || group.includes("T") || group.includes("TOPPER")) {
-              category = "Toppers";
-            } else if (group.includes("B") || group.includes("H") || group.includes("HIGH")) {
-              category = "High Achievers";
-            } else if (group.includes("C") || group.includes("M") || group.includes("MEDIUM")) {
-              category = "Medium Students";
-            } else if (group.includes("D") || group.includes("L") || group.includes("LOW")) {
-              category = "Low Students";
-            } else if (group.includes("E") || group.includes("B") || group.includes("BEGINNER")) {
-              category = "Beginner Level";
-            } else if (group.includes("F") || group.includes("I") || group.includes("INTERMEDIATE")) {
-              category = "Intermediate Level";
-            } else if (group.includes("G") || group.includes("A") || group.includes("ADVANCED")) {
-              category = "Advanced Level";
-            } else {
-              category = "Study Material";
-            }
+          if (!category || category === "" || !CATEGORY_OPTIONS.includes(category)) {
+            // Default to "Notes" if category is invalid or empty
+            category = "Notes";
           }
           
           // GROUP ALLOWED: Use what's in API or default
           const groupAllowed = note.group_allowed?.trim() || "All Students";
           
-          // FILE TYPE: If API returns empty, check file_url or use default
-          let fileType = note.file_type?.toLowerCase()?.trim();
-          if (!fileType || fileType === "") {
-            // Check if there's a file_url to extract extension
-            if (note.file_url) {
-              const url = note.file_url.toLowerCase();
-              if (url.includes('.pdf')) fileType = 'pdf';
-              else if (url.includes('.doc')) fileType = 'doc';
-              else if (url.includes('.docx')) fileType = 'docx';
-              else if (url.includes('.jpg') || url.includes('.jpeg')) fileType = 'image';
-              else if (url.includes('.png')) fileType = 'image';
-              else if (url.includes('.ppt') || url.includes('.pptx')) fileType = 'ppt';
-              else fileType = 'pdf';
+          // FILE TYPE: Always PDF since we only accept PDF uploads
+          let fileType = "pdf";
+          if (note.file_type) {
+            // Ensure file_type is lowercase and valid
+            const ft = note.file_type.toLowerCase().trim();
+            if (ft === "pdf" || ft === "doc" || ft === "docx" || ft === "ppt" || ft === "pptx" || ft === "image") {
+              fileType = ft;
             } else {
-              fileType = 'pdf';
+              // Check if there's a file_url to extract extension
+              if (note.file_url) {
+                const url = note.file_url.toLowerCase();
+                if (url.includes('.pdf')) fileType = 'pdf';
+                else if (url.includes('.doc')) fileType = 'doc';
+                else if (url.includes('.docx')) fileType = 'docx';
+                else if (url.includes('.jpg') || url.includes('.jpeg')) fileType = 'image';
+                else if (url.includes('.png')) fileType = 'image';
+                else if (url.includes('.ppt') || url.includes('.pptx')) fileType = 'ppt';
+                else fileType = 'pdf';
+              }
             }
           }
           
@@ -363,6 +377,56 @@ export default function UploadedNotes() {
     }
   };
 
+  /* ================= FILTER LOGIC ================= */
+
+  const getUniqueSubjects = () => {
+    const subjects = notes.map(note => note.subject);
+    return Array.from(new Set(subjects)).sort();
+  };
+
+  const getUniqueGrades = () => {
+    const grades = notes.map(note => note.grade);
+    return Array.from(new Set(grades)).sort();
+  };
+
+  const getUniqueCategories = () => {
+    const categories = notes.map(note => note.category);
+    return Array.from(new Set(categories)).sort();
+  };
+
+  const filteredNotes = notes.filter((note) => {
+    // Search filter
+    if (search.trim()) {
+      const searchTerm = search.toLowerCase();
+      const matchesSearch = 
+        note.title?.toLowerCase().includes(searchTerm) ||
+        note.subject?.toLowerCase().includes(searchTerm) ||
+        note.category?.toLowerCase().includes(searchTerm) ||
+        note.description?.toLowerCase().includes(searchTerm) ||
+        note.grade?.toLowerCase().includes(searchTerm) ||
+        note.group_allowed?.toLowerCase().includes(searchTerm);
+      
+      if (!matchesSearch) return false;
+    }
+    
+    // Category filter
+    if (selectedCategory !== "All" && note.category !== selectedCategory) {
+      return false;
+    }
+    
+    // Subject filter
+    if (selectedSubject !== "All" && note.subject !== selectedSubject) {
+      return false;
+    }
+    
+    // Grade filter
+    if (selectedGrade !== "All" && note.grade !== selectedGrade) {
+      return false;
+    }
+    
+    return true;
+  });
+
   /* ================= EFFECTS ================= */
 
   useEffect(() => {
@@ -370,20 +434,6 @@ export default function UploadedNotes() {
       fetchNotes();
     }
   }, [token]);
-
-  const filteredNotes = notes.filter((n) => {
-    if (!search.trim()) return true;
-    
-    const searchTerm = search.toLowerCase();
-    return (
-      n.title?.toLowerCase().includes(searchTerm) ||
-      n.subject?.toLowerCase().includes(searchTerm) ||
-      n.category?.toLowerCase().includes(searchTerm) ||
-      n.description?.toLowerCase().includes(searchTerm) ||
-      n.grade?.toLowerCase().includes(searchTerm) ||
-      n.group_allowed?.toLowerCase().includes(searchTerm)
-    );
-  });
 
   /* ================= UI ================= */
 
@@ -404,19 +454,17 @@ export default function UploadedNotes() {
                 {notes.length} documents • {filteredNotes.length} filtered
               </p>
             </div>
-
-             <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3">
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="icon"
+                  <button
+                    type="button"
                     onClick={fetchNotes}
                     disabled={loading}
-                    className="rounded-full border-border hover:border-primary transition-all"
+                    className="h-10 w-10 p-0 flex items-center justify-center rounded-full border border-muted outline-none transition-all duration-200 hover:border-primary focus:border-primary focus:ring-2 focus:ring-ring disabled:opacity-50 disabled:cursor-not-allowed bg-transparent"
                   >
                     <RefreshCw className={cn("w-4 h-4", loading && "animate-spin")} />
-                  </Button>
+                  </button>
                 </TooltipTrigger>
                 <TooltipContent>
                   Refresh notes
@@ -425,31 +473,176 @@ export default function UploadedNotes() {
             </div>
           </div>
 
-          {/* SEARCH BAR */}
-          <div className="relative w-full max-w-md">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <Search className="w-5 h-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
+          {/* SEARCH BAR & FILTERS - RESPONSIVE */}
+          <div className="mb-8">
+            <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
+              {/* Left Side - Search */}
+              <div className="w-full lg:w-auto lg:flex-1">
+                <div className="relative w-full max-w-md">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Search className="w-5 h-5 text-muted-foreground transition-colors group-focus-within:text-primary" />
+                  </div>
+
+                  <Input
+                    placeholder="Search notes by title, subject, category, or group..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+
+                  {search && (
+                    <button
+                      type="button"
+                      onClick={() => setSearch("")}
+                      className="
+                        absolute inset-y-0 right-0 pr-3 flex items-center
+                        text-muted-foreground hover:text-foreground hover:bg-accent/10
+                        transition-colors rounded-full p-1
+                      "
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Right Side - Filters */}
+              <div className="w-full lg:w-auto">
+                {/* FILTERS - RIGHT SIDE */}
+                {notes.length > 0 && (
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2 sm:mb-0">
+                      <Filter className="w-4 h-4" />
+                      <span className="hidden sm:inline">Filter by:</span>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-3">
+                      {/* Category Filter */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            type="button"
+                            className="h-8 min-w-[140px] px-3 rounded-full border hover:border-2 border-muted outline-none transition-all duration-200 hover:border-primary focus:border-primary focus:ring-1 focus:ring-ring flex items-center justify-between gap-2 text-sm bg-transparent"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Tag className="w-3.5 h-3.5 flex-shrink-0" />
+                              <span className="truncate">
+                                {selectedCategory === "All" ? "All Categories" : selectedCategory}
+                              </span>
+                            </div>
+                            <span className="text-xs opacity-60">▼</span>
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="border-muted bg-card w-48">
+                          <DropdownMenuItem 
+                            onClick={() => setSelectedCategory("All")}
+                            className="hover:bg-primary/10 focus:bg-primary/10 cursor-pointer"
+                          >
+                            All Categories
+                          </DropdownMenuItem>
+                          {getUniqueCategories().map((category) => (
+                            <DropdownMenuItem 
+                              key={category}
+                              onClick={() => setSelectedCategory(category)}
+                              className="flex items-center gap-2 hover:bg-primary/10 focus:bg-primary/10 cursor-pointer"
+                            >
+                              {getCategoryIcon(category)}
+                              {category}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      
+                      {/* Subject Filter */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            type="button"
+                            className="h-8 min-w-[140px] px-3 rounded-full border hover:border-2 border-muted outline-none transition-all duration-200 hover:border-primary focus:border-primary focus:ring-1 focus:ring-ring flex items-center justify-between gap-2 text-sm bg-transparent"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Book className="w-3.5 h-3.5 flex-shrink-0" />
+                              <span className="truncate">
+                                {selectedSubject === "All" ? "All Subjects" : selectedSubject}
+                              </span>
+                            </div>
+                            <span className="text-xs opacity-60">▼</span>
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="border-muted bg-card w-48">
+                          <DropdownMenuItem 
+                            onClick={() => setSelectedSubject("All")}
+                            className="hover:bg-primary/10 focus:bg-primary/10 cursor-pointer"
+                          >
+                            All Subjects
+                          </DropdownMenuItem>
+                          {getUniqueSubjects().map((subject) => (
+                            <DropdownMenuItem 
+                              key={subject}
+                              onClick={() => setSelectedSubject(subject)}
+                              className="flex items-center gap-2 hover:bg-primary/10 focus:bg-primary/10 cursor-pointer"
+                            >
+                              <Book className="w-3.5 h-3.5" />
+                              {subject}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      
+                      {/* Grade Filter */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            type="button"
+                            className="h-8 min-w-[120px] px-3 rounded-full border hover:border-2 border-muted outline-none transition-all duration-200 hover:border-primary focus:border-primary focus:ring-1 focus:ring-ring flex items-center justify-between gap-2 text-sm bg-transparent"
+                          >
+                            <div className="flex items-center gap-2">
+                              <School className="w-3.5 h-3.5 flex-shrink-0" />
+                              <span className="truncate">
+                                {selectedGrade === "All" ? "All Grades" : selectedGrade}
+                              </span>
+                            </div>
+                            <span className="text-xs opacity-60">▼</span>
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="border-muted bg-card w-48">
+                          <DropdownMenuItem 
+                            onClick={() => setSelectedGrade("All")}
+                            className="hover:bg-primary/10 focus:bg-primary/10 cursor-pointer"
+                          >
+                            All Grades
+                          </DropdownMenuItem>
+                          {getUniqueGrades().map((grade) => (
+                            <DropdownMenuItem 
+                              key={grade}
+                              onClick={() => setSelectedGrade(grade)}
+                              className="flex items-center gap-2 hover:bg-primary/10 focus:bg-primary/10 cursor-pointer"
+                            >
+                              <School className="w-3.5 h-3.5" />
+                              {grade}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      
+                      {/* Clear Filters - Only show when a filter is selected */}
+                      {(selectedCategory !== "All" || selectedSubject !== "All" || selectedGrade !== "All") && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedCategory("All");
+                            setSelectedSubject("All");
+                            setSelectedGrade("All");
+                          }}
+                          className="h-8 px-3 rounded-full text-sm hover:bg-primary/10 transition-all duration-200 border border-transparent hover:border-primary/30 whitespace-nowrap"
+                        >
+                          Clear Filters
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-
-            <Input
-              placeholder="Search notes by title, subject, category, or group..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-
-            {search && (
-              <button
-                type="button"
-                onClick={() => setSearch("")}
-                className="
-                  absolute inset-y-0 right-0 pr-3 flex items-center
-                  text-muted-foreground hover:text-foreground hover:bg-accent/10
-                  transition-colors rounded-full p-1
-                "
-              >
-                <X className="w-4 h-4" />
-              </button>
-            )}
           </div>
         </div>
 
@@ -469,13 +662,13 @@ export default function UploadedNotes() {
               <p className="text-muted-foreground">
                 {notes.length === 0 
                   ? "Upload your first note to get started!" 
-                  : "Try a different search term"}
+                  : "Try a different search term or filter"}
               </p>
             </CardContent>
           </Card>
         ) : (
-          /* GRID VIEW ONLY */
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          /* GRID VIEW ONLY - RESPONSIVE */
+          <div className="grid gap-6 grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4">
             {filteredNotes.map((note) => (
               <Card 
                 key={note.id} 
@@ -486,7 +679,13 @@ export default function UploadedNotes() {
                   <div className="flex justify-between items-start mb-3">
                     <div className="flex items-start gap-2 flex-1">
                       <div className="p-2 rounded-lg bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-colors">
-                        <FileText className="text-primary w-4 h-4" />
+                        {note.file_type === 'pdf' ? (
+                          <FileText className="text-primary w-4 h-4" />
+                        ) : note.file_type === 'image' ? (
+                          <FileType className="text-primary w-4 h-4" />
+                        ) : (
+                          <FileUp className="text-primary w-4 h-4" />
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="font-semibold text-foreground text-sm mb-1 line-clamp-2">
@@ -518,7 +717,7 @@ export default function UploadedNotes() {
                       <DropdownMenuContent align="end" className="border border-border bg-card w-40">
                         <DropdownMenuItem 
                           onClick={() => openPreview(note)}
-                          className="hover:bg-accent/10 focus:bg-accent/10 cursor-pointer text-sm"
+                          className="hover:bg-accent/10 focus:bg-accent/10 cursor-pointer text-sm flex items-center"
                           disabled={previewLoading}
                         >
                           {previewLoading && currentPreviewNote?.id === note.id ? (
@@ -531,7 +730,7 @@ export default function UploadedNotes() {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={() => deleteNote(note.id)}
-                          className="text-destructive hover:bg-destructive/10 focus:bg-destructive/10 cursor-pointer text-sm"
+                          className="text-destructive hover:bg-destructive/10 focus:bg-destructive/10 cursor-pointer text-sm flex items-center"
                           disabled={deletingId === note.id}
                         >
                           {deletingId === note.id ? (
@@ -554,19 +753,19 @@ export default function UploadedNotes() {
 
                   {/* Info Badges */}
                   <div className="flex flex-wrap gap-1.5 mb-3">
-                    <Badge variant="secondary" className="text-xs bg-primary/10 text-primary px-2 py-0.5">
+                    <Badge variant="secondary" className="text-xs bg-primary/10 text-primary px-2 py-0.5 flex items-center">
                       <School className="w-2.5 h-2.5 mr-1" />
                       {note.grade}
                     </Badge>
-                    <Badge variant="secondary" className="text-xs bg-muted/20 text-foreground px-2 py-0.5">
+                    <Badge variant="secondary" className="text-xs bg-blue-500/10 text-blue-500 px-2 py-0.5 flex items-center">
                       <Book className="w-2.5 h-2.5 mr-1" />
                       {note.subject}
                     </Badge>
-                    <Badge variant="secondary" className="text-xs bg-muted/20 text-foreground px-2 py-0.5">
-                      <Tag className="w-2.5 h-2.5 mr-1" />
+                    <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-500 px-2 py-0.5 flex items-center">
+                      {getCategoryIcon(note.category)}
                       {note.category}
                     </Badge>
-                    <Badge variant="secondary" className="text-xs bg-muted/20 text-foreground px-2 py-0.5">
+                    <Badge variant="secondary" className="text-xs bg-purple-500/10 text-purple-500 px-2 py-0.5 flex items-center">
                       <Users className="w-2.5 h-2.5 mr-1" />
                       {note.group_allowed}
                     </Badge>
@@ -576,7 +775,7 @@ export default function UploadedNotes() {
                   <div className="flex items-center justify-between text-xs text-muted-foreground pt-3 border-t border-border">
                     <div className="flex items-center gap-1">
                       <User className="w-3 h-3" />
-                      <span>{note.faculty_name}</span>
+                      <span className="truncate">{note.faculty_name}</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar className="w-3 h-3" />
@@ -658,7 +857,7 @@ export default function UploadedNotes() {
 
               {/* Footer Controls */}
               {pages > 0 && (
-                <div className="p-4 border-t border-border flex items-center justify-between bg-card/95 backdrop-blur-sm">
+                <div className="p-4 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card/95 backdrop-blur-sm">
                   <div className="flex items-center gap-3">
                     <Button
                       variant="outline"
@@ -699,7 +898,6 @@ export default function UploadedNotes() {
     </>
   );
 }
-
 // import { useState, useEffect, useRef } from "react";
 // import { Document, Page, pdfjs } from "react-pdf";
 // import { cn } from "../../lib/utils";
