@@ -95,8 +95,7 @@
 //   );
 // }
 
-
-import { Outlet, NavLink } from "react-router-dom";
+import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Navbar from "./Navabr";
 import {
@@ -106,9 +105,14 @@ import {
   IconUser,
   IconLogout,
 } from "@tabler/icons-react";
+import { useAuth } from "../../context/AuthContext";
+import { apiRequest } from "../../lib/api";
+import { toast } from "react-toastify";
 
 export default function SidebarLayout() {
   const [open, setOpen] = useState(false);
+  const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const navItems = [
     { to: "/", label: "Dashboard", icon: IconLayoutDashboard, end: true },
@@ -117,9 +121,23 @@ export default function SidebarLayout() {
     { to: "/profile", label: "Profile", icon: IconUser },
   ];
 
+  // ✅ PROPER LOGOUT HANDLER
+  const handleLogout = async () => {
+  try {
+    await apiRequest("/logout", "POST");
+  } catch (err: any) {
+    // 404 is OK for logout
+    console.warn("Logout API not found, continuing logout");
+  } finally {
+    logout();
+    toast.success("Logged out successfully");
+    navigate("/login");
+  }
+};
+
+
   return (
     <div className="flex h-screen w-full overflow-hidden">
-
       {/* MOBILE OVERLAY */}
       {open && (
         <div
@@ -140,12 +158,12 @@ export default function SidebarLayout() {
           lg:translate-x-0
         `}
       >
-        {/* BRAND / TITLE */}
+        {/* BRAND */}
         <h1 className="text-lg font-semibold tracking-wide mb-10">
           Lorenta Ventures
         </h1>
 
-        {/* NAVIGATION */}
+        {/* NAV */}
         <nav className="flex flex-col gap-3">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -168,16 +186,17 @@ export default function SidebarLayout() {
                 `
                 }
               >
-                <Icon size={18} className="shrink-0" />
+                <Icon size={18} />
                 <span>{item.label}</span>
               </NavLink>
             );
           })}
         </nav>
 
-        {/* LOGOUT (STUCK TO BOTTOM) */}
+        {/* LOGOUT */}
         <div className="mt-auto pt-8">
           <button
+            onClick={handleLogout}
             className="
               flex items-center gap-3
               w-full px-5 py-3 rounded-full text-sm font-medium
@@ -185,15 +204,6 @@ export default function SidebarLayout() {
               hover:bg-white/15 hover:text-primary-foreground
               transition
             "
-            onClick={() => {
-              // 🔴 API LOGOUT (ADD LATER)
-              /*
-              await apiRequest("/logout", "POST")
-              clearAuth()
-              navigate("/login")
-              */
-              console.log("Logout clicked");
-            }}
           >
             <IconLogout size={18} />
             <span>Logout</span>
