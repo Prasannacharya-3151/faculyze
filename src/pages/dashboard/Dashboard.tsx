@@ -91,7 +91,7 @@ export default function DashboardPage() {
       </div>
 
       {/* RECENT ACTIVITY */}
-      <Card
+      {/* <Card
         className="
            border-border bg-transparent transition shadow-hover:shadow-4xl rounded-3xl
         "
@@ -133,7 +133,7 @@ export default function DashboardPage() {
             ))}
           </div>
         </CardContent>
-      </Card>
+      </Card> */}
     </div>
   )
 }
