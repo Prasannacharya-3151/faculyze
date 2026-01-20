@@ -144,13 +144,11 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
   const [loading, setLoading] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // Fetch user data
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         setLoading(true);
         
-        // Use auth context data if available
         if (authUser) {
           setUser({
             username: authUser.username || "User",
@@ -161,8 +159,6 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
           setLoading(false);
           return;
         }
-
-        // Fallback to localStorage
         const savedUser = localStorage.getItem("user");
         if (savedUser) {
           try {
@@ -193,7 +189,6 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
     fetchUserData();
   }, [authUser]);
 
-  // Get first letter of username
   const getInitials = (name: string): string => {
     if (!name) return "U";
     const trimmed = name.trim();
@@ -222,10 +217,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
     <nav className="w-full bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
       <div className="px-4 sm:px-6 py-3">
         <div className="flex items-center justify-between">
-
-          {/* LEFT SECTION */}
           <div className="flex items-center gap-3">
-            {/* MOBILE MENU BUTTON */}
             <button
               onClick={onMenuClick}
               className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -233,14 +225,10 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
             >
               <Menu className="w-5 h-5 text-gray-700" />
             </button>
-
-            {/* PAGE TITLE */}
             <h1 className="hidden sm:block text-lg font-semibold text-gray-800">
               {getPageTitle()}
             </h1>
           </div>
-
-          {/* RIGHT SECTION - USER PROFILE */}
           <div className="flex items-center gap-2">
             {loading ? (
               <div className="flex items-center gap-3">
@@ -251,54 +239,43 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
               <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
                 <DropdownMenuTrigger asChild>
                   <button 
-                    className="flex items-center gap-2 p-1 rounded-full hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="flex items-center gap-2 p-1 rounded-full hover:bg-primary/10 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
                     aria-label="User menu"
                   >
-                    {/* AVATAR CIRCLE - Like Google's */}
                     <div className="relative">
-                      <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium text-sm">
+                      <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-medium text-sm">
                         {getInitials(user?.username || "U")}
                       </div>
                     </div>
                     
-                    <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
+                    <ChevronDown className={`w-4 h-4 text-muted transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
                 </DropdownMenuTrigger>
-
-                {/* DROPDOWN CONTENT - Like Google's Profile Dropdown */}
                 <DropdownMenuContent 
-                  className="w-64 bg-white border border-gray-200 rounded-lg shadow-xl mt-1 py-2"
+                  className="w-64 bg-white border border-primary/20 rounded-lg shadow-xl mt-1 py-2"
                   align="end"
                   sideOffset={5}
                 >
-                  {/* PROFILE SECTION */}
                   <div className="px-4 py-3 border-b border-gray-100">
                     <div className="flex items-center gap-3">
-                      {/* AVATAR */}
-                      <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium text-base">
+                      <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-medium text-base">
                         {getInitials(user?.username || "U")}
                       </div>
-                      
-                      {/* USER INFO */}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-sm font-medium text-foreground truncate">
                           {user?.username || "User"}
                         </p>
-                        <p className="text-xs text-gray-500 truncate">
+                        <p className="text-xs text-muted truncate">
                           {user?.email || "user@example.com"}
                         </p>
                       </div>
                     </div>
                   </div>
-
-                  {/* WELCOME MESSAGE */}
                   <div className="px-4 py-2 border-b border-gray-100">
                     <p className="text-sm text-gray-600">
                       Hi, <span className="font-medium text-gray-900">{user?.username?.split(' ')[0] || "User"}</span>!
                     </p>
                   </div>
-
-                  {/* MENU ITEMS */}
                   <div className="py-1">
                     <DropdownMenuItem asChild>
                       <Link 
@@ -346,11 +323,7 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
                       </Link>
                     </DropdownMenuItem>
                   </div>
-
-                  {/* DIVIDER */}
                   <div className="border-t border-gray-100 my-1"></div>
-
-                  {/* LOGOUT */}
                   <DropdownMenuItem 
                     onClick={() => {
                       if (logout) logout();
