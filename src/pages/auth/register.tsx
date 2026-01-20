@@ -4,7 +4,8 @@ import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import { toast } from "react-toastify";
 import { apiRequest } from "../../lib/api";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+
 
 interface FormData {
   username: string;
@@ -280,12 +281,12 @@ export default function RegisterFormDemo() {
             <div className="text-center pt-1">
               <p className="text-muted-foreground text-xs">
                 Already have an account?{" "}
-                <a
-                  href="/login"
+                <Link
+                  to="/login"
                   className="font-bold text-primary hover:text-secondary transition-colors duration-200"
                 >
                   Sign in here
-                </a>
+                </Link>
               </p>
             </div>
           </div>
