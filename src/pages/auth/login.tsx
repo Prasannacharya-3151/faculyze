@@ -49,6 +49,9 @@ export default function LoginFormDemo() {
 
 const user = {
   username: res.data.username,
+  email: res.data.email,
+  // faculty_id: res.data.faculty_id,
+  // department: res.data.department,
   profile_completed: res.data.IsProfileCompleted,
 };
 

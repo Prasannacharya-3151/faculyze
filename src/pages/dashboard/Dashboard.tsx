@@ -1,7 +1,7 @@
 import {
   Card,
   CardContent,
-  CardDescription,
+  // CardDescription,
   CardHeader,
   CardTitle,
 } from "../../components/ui/card"
@@ -40,13 +40,13 @@ export default function DashboardPage() {
 
   // 🔴 TEMP DATA (API WILL COME LATER)
   // TODO: Fetch recent activity from backend
-  const recentActivity = [
-    { action: "Uploaded", document: "Annual Report 2024.pdf", time: "2 hours ago" },
-    { action: "Modified", document: "Project Proposal.docx", time: "5 hours ago" },
-    { action: "Shared", document: "Marketing Strategy.pdf", time: "1 day ago" },
-    { action: "Uploaded", document: "Team Photo.jpg", time: "2 days ago" },
-    { action: "Deleted", document: "Old Invoice.pdf", time: "3 days ago" },
-  ]
+  // const recentActivity = [
+  //   { action: "Uploaded", document: "Annual Report 2024.pdf", time: "2 hours ago" },
+  //   { action: "Modified", document: "Project Proposal.docx", time: "5 hours ago" },
+  //   { action: "Shared", document: "Marketing Strategy.pdf", time: "1 day ago" },
+  //   { action: "Uploaded", document: "Team Photo.jpg", time: "2 days ago" },
+  //   { action: "Deleted", document: "Old Invoice.pdf", time: "3 days ago" },
+  // ]
 
   return (
     <div className="space-y-6">
