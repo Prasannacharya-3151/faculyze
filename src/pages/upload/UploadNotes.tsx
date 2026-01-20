@@ -22,8 +22,6 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { apiRequest, API_BASE } from "../../lib/api";
 
-/* ================= TYPES ================= */
-
 interface UploadFile {
   name: string;
   size: string;
@@ -57,8 +55,6 @@ interface DropdownBlockProps {
   disabled?: boolean;
   onRefresh?: () => void;
 }
-
-/* ================= NOTES API FUNCTIONS ================= */
 
 const getAuthToken = () => {
   if (typeof window !== 'undefined') {
@@ -108,20 +104,15 @@ const uploadNotes = async (formData: FormData) => {
 
     const data = await response.json();
     console.log("Upload response:", data);
-
-    // If backend returns success message, treat it as success
     if (data.message?.toLowerCase().includes("success") || data.success === true) {
       return { success: true, data };
     }
-
-    // If HTTP status is not ok, throw error
     if (!response.ok) {
       throw new Error(data.message || data.error || "Upload failed");
     }
 
     return { success: true, data };
   } catch (error: any) {
-    // If error contains "success", it's actually a success
     if (error.message?.toLowerCase().includes("success")) {
       return { success: true, data: { message: error.message } };
     }
@@ -129,11 +120,8 @@ const uploadNotes = async (formData: FormData) => {
   }
 };
 
-/* ================= MAIN COMPONENT ================= */
-
 export default function UploadNotes() {
-  // Removed unused 'user' variable
-  useAuth(); // Keep this to ensure auth context is available
+  useAuth();
   
   const [formData, setFormData] = useState({
     courseTitle: "",
@@ -150,9 +138,7 @@ export default function UploadNotes() {
   const [isUploading, setIsUploading] = useState(false);
   const [subjectError, setSubjectError] = useState("");
   
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  /* ---------- EFFECTS ---------- */
+  const fileInputRef = useRef<HTMLInputElement>(null); 
 
   useEffect(() => {
     const fetchFacultyData = async () => {
@@ -167,8 +153,6 @@ export default function UploadNotes() {
 
     fetchFacultyData();
   }, []);
-
-  /* ---------- HANDLERS ---------- */
 
   const fetchFacultySubjects = async () => {
     setIsLoadingSubjects(true);
@@ -229,8 +213,6 @@ export default function UploadNotes() {
     }
 
     const fileExtension = uploaded.name.split('.').pop()?.toLowerCase() || '';
-    
-    // Only allow PDF files
     if (fileExtension !== 'pdf') {
       toast.error(
         <div>
@@ -355,22 +337,17 @@ export default function UploadNotes() {
       setIsUploading(false);
     }
   };
-
-  /* ================= UI ================= */
-
   return (
     <div className="h-[calc(100vh-64px)] sm:overflow-auto bg-background p-4 sm:p-6">
       <form
         onSubmit={handleSubmit}
         className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto"
       >
-        {/* LEFT FORM */}
         <div className="space-y-4">
           <h1 className="text-2xl font-bold text-foreground">
             Upload Notes
           </h1>
 
-          {/* Course Title */}
           <InputField
             id="courseTitle"
             label="Course Title *"
@@ -380,8 +357,6 @@ export default function UploadNotes() {
             icon={<Book className="w-4 h-4" />}
             disabled={isUploading}
           />
-
-          {/* Description */}
           <div className="space-y-1">
             <label className="text-xs font-semibold text-foreground">
               Description
@@ -395,8 +370,6 @@ export default function UploadNotes() {
               className="w-full h-28 px-4 py-2 rounded-xl bg-transparent border border-muted outline-none focus:border-primary focus:ring-1 focus:ring-ring resize-none disabled:opacity-50 disabled:cursor-not-allowed"
             />
           </div>
-
-          {/* Grade and Subject */}
           <div className="grid sm:grid-cols-2 gap-4">
             <DropdownBlock
               label="Grade *"
@@ -421,8 +394,6 @@ export default function UploadNotes() {
               onRefresh={fetchFacultySubjects}
             />
           </div>
-
-          {/* Subject Error Message */}
           {subjectError && (
             <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20">
               <p className="text-sm text-destructive">{subjectError}</p>
@@ -431,8 +402,6 @@ export default function UploadNotes() {
               </p>
             </div>
           )}
-
-          {/* Category */}
           <DropdownBlock
             label="Category *"
             current={formData.category || "Select Category"}
@@ -445,8 +414,6 @@ export default function UploadNotes() {
             ]}
             disabled={isUploading}
           />
-
-          {/* Allowed Groups */}
           <div className="space-y-1">
             <label className="text-xs font-semibold text-foreground">
               Allowed Groups *
@@ -471,22 +438,17 @@ export default function UploadNotes() {
           </div>
 
         </div>
-
-        {/* RIGHT UPLOAD (FIXED UI) */}
         <div
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
           className="border border-border rounded-3xl p-6 flex flex-col"
         >
-          {/* TITLE */}
           <h3 className="text-lg font-semibold text-foreground text-center">
             Upload File
           </h3>
           <p className="text-xs text-muted-foreground text-center mb-4">
             Only PDF files allowed (Max 25MB)
           </p>
-
-          {/* UPLOAD BOX (ALWAYS VISIBLE) */}
           <input
             ref={fileInputRef}
             type="file"
@@ -512,8 +474,6 @@ export default function UploadNotes() {
             </p>
             <p className="text-xs text-muted-foreground">(Max 25MB)</p>
           </div>
-
-          {/* PDF CONVERTER MESSAGE */}
          <div className="mt-4 p-3 rounded-lg bg-primary/5 border border-primary/20">
   <p className="text-sm text-primary font-medium flex items-center gap-2">
     <FileUp className="w-4 h-4" />
@@ -531,8 +491,6 @@ export default function UploadNotes() {
     </a>
   </p>
 </div>
-
-          {/* FILE PREVIEW (BELOW BOX) */}
           <div className="min-h-[120px] mt-4">
             {file && (
               <div className="p-4 rounded-xl border border-primary/20 bg-primary/5 space-y-2">
@@ -608,7 +566,6 @@ export default function UploadNotes() {
             )}
           </div> */}
 
-          {/* BUTTON */}
           <button
             type="submit"
             disabled={isUploading || !file || file.progress < 100 || subjects.length === 0}
@@ -639,9 +596,6 @@ export default function UploadNotes() {
     </div>
   );
 }
-
-/* ================= REUSABLE COMPONENTS ================= */
-
 function InputField({
   id,
   label,

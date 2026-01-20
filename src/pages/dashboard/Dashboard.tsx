@@ -1,7 +1,6 @@
 import {
   Card,
   CardContent,
-  // CardDescription,
   CardHeader,
   CardTitle,
 } from "../../components/ui/card"
@@ -9,8 +8,6 @@ import { FileText, Upload, FolderOpen, TrendingUp } from "lucide-react"
 
 export default function DashboardPage() {
 
-  // 🔴 TEMP DATA (API WILL COME LATER)
-  // TODO: Replace this with API response
   const stats = [
     {
       title: "Total Documents",
@@ -38,8 +35,6 @@ export default function DashboardPage() {
     },
   ]
 
-  // 🔴 TEMP DATA (API WILL COME LATER)
-  // TODO: Fetch recent activity from backend
   // const recentActivity = [
   //   { action: "Uploaded", document: "Annual Report 2024.pdf", time: "2 hours ago" },
   //   { action: "Modified", document: "Project Proposal.docx", time: "5 hours ago" },
@@ -50,8 +45,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-
-      {/* HEADER */}
       <div>
         <h1 className="text-3xl font-bold text-foreground">
           Dashboard
@@ -60,8 +53,6 @@ export default function DashboardPage() {
           Welcome back! Here's an overview of your documents.
         </p>
       </div>
-
-      {/* STATS */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
           <Card

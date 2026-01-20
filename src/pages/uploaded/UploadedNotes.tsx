@@ -377,8 +377,6 @@ export default function UploadedNotes() {
     }
   };
 
-  /* ================= FILTER LOGIC ================= */
-
   const getUniqueSubjects = () => {
     const subjects = notes.map(note => note.subject);
     return Array.from(new Set(subjects)).sort();
@@ -427,7 +425,6 @@ export default function UploadedNotes() {
     return true;
   });
 
-  /* ================= EFFECTS ================= */
 
   useEffect(() => {
     if (token) {
@@ -435,7 +432,6 @@ export default function UploadedNotes() {
     }
   }, [token]);
 
-  /* ================= UI ================= */
 
   return (
     <>

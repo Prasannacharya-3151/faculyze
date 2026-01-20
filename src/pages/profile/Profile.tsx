@@ -493,8 +493,6 @@ import { useAuth } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 import { API_BASE } from "../../lib/api";
 
-/* ---------- TYPES ---------- */
-
 interface InputFieldProps {
   id: string;
   label: string;
@@ -520,23 +518,18 @@ interface DropdownBlockProps {
   disabled?: boolean;
 }
 
-/* ---------- MAIN ---------- */
-
 export default function PrivateProfile() {
   const { user, token, refreshUser } = useAuth();
   const [editMode, setEditMode] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState<any>(null);
-  
-  // Add userData state like in ProfileSetup
   const [userData, setUserData] = useState({
     username: "",
     email: "",
     profile_completed: false,
   });
 
-  // Form state
   const [formData, setFormData] = useState({
     phone_number: "",
     qualification: "",
@@ -550,8 +543,6 @@ export default function PrivateProfile() {
   const [subjectError, setSubjectError] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Initialize user data from context or localStorage
   useEffect(() => {
     if (user) {
       setUserData({
@@ -560,7 +551,6 @@ export default function PrivateProfile() {
         profile_completed: user.profile_completed || false,
       });
     } else {
-      // Try to get from localStorage as fallback
       const savedUser = localStorage.getItem("userData");
       if (savedUser) {
         try {
@@ -580,8 +570,6 @@ export default function PrivateProfile() {
   console.log("Auth user:", user);
 
   const firstLetter = userData?.username?.charAt(0).toUpperCase() || "U";
-
-  /* ---------- FETCH PROFILE DATA ---------- */
   const fetchProfileData = async () => {
     setLoading(true);
     try {
@@ -600,7 +588,6 @@ export default function PrivateProfile() {
 
       if (data?.data) {
         setProfileData(data.data);
-        // Set form data for editing
         setFormData({
           phone_number: data.data.phone_number || "",
           qualification: data.data.qualification || "",
@@ -616,8 +603,6 @@ export default function PrivateProfile() {
       setLoading(false);
     }
   };
-
-  /* ---------- FETCH SUBJECTS ---------- */
   const fetchSubjects = async () => {
     if (!token) return;
     
@@ -653,8 +638,6 @@ export default function PrivateProfile() {
       setSubjectsLoading(false);
     }
   };
-
-  /* ---------- EFFECTS ---------- */
   useEffect(() => {
     if (token) {
       fetchProfileData();
@@ -662,7 +645,6 @@ export default function PrivateProfile() {
     }
   }, [token]);
 
-  /* ---------- HANDLERS ---------- */
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
@@ -681,7 +663,6 @@ export default function PrivateProfile() {
     }));
   };
 
-  /* ---------- UPDATE PROFILE ---------- */
   const handleUpdateProfile = async () => {
     setIsSubmitting(true);
 
@@ -725,11 +706,7 @@ export default function PrivateProfile() {
       if (!res.ok) {
         throw new Error(responseData.message || "Profile update failed");
       }
-
-      // Refresh profile data
       await fetchProfileData();
-      
-      // Update user context
       if (refreshUser) {
         await refreshUser();
       }
@@ -744,8 +721,6 @@ export default function PrivateProfile() {
       setIsSubmitting(false);
     }
   };
-
-  /* ---------- UI ---------- */
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -757,7 +732,6 @@ export default function PrivateProfile() {
   return (
     <div className="min-h-screen bg-background p-4 md:p-6">
       <div className="max-w-2xl mx-auto">
-        {/* HEADER */}
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold text-foreground">
@@ -780,10 +754,7 @@ export default function PrivateProfile() {
             </button>
           )}
         </div>
-
-        {/* PROFILE CARD */}
         <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
-          {/* AVATAR & BASIC INFO */}
           <div className="flex flex-col sm:flex-row items-center gap-6 mb-8 pb-6 border-b border-border">
             <div className="w-24 h-24 rounded-full bg-primary text-primary-foreground
               flex items-center justify-center text-3xl font-bold shadow-lg">
@@ -794,8 +765,6 @@ export default function PrivateProfile() {
               <h2 className="text-xl font-bold text-foreground">
                 {userData.username || "User"}
               </h2>
-              
-              {/* EMAIL DISPLAY - FIXED */}
               <div className="flex items-center justify-center sm:justify-start gap-2 mt-2">
                 <Mail className="w-4 h-4 text-muted-foreground" />
                 <p className="text-muted-foreground text-sm">
@@ -810,10 +779,7 @@ export default function PrivateProfile() {
               </div>
             </div>
           </div>
-
-          {/* PROFILE INFORMATION */}
           <div className="space-y-6">
-            {/* Phone Number */}
             <ProfileField
               label="Phone Number"
               value={editMode ? undefined : profileData?.phone_number || "Not provided"}
@@ -830,8 +796,6 @@ export default function PrivateProfile() {
                 />
               )}
             </ProfileField>
-
-            {/* Qualification */}
             <ProfileField
               label="Qualification"
               value={editMode ? undefined : profileData?.qualification || "Not provided"}
@@ -848,8 +812,6 @@ export default function PrivateProfile() {
                 />
               )}
             </ProfileField>
-
-            {/* Subjects */}
             <ProfileField
               label="Subjects"
               value={editMode ? undefined : 
@@ -982,8 +944,6 @@ export default function PrivateProfile() {
                 </div>
               )}
             </ProfileField>
-
-            {/* Experience */}
             <ProfileField
               label="Experience (Years)"
               value={editMode ? undefined : profileData?.experience || "Not provided"}
@@ -1001,8 +961,6 @@ export default function PrivateProfile() {
                 />
               )}
             </ProfileField>
-
-            {/* Gender */}
             <ProfileField
               label="Gender"
               value={editMode ? undefined : profileData?.gender || "Not provided"}
@@ -1023,8 +981,6 @@ export default function PrivateProfile() {
               )}
             </ProfileField>
           </div>
-
-          {/* EDIT MODE BUTTONS */}
           {editMode && (
             <div className="flex flex-col sm:flex-row gap-3 pt-6 mt-6 border-t border-border">
               <button
@@ -1071,8 +1027,6 @@ export default function PrivateProfile() {
           )}
         </div>
       </div>
-
-      {/* CONFIRMATION MODAL */}
       {showConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 animate-in fade-in">
           <div className="bg-card border border-border rounded-2xl p-6 max-w-md w-full shadow-xl">
@@ -1112,10 +1066,6 @@ export default function PrivateProfile() {
     </div>
   );
 }
-
-/* ---------- REUSABLE COMPONENTS ---------- */
-
-// Profile Field Component
 function ProfileField({ 
   label, 
   value, 
@@ -1143,8 +1093,6 @@ function ProfileField({
     </div>
   );
 }
-
-// Badge Component
 function Badge({ text, color = "primary" }: { text: string; color?: "primary" | "secondary" | "accent" }) {
   const colorClasses = {
     primary: "bg-primary/10 text-primary border-primary/20",
@@ -1158,8 +1106,6 @@ function Badge({ text, color = "primary" }: { text: string; color?: "primary" | 
     </span>
   );
 }
-
-// Input Field Component
 function InputField({
   id,
   label,
@@ -1199,8 +1145,6 @@ function InputField({
     </div>
   );
 }
-
-// Dropdown Block Component
 function DropdownBlock({
   label,
   current,

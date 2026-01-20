@@ -70,22 +70,18 @@ export default function RegisterFormDemo() {
         // If backend returns user and token (auto-login)
         login(res.user, res.token);
         toast.success("Account created! Redirecting...");
-        
-        // Check if profile setup is needed
         if (res.user.profileSetupCompleted) {
           navigate("/");
         } else {
           navigate("/profile-setup");
         }
       } else if (res.message) {
-        // If backend returns a success message
         toast.success(res.message);
         setTimeout(()=>{
           navigate("/login");
         },800)
         
       } else {
-        // Generic success
         toast.success("Registration successful! Please login.");
         navigate("/login");
       }

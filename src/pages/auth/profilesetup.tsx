@@ -18,7 +18,6 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { API_BASE } from "../../lib/api";
 
-/* ---------- TYPES ---------- */
 
 interface InputFieldProps {
   id: string;
@@ -44,20 +43,18 @@ interface DropdownBlockProps {
   options: DropdownOption[];
 }
 
-/* ---------- MAIN ---------- */
 
 export default function ProfileSetup() {
   const { user, token, refreshUser } = useAuth();
   const navigate = useNavigate();
 
-  // State for user data - maintain even after refresh
+  // State for user data  maintain even after refresh
   const [userData, setUserData] = useState({
     username: "",
     email: "",
     profile_completed: false,
   });
 
-  // Initialize user data from context or localStorage
   useEffect(() => {
     if (user) {
       setUserData({
@@ -99,20 +96,17 @@ export default function ProfileSetup() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  /* ---------- REDIRECT IF PROFILE ALREADY DONE ---------- */
   useEffect(() => {
     if (userData.profile_completed) {
       navigate("/", { replace: true });
     }
   }, [userData.profile_completed, navigate]);
 
-  /* ---------- PERSIST FORM DATA TO LOCALSTORAGE ---------- */
   useEffect(() => {
     // Save form data to localStorage
     localStorage.setItem("profileFormData", JSON.stringify(formData));
   }, [formData]);
 
-  /* ---------- LOAD SAVED FORM DATA ON MOUNT ---------- */
   useEffect(() => {
     const savedFormData = localStorage.getItem("profileFormData");
     if (savedFormData) {
@@ -121,7 +115,7 @@ export default function ProfileSetup() {
         setFormData(prev => ({
           ...prev,
           ...parsedData,
-          // Ensure subjects is always an array
+        //in the server side subject is coming as array so we need to check before setting it to state 
           subjects: Array.isArray(parsedData.subjects) ? parsedData.subjects : []
         }));
       } catch (error) {
@@ -130,7 +124,6 @@ export default function ProfileSetup() {
     }
   }, []);
 
-  /* ---------- FETCH SUBJECTS ON MOUNT ---------- */
   useEffect(() => {
     const fetchSubjects = async () => {
       if (!token) return;
@@ -171,8 +164,6 @@ export default function ProfileSetup() {
     fetchSubjects();
   }, [token]);
 
-  /* ---------- HANDLERS ---------- */
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
     setFormData(prev => ({ ...prev, [id]: value }));
@@ -185,8 +176,6 @@ export default function ProfileSetup() {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  /* ---------- SUBJECT HANDLERS ---------- */
-
   const toggleSubject = (subject: string) => {
     setFormData(prev => ({
       ...prev,
@@ -195,8 +184,6 @@ export default function ProfileSetup() {
         : [...prev.subjects, subject],
     }));
   };
-
-  /* ---------- SUBMIT ---------- */
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -245,8 +232,6 @@ export default function ProfileSetup() {
 
       // Clear saved form data
       localStorage.removeItem("profileFormData");
-      
-      // Update user context/profile completion status
       if (refreshUser) {
         await refreshUser();
       }
@@ -261,8 +246,6 @@ export default function ProfileSetup() {
     }
   };
 
-  /* ---------- UI ---------- */
-
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
@@ -276,8 +259,6 @@ export default function ProfileSetup() {
               This helps us personalize your experience
             </p>
           </div>
-
-          {/* AVATAR & NAME */}
           <div className="flex flex-col items-center gap-3 mb-6">
             <div className="w-24 h-24 rounded-full bg-primary text-primary-foreground
               flex items-center justify-center text-3xl font-bold shadow-lg">
@@ -292,8 +273,6 @@ export default function ProfileSetup() {
               </p>
             </div>
           </div>
-
-          {/* PHONE */}
           <InputField
             id="phone_number"
             label="Phone Number"
@@ -302,8 +281,6 @@ export default function ProfileSetup() {
             onChange={handleChange}
             icon={<Phone className="w-4 h-4" />}
           />
-
-          {/* QUALIFICATION */}
           <InputField
             id="qualification"
             label="Qualification"
@@ -312,8 +289,6 @@ export default function ProfileSetup() {
             onChange={handleChange}
             icon={<GraduationCap className="w-4 h-4" />}
           />
-
-          {/* SUBJECTS - ALL IN ONE INPUT FIELD */}
           <div className="space-y-2">
             <label className="text-xs font-semibold text-foreground flex items-center justify-between">
               <span>Subjects *</span>
@@ -326,19 +301,14 @@ export default function ProfileSetup() {
               <DropdownMenuTrigger asChild>
                 <div className="relative group">
                   <div className="relative">
-                    {/* Selected subjects displayed inside the input */}
                     <div className="w-full pl-5 pr-10 py-2.5 text-sm rounded-full
                       border border-muted bg-transparent outline-none
                       focus-within:border-primary focus-within:ring-1 focus-within:ring-ring
                       cursor-pointer hover:bg-muted/5 transition-all duration-200
                       min-h-[44px] flex items-center flex-wrap gap-1">
-                      
-                      {/* Icon */}
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted">
                         <BookOpen className="w-4 h-4" />
                       </div>
-
-                      {/* Selected subjects as chips */}
                       {formData.subjects.length === 0 ? (
                         <span className="text-muted-foreground pl-4">
                           Select subjects
@@ -362,16 +332,12 @@ export default function ProfileSetup() {
                           )}
                         </div>
                       )}
-
-                      {/* Dropdown arrow */}
                       <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted 
                         transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
                     </div>
                   </div>
                 </div>
               </DropdownMenuTrigger>
-
-              {/* Subjects dropdown with checkboxes */}
               <DropdownMenuContent
                 className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-64 overflow-y-auto 
                   bg-background border border-muted rounded-xl shadow-lg p-2"
@@ -439,8 +405,6 @@ export default function ProfileSetup() {
               </p>
             )}
           </div>
-
-          {/* EXPERIENCE */}
           <InputField
             id="experience"
             label="Experience (Years)"
@@ -450,8 +414,6 @@ export default function ProfileSetup() {
             icon={<BookOpen className="w-4 h-4" />}
             type="number"
           />
-
-          {/* GENDER */}
           <DropdownBlock
             label="Gender"
             current={formData.gender || "Select Gender"}
@@ -463,8 +425,6 @@ export default function ProfileSetup() {
               { label: "Others", value: "Others" },
             ]}
           />
-
-          {/* SUBMIT BUTTON */}
           <button
             type="submit"
             disabled={isSubmitting || formData.subjects.length === 0}
@@ -487,8 +447,6 @@ export default function ProfileSetup() {
     </div>
   );
 }
-
-/* ---------- INPUT FIELD COMPONENT ---------- */
 function InputField({
   id,
   label,
@@ -528,9 +486,6 @@ function InputField({
     </div>
   );
 }
-
-/* ---------- DROPDOWN BLOCK COMPONENT ---------- */
-
 function DropdownBlock({
   label,
   current,
@@ -560,26 +515,19 @@ function DropdownBlock({
               group
             "
           >
-            {/* ICON */}
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <span className="text-muted group-focus-within:text-primary transition-colors duration-200">
                 {icon}
               </span>
             </div>
-
-            {/* VALUE */}
             <span className={current.startsWith("Select") ? "text-muted-foreground" : "text-foreground"}>
               {current}
             </span>
-
-            {/* CHEVRON */}
             <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-muted transition-transform ${isOpen ? 'rotate-180' : ''}`}>
               <ChevronDown className="w-4 h-4" />
             </span>
           </button>
         </DropdownMenuTrigger>
-
-        {/* DROPDOWN CONTENT */}
         <DropdownMenuContent
           className="w-[var(--radix-dropdown-menu-trigger-width)] bg-background 
             border border-muted rounded-xl shadow-lg p-1"
