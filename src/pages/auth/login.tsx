@@ -69,17 +69,17 @@ const user = {
     
 
   } catch (err: any) {
-      console.error("Login failed:", err);
-      
-      // Better error handling based on response status
-      if (err.response?.status === 401 || err.response?.status === 404) {
-        toast.error("Invalid email or password. Please check your credentials.");
-      } else if (err.response?.status === 400) {
-        toast.error("Account not found. Please register first.");
-      } else {
-        toast.error(err.message || "Unable to login");
-      }
-    } finally {
+  console.log("STATUS FROM BACKEND:", err.status);
+  console.log("MESSAGE FROM BACKEND:", err.message);
+
+  if (err.status === 404) {
+    toast.error("Account not found. Please register first.");
+  } else if (err.status === 401 || err.status === 403) {
+    toast.error("Invalid email or password");
+  } else {
+    toast.error("Something went wrong");
+  }
+} finally {
       setIsSubmitting(false);
     }
   };

@@ -50,12 +50,26 @@ export async function apiRequest(
     body: body ? JSON.stringify(body) : null,
   });
 
-  if (res.status === 204) return { success: true };
+//   if (res.status === 204) return { success: true };
+
+//   const data = await res.json().catch(() => ({}));
+
+//   if (!res.ok) {
+//     throw new Error(data.message || "Something went wrong");
+//   }
+
+//   return data;
+// }
 
   const data = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    throw new Error(data.message || "Something went wrong");
+    // throw an custom object error 
+    throw {
+      status: res.status,
+      message: data.error || data.message || "Something went wrong",
+      data,
+    };
   }
 
   return data;
