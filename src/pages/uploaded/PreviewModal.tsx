@@ -1,146 +1,134 @@
+import { useState } from "react";
+import { Document, Page, pdfjs } from "react-pdf";
+import { Button } from "../../components/ui/button";
+import { Loader2, FileText, X, Clock } from "lucide-react";
+import { toast } from "react-toastify";
 
-// import { useState } from "react";
-// import { Document, Page, pdfjs } from "react-pdf";
-// import 'react-pdf/dist/Page/AnnotationLayer.css';
-// import 'react-pdf/dist/Page/TextLayer.css';
-// import pdf from "../../assets/acharya.pdf";
+pdfjs.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
-// import { useNavigate } from "react-router-dom";
+interface PreviewModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  pdfUrl: string | null;
+  currentPreviewNote: {
+    title: string;
+  } | null;
+}
 
-// // PDF.js worker
-// pdfjs.GlobalWorkerOptions.workerSrc = `https://cdn.jsdelivr.net/npm/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+export default function PreviewModal({
+  isOpen,
+  onClose,
+  pdfUrl,
+  currentPreviewNote
+}: PreviewModalProps) {
+  const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(0);
 
-// interface DocumentType {
-//   id: number;
-//   name: string;
-//   type: string;
-//   date: string;
-//   faculty?: string;
-//   pages?: number;
-//   fileUrl?: string;
-// }
+  if (!isOpen) return null;
 
-// interface PdfPreviewModalProps {
-//   document: DocumentType;
-//   isOpen: boolean;
-//   onClose: () => void;
-// }
+  return (
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="bg-card w-full max-w-6xl h-[90vh] rounded-2xl flex flex-col overflow-hidden border border-border shadow-2xl">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-border bg-card/95 backdrop-blur-sm">
+          <div className="flex items-center gap-3">
+            <FileText className="w-6 h-6 text-primary" />
+            <div>
+              <h2 className="font-semibold text-xl text-foreground">PDF Preview</h2>
+              {currentPreviewNote && (
+                <p className="text-sm text-muted-foreground">{currentPreviewNote.title}</p>
+              )}
+            </div>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClose}
+            className="h-10 w-10 p-0 hover:bg-destructive/10 hover:text-destructive rounded-full"
+          >
+            <X className="w-5 h-5" />
+          </Button>
+        </div>
 
-// export function PdfPreviewModal({ document, isOpen, onClose }: PdfPreviewModalProps) {
-//   const navigate = useNavigate();
-//   const [numPages, setNumPages] = useState<number>(0);
-//   const [pageNumber, setPageNumber] = useState<number>(1);
-//   const [pdfError, setPdfError] = useState<boolean>(false);
+        {/* PDF Content */}
+        <div className="flex-1 overflow-auto p-4 md:p-6 flex justify-center custom-scrollbar bg-background/30">
+          {pdfUrl ? (
+            <Document
+              file={pdfUrl}
+              onLoadSuccess={({ numPages }) => setPages(numPages)}
+              loading={
+                <div className="flex flex-col items-center justify-center h-full">
+                  <Loader2 className="w-12 h-12 animate-spin text-primary mb-4" />
+                  <p className="text-muted-foreground">Loading document...</p>
+                </div>
+              }
+              onLoadError={(error) => {
+                console.error("PDF load error:", error);
+                toast.error("Failed to load PDF. Please try downloading the file instead.");
+              }}
+              error={
+                <div className="flex flex-col items-center justify-center h-full">
+                  <FileText className="w-16 h-16 text-destructive mb-4" />
+                  <p className="text-destructive font-medium mb-2">Failed to load PDF</p>
+                  <p className="text-muted-foreground text-sm">The PDF preview is not available.</p>
+                  <p className="text-muted-foreground text-sm mt-1">Please check if the file exists and try again.</p>
+                </div>
+              }
+            >
+              <Page 
+                pageNumber={page} 
+                width={Math.min(1000, window.innerWidth - 96)} 
+                className="shadow-lg rounded-lg bg-white"
+                renderTextLayer={true}
+                renderAnnotationLayer={true}
+              />
+            </Document>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full">
+              <FileText className="w-16 h-16 text-muted mb-4" />
+              <p className="text-muted-foreground">Unable to load document</p>
+              <p className="text-muted-foreground text-sm mt-1">No PDF URL available</p>
+            </div>
+          )}
+        </div>
 
-//   function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
-//     setNumPages(numPages);
-//     setPageNumber(1);
-//     setPdfError(false);
-//   }
-
-//   function onDocumentLoadError(error: Error) {
-//     console.error("PDF loading error:", error);
-//     setPdfError(true);
-//   }
-
-//   if (!isOpen) return null;
-
-//   return (
-//     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-//       <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col">
-        
-//         {/* Header */}
-//         <div className="flex justify-between items-center p-6 border-b">
-//           <div>
-//             <h3 className="text-xl font-bold">{document.name}</h3>
-//             <p className="text-sm text-gray-600">
-//               {pdfError ? "Failed to load PDF" : `Page ${pageNumber} of ${numPages || "--"}`}
-//             </p>
-//           </div>
-//           <button 
-//             onClick={onClose}
-//             className="text-2xl hover:text-red-500 transition"
-//           >
-//             ✕
-//           </button>
-//         </div>
-
-//         {/* PDF Viewer */}
-//         <div className="flex-1 overflow-auto p-4 flex justify-center items-center bg-gray-100 min-h-[400px]">
-//           {pdfError ? (
-//             <div className="text-center p-8">
-//               <p className="text-red-500 text-lg mb-2">Failed to load PDF document</p>
-//               <p className="text-gray-600">The document may be corrupted or unavailable.</p>
-//             </div>
-//           ) : (
-//             <Document
-//               file={document.fileUrl || pdf}
-//               onLoadSuccess={onDocumentLoadSuccess}
-//               onLoadError={onDocumentLoadError}
-//             >
-//               <div style={{
-//                 display: "inline-block",
-//                 border: "1px solid #ccc",
-//                 borderRadius: "8px",
-//                 overflow: "hidden",
-//                 boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-//                 backgroundColor: "white"
-//               }}>
-//                 <Page
-//                   pageNumber={pageNumber}
-//                   width={Math.min(600, window.innerWidth - 100)}
-//                   renderTextLayer={false}
-//                   renderAnnotationLayer={false}
-//                   loading={<div style={{ width: 600, height: 400 }}>Loading page...</div>}
-//                 />
-//               </div>
-//             </Document>
-//           )}
-//         </div>
-
-//         {/* Pagination */}
-//         {!pdfError && numPages > 0 && (
-//           <div className="flex justify-between items-center p-4 border-t bg-gray-50">
-//             <button
-//               onClick={() => pageNumber > 1 && setPageNumber(pageNumber - 1)}
-//               disabled={pageNumber <= 1}
-//               className="px-6 py-2 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-//             >
-//               ← Previous
-//             </button>
-
-//             <span className="text-sm font-medium">
-//               Page {pageNumber} of {numPages}
-//             </span>
-
-//             <button
-//               onClick={() => pageNumber < numPages && setPageNumber(pageNumber + 1)}
-//               disabled={pageNumber >= numPages}
-//               className="px-6 py-2 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-//             >
-//               Next →
-//             </button>
-//           </div>
-//         )}
-
-//         {/* Footer */}
-//         <div className="flex gap-3 p-4 border-t">
-//           <button
-//             onClick={onClose}
-//             className="flex-1 px-4 py-3 rounded-lg font-semibold border border-gray-300 hover:bg-gray-50 transition-colors"
-//           >
-//             Close Preview
-//           </button>
-
-//           {!pdfError && (
-//             <Button
-//               onClick={() => navigate("/configuration", { state: { pdfUrl: document.fileUrl || pdf } })}
-//             >
-//               Print Documents
-//             </Button>
-//           )}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
+        {/* Footer Controls */}
+        {pages > 0 && (
+          <div className="p-4 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-card/95 backdrop-blur-sm">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="outline"
+                disabled={page <= 1}
+                onClick={() => setPage(p => p - 1)}
+                className="border-border hover:bg-accent hover:text-accent-foreground px-4"
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                disabled={page >= pages}
+                onClick={() => setPage(p => p + 1)}
+                className="border-border hover:bg-accent hover:text-accent-foreground px-4"
+              >
+                Next
+              </Button>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">
+                Page <span className="font-medium text-foreground">{page}</span> of <span className="font-medium text-foreground">{pages}</span>
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                Preview expires in 15 minutes
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
