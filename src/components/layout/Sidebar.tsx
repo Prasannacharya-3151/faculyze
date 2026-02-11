@@ -108,6 +108,7 @@ import {
 import { useAuth } from "../../context/AuthContext";
 import { apiRequest } from "../../lib/api";
 import { toast } from "react-toastify";
+import logo from "../../assets/Lorenta-1.png"
 
 export default function SidebarLayout() {
   const [open, setOpen] = useState(false);
@@ -159,9 +160,14 @@ export default function SidebarLayout() {
         `}
       >
         {/* BRAND */}
-        <h1 className="text-lg font-semibold tracking-wide mb-10">
-          Lorenta Ventures
-        </h1>
+        <div className=" sm:ml md:ml-20 mb-4 flex items-center justify-center lg:justify-start">
+          <img
+            src={logo}
+            alt="Logo"
+            className="h-10 w-auto object-contain cursor-pointer"
+            onClick={() => navigate("/dashboard")}
+          />
+        </div>
 
         {/* NAV */}
         <nav className="flex flex-col gap-3">

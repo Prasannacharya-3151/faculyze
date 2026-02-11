@@ -5,13 +5,11 @@ import Dashboard from "../pages/dashboard/Dashboard";
 import UploadNotes from "../pages/upload/UploadNotes";
 import UploadedNotes from "../pages/uploaded/UploadedNotes";
 import Profile from "../pages/profile/Profile";
-
 import LoginFormDemo from "../pages/auth/login";
-import RegisterFormDemo from "../pages/auth/register";
-import ProfileSetup from "../pages/auth/profilesetup";
 
 import { AuthProvider } from "../context/AuthContext";
 import ProtectedRoute from "../components/ProtectedRoute";
+import PublicRoute from "../components/PublicRoute";
 
 export default function AppRouter() {
   return (
@@ -19,18 +17,17 @@ export default function AppRouter() {
       <AuthProvider>
         <Routes>
 
-          {/* public router */}
-          <Route path="/login" element={<LoginFormDemo />} />
-          <Route path="/register" element={<RegisterFormDemo />} />
+          {/* ================= PUBLIC ROUTES ================= */}
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <LoginFormDemo />
+              </PublicRoute>
+            }
+          />
 
-{/* protected router  */}
-          <Route path="/profile-setup" element={<ProtectedRoute>
-            <ProfileSetup />
-          </ProtectedRoute>
-        } 
-        />
-
-          
+          {/* ================= PRIVATE ROUTES ================= */}
           <Route
             path="/"
             element={
@@ -45,8 +42,8 @@ export default function AppRouter() {
             <Route path="profile" element={<Profile />} />
           </Route>
 
-         
-          <Route path="*" element={<Navigate to="/" />} />
+          {/* ================= FALLBACK ================= */}
+          <Route path="*" element={<Navigate to="/" replace />} />
 
         </Routes>
       </AuthProvider>

@@ -2,9 +2,9 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { apiRequest } from "../../lib/api";
+// import { apiRequest } from "../../lib/api";
 import { toast } from "react-toastify";
-import { useNavigate,Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface FormData {
   email: string;
@@ -29,7 +29,7 @@ export default function LoginFormDemo() {
     });
   };
 
-  const handleSubmit = async (e: FormEvent) => {
+ const handleSubmit = async (e: FormEvent) => {
   e.preventDefault();
 
   if (!formData.email || !formData.password) {
@@ -40,52 +40,23 @@ export default function LoginFormDemo() {
   setIsSubmitting(true);
 
   try {
-    const res = await apiRequest("/faculty/signin", "POST", formData as any);
-
-    console.log("SERVER RESPONSE:", res);
-
-  
-    const accessToken = res?.data?.access_token;
-
-const user = {
-  username: res.data.username,
-  email: res.data.email,
-  // faculty_id: res.data.faculty_id,
-  // department: res.data.department,
-  profile_completed: res.data.IsProfileCompleted,
-};
-
-
-    if (!accessToken || !user) {
-      throw new Error("Access token missing from server");
-    }
-
-    login(user, accessToken);
-
-    if(user.profile_completed === true){
-      navigate("/", {replace: true});
-    }else{
-      navigate("/profile-setup", { replace:true});
-    }
+    await login(formData.email, formData.password);
 
     toast.success("Login successful!");
-    
+    navigate("/", { replace: true });
 
   } catch (err: any) {
-  console.log("STATUS FROM BACKEND:", err.status);
-  console.log("MESSAGE FROM BACKEND:", err.message);
-
-  if (err.status === 404) {
-    toast.error("Account not found. Please register first.");
-  } else if (err.status === 401 || err.status === 403) {
-    toast.error("Invalid email or password");
-  } else {
-    toast.error("Something went wrong");
-  }
-} finally {
-      setIsSubmitting(false);
+    if (err.status === 404) {
+      toast.error("Account not found");
+    } else if (err.status === 401 || err.status === 403) {
+      toast.error("Invalid email or password");
+    } else {
+      toast.error(err.message || "Something went wrong");
     }
-  };
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const isFormValid = formData.email && formData.password;
 
@@ -171,16 +142,16 @@ const user = {
               )}
             </button>
             
-            <div className="relative">
+            {/* <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-muted"></div>
               </div>
               <div className="relative flex justify-center text-xs">
                 <span className="px-3 bg-background text-muted-foreground">Or continue with</span>
               </div>
-            </div>
+            </div> */}
             
-            <div className="">
+            {/* <div className="">
               <button
                 type="button"
                 className=" w-full flex items-center justify-center gap-1.5 py-2 px-3 border border-muted rounded-full hover:bg-muted/10 transition-colors duration-200"
@@ -194,16 +165,16 @@ const user = {
                 <span className="text-xs font-semibold text-foreground">Google</span>
               </button>
               
-            </div>
+            </div> */}
             
-            <div className="text-center pt-1">
+            {/* <div className="text-center pt-1">
               <p className="text-muted-foreground text-xs">
                 Don't have an account?{" "}
                 <Link to="/register" className="font-bold text-primary hover:text-secondary transition-colors duration-200">
                   Create one
                 </Link>
               </p>
-            </div>
+            </div> */}
           </div>
         </form>
       </div>

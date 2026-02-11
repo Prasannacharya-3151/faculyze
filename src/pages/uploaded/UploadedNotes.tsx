@@ -26,6 +26,7 @@ import {
   FileType,
   Filter,
   FileUp,
+  AlertCircle,
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -146,6 +147,103 @@ const getCategoryIcon = (category: string) => {
   }
 };
 
+/* ================= DELETE MODAL COMPONENT ================= */
+
+interface DeleteModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: (reason: string) => Promise<void>;
+  documentName: string;
+  loading: boolean;
+}
+
+const DeleteModal = ({ isOpen, onClose, onConfirm, documentName, loading }: DeleteModalProps) => {
+  const [reason, setReason] = useState("");
+
+  if (!isOpen) return null;
+
+  const handleSubmit = async () => {
+    if (!reason.trim()) {
+      toast.error("Please provide a reason for deletion");
+      return;
+    }
+    
+    await onConfirm(reason);
+    setReason("");
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="bg-card w-full max-w-md rounded-2xl border border-border shadow-2xl">
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="rounded-full bg-destructive/10 p-2">
+              <AlertCircle className="w-6 h-6 text-destructive" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-xl text-foreground">Delete File</h2>
+              <p className="text-sm text-muted-foreground">Request file deletion</p>
+            </div>
+          </div>
+
+          <div className="mb-6">
+            <p className="text-foreground mb-2">
+              Are you sure you want to delete <span className="font-semibold">"{documentName}"</span>?
+            </p>
+            <p className="text-sm text-muted-foreground mb-4">
+              Please provide a reason for deletion. This will create a delete request that needs admin approval.
+            </p>
+
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-foreground">
+                Reason for deletion *
+              </label>
+              <textarea
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="Explain why you want to delete this file..."
+                className="w-full min-h-[100px] p-3 rounded-xl border border-border bg-transparent focus:border-primary focus:ring-1 focus:ring-ring outline-none resize-none placeholder:text-muted-foreground"
+                disabled={loading}
+              />
+              <p className="text-xs text-muted-foreground">
+                Note: File will be permanently deleted after admin approval.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                onClose();
+                setReason("");
+              }}
+              disabled={loading}
+              className="flex-1 rounded-full border-border hover:bg-accent/10"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={loading || !reason.trim()}
+              className="flex-1 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                "Request Delete"
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 /* ================= MAIN ================= */
 
 export default function UploadedNotes() {
@@ -167,6 +265,17 @@ export default function UploadedNotes() {
   const [pages, setPages] = useState(0);
   const [previewLoading, setPreviewLoading] = useState(false);
   const [currentPreviewNote, setCurrentPreviewNote] = useState<Note | null>(null);
+
+  /* ---- DELETE MODAL ---- */
+  const [deleteModal, setDeleteModal] = useState<{
+    open: boolean;
+    noteId: string;
+    noteName: string;
+  }>({
+    open: false,
+    noteId: "",
+    noteName: "",
+  });
 
   /* ================= API FUNCTIONS ================= */
 
@@ -293,28 +402,38 @@ export default function UploadedNotes() {
     }
   };
 
-  const deleteNote = async (id: string) => {
-    if (!window.confirm("Are you sure you want to delete this note? This action cannot be undone.")) {
-      return;
-    }
-
-    setDeletingId(id);
+  const handleDeleteRequest = async (noteId: string, reason: string) => {
+    setDeletingId(noteId);
     try {
-      const response = await apiRequest(`/files/delete/${id}`, "DELETE", null, token || "");
+      // Use the new DELETE endpoint with payload
+      const payload = { reason };
+     const response = await apiRequest(`/faculty/delete/${noteId}`, "PUT", payload, token || "");
+
       
       if (response.status === "success") {
-        toast.success("Note deleted successfully");
-        setNotes(prev => prev.filter(note => note.id !== id));
+        toast.success("Delete request submitted successfully");
+        // Remove from local state immediately
+        setNotes(prev => prev.filter(note => note.id !== noteId));
       } else {
-        throw new Error(response.message || "Delete failed");
+        throw new Error(response.message || "Delete request failed");
       }
     } catch (error: any) {
       console.error("Error deleting note:", error);
-      toast.error(error.message || "Failed to delete note");
-      setNotes(prev => prev.filter(note => note.id !== id));
+      toast.error(error.message || "Failed to submit delete request");
+      // Still remove from local state on error? You decide:
+      // setNotes(prev => prev.filter(note => note.id !== noteId));
     } finally {
       setDeletingId(null);
+      setDeleteModal({ open: false, noteId: "", noteName: "" });
     }
+  };
+
+  const openDeleteModal = (note: Note) => {
+    setDeleteModal({
+      open: true,
+      noteId: note.id,
+      noteName: note.title,
+    });
   };
 
   const openPreview = async (note: Note) => {
@@ -725,7 +844,7 @@ export default function UploadedNotes() {
                         </DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                          onClick={() => deleteNote(note.id)}
+                          onClick={() => openDeleteModal(note)}
                           className="text-destructive hover:bg-destructive/10 focus:bg-destructive/10 cursor-pointer text-sm flex items-center"
                           disabled={deletingId === note.id}
                         >
@@ -890,6 +1009,15 @@ export default function UploadedNotes() {
             </div>
           </div>
         )}
+
+        {/* DELETE CONFIRMATION MODAL */}
+        <DeleteModal
+          isOpen={deleteModal.open}
+          onClose={() => setDeleteModal({ open: false, noteId: "", noteName: "" })}
+          onConfirm={(reason) => handleDeleteRequest(deleteModal.noteId, reason)}
+          documentName={deleteModal.noteName}
+          loading={deletingId === deleteModal.noteId}
+        />
       </div>
     </>
   );

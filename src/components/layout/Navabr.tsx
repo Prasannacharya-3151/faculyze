@@ -125,6 +125,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger, DropdownMenuItem } from "../../components/ui/dropdown-menu";
 import { Link } from "react-router-dom";
+import logo from "../../assets/Lorenta-1.png"
+import { useNavigate } from "react-router-dom";
 
 interface NavbarProps {
   onMenuClick?: () => void;
@@ -138,6 +140,7 @@ interface UserData {
 }
 
 export default function Navbar({ onMenuClick }: NavbarProps) {
+  const navigate = useNavigate();
   const location = useLocation();
   const { user: authUser, logout } = useAuth();
   const [user, setUser] = useState<UserData | null>(null);
@@ -225,6 +228,14 @@ export default function Navbar({ onMenuClick }: NavbarProps) {
             >
               <Menu className="w-5 h-5 text-gray-700" />
             </button>
+
+             <img
+            src={logo}
+            alt="Logo"
+            className="h-8 w-auto object-contain lg:hidden cursor-pointer"
+            onClick={() => navigate("/dashboard")}
+          />
+
             <h1 className="hidden sm:block text-lg font-semibold text-gray-800">
               {getPageTitle()}
             </h1>
