@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 // import { apiRequest } from "../../lib/api";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import logo from "../../assets/Lorenta-1.png"
 
 interface FormData {
   email: string;
@@ -65,9 +66,14 @@ export default function LoginFormDemo() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
           <div className="flex justify-center mb-2">
-            <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-md">
-              <div className="w-5 h-5 bg-white rounded-sm"></div>
-            </div>
+             <div className="ml-4 rounded-full flex items-center justify-center lg:justify-start w-16 h-16">
+  <img
+    src={logo}
+    alt="Logo"
+    className="h-10 w-10 object-contain cursor-pointer"
+    onClick={() => navigate("/dashboard")}
+  />
+</div>
           </div>
           <h1 className="text-2xl font-bold text-foreground mb-1">Welcome Back</h1>
           <p className="text-muted-foreground text-xs">Sign in to continue</p>
@@ -96,36 +102,36 @@ export default function LoginFormDemo() {
             </div>
             
             <div className="space-y-1">
-              <label htmlFor="password" className="block text-xs font-semibold text-foreground">
-                Password *
-              </label>
-              <div className="relative group">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Lock className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors duration-200" />
-                </div>
-                <input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full pl-10 pr-10 py-2.5 text-sm rounded-full border border-muted outline-none focus:border-primary focus:ring-1 focus:ring-ring transition-all duration-200 text-foreground placeholder:text-muted-foreground bg-card"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted hover:text-primary transition-colors duration-200"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-              <div className="text-right">
-                <a href="/forgot-password" className="text-xs text-primary hover:text-secondary hover:underline">
-                  Forgot password?
-                </a>
-              </div>
-            </div>
+  <label htmlFor="password" className="block text-xs font-semibold text-foreground">
+    Password *
+  </label>
+  <div className="relative group">
+    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+      <Lock className="w-4 h-4 text-muted group-focus-within:text-primary transition-colors duration-200" />
+    </div>
+    <input
+      id="password"
+      type={showPassword ? "text" : "password"}
+      placeholder="Enter your password"
+      value={formData.password}
+      onChange={handleChange}
+      className="w-full pl-10 pr-10 py-2.5 text-sm rounded-full border border-muted outline-none focus:border-primary focus:ring-1 focus:ring-ring transition-all duration-200 text-foreground placeholder:text-muted-foreground bg-card"
+      required
+    />
+    <button
+      type="button"
+      onClick={() => setShowPassword(!showPassword)}
+      className="absolute inset-y-0 right-0 pr-3 flex items-center text-muted hover:text-primary transition-colors duration-200"
+    >
+      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+    </button>
+  </div>
+  <div className="text-right">
+    <a href="/forgot-password" className="text-xs text-primary hover:text-secondary hover:underline">
+      Forgot password?
+    </a>
+  </div>
+</div>  
             
             <button
               type="submit"

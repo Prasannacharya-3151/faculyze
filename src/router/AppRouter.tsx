@@ -6,6 +6,7 @@ import UploadNotes from "../pages/upload/UploadNotes";
 import UploadedNotes from "../pages/uploaded/UploadedNotes";
 import Profile from "../pages/profile/Profile";
 import LoginFormDemo from "../pages/auth/login";
+import ForgotPasswordPage from "../components/forgotPassword/page";
 
 import { AuthProvider } from "../context/AuthContext";
 import ProtectedRoute from "../components/ProtectedRoute";
@@ -23,6 +24,15 @@ export default function AppRouter() {
             element={
               <PublicRoute>
                 <LoginFormDemo />
+              </PublicRoute>
+            }
+          />
+
+           <Route
+            path="/forgot-password"
+            element={
+              <PublicRoute>
+                <ForgotPasswordPage />
               </PublicRoute>
             }
           />

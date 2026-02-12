@@ -1,38 +1,37 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap");
 
 @import "tailwindcss";
 @import "tw-animate-css";
 
-
 @custom-variant dark (&:is(.dark *));
-
 
 :root {
   /* ---------- Base background & text ---------- */
-  --background: 255 255 255;          /* Page background (white) */
-  --foreground: 26 20 38;             /* Main text color */
+  --background: 255 255 255;
+  --foreground: 26 20 38;
 
   /* ---------- Brand / Primary ---------- */
-  --primary: 126 73 242;              /* Purple (buttons, focus) */
-  --primary-foreground: 255 255 255;  /* Text on primary */
+  --primary: 126 73 242;
+  --primary-foreground: 255 255 255;
 
   /* ---------- Secondary ---------- */
   --secondary: 56 32 140;
   --secondary-foreground: 255 255 255;
 
-  /* ---------- Accent (highlights, indicators) ---------- */
-  --accent: 242 203 7;                /* Gold */
+  /* ---------- Accent ---------- */
+  --accent: 242 203 7;
   --accent-foreground: 26 20 38;
 
-  /* ---------- IMPORTANT FIXES ---------- */
-  --border: 209 213 219;              /* Gray border (inputs) */
-  --input: transparent;               /* NO input background */
-  --ring: 126 73 242;                 /* Focus ring color */
+  /* ---------- Borders & Inputs ---------- */
+  --border: 209 213 219;
+  --input: transparent;
+  --ring: 126 73 242;
 
-  /* ---------- Muted text only (NO BG USE) ---------- */
-  --muted: 156 163 175;               /* Gray text */
+  /* ---------- Muted ---------- */
+  --muted: 156 163 175;
   --muted-foreground: 107 114 128;
 
-  /* ---------- Cards (containers only) ---------- */
+  /* ---------- Cards ---------- */
   --card: 255 255 255;
   --card-foreground: 26 20 38;
 
@@ -42,28 +41,23 @@
 
   /* ---------- Border radius ---------- */
   --radius: 0.625rem;
+
+  /* ---------- Fonts (FIXED POSITION) ---------- */
+  --font-heading: "Poppins", sans-serif;
+  --font-body: "Inter", sans-serif;
 }
 
-
 .dark {
-  /* Page background + text */
   --background: 26 20 38;
   --foreground: 255 255 255;
 
-  /* Card containers */
   --card: 26 20 38;
   --card-foreground: 255 255 255;
 
-  /* Input borders */
-  --border: 75 85 99; /* Gray-600 */
-
-  /*  Still NO input background */
+  --border: 75 85 99;
   --input: transparent;
-
-  /* Focus ring stays purple */
   --ring: 126 73 242;
 
-  /* Muted text */
   --muted: 156 163 175;
   --muted-foreground: 209 213 219;
 }
@@ -88,7 +82,7 @@
   --color-accent-foreground: rgb(var(--accent-foreground));
 
   --color-border: rgb(var(--border));
-  --color-input: var(--input);        
+  --color-input: var(--input);
   --color-ring: rgb(var(--ring));
 
   /* Radius helpers */
@@ -98,16 +92,32 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* ================= FONT HIERARCHY ================= */
+
 @layer base {
-  /* Page background + text */
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-body);
   }
 
-  /* FORCE all inputs to stay transparent */
+  /* Headings → Poppins */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 600;
+  }
+
+  /* Buttons → Poppins medium */
+  button {
+    font-family: var(--font-heading);
+    font-weight: 500;
+  }
+
+  /* Forms → Inter */
   input,
   textarea,
-  select {
+  select,
+  label {
+    font-family: var(--font-body);
     background-color: transparent;
   }
 }

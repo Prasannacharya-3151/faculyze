@@ -176,7 +176,6 @@
 //   if (!ctx) throw new Error("useAuth must be used inside AuthProvider");
 //   return ctx;
 // };
-
 import { createContext, useContext, useEffect, useState } from "react";
 import { apiRequest } from "../lib/api";
 
@@ -207,39 +206,44 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-
-  const [token, setToken] = useState<string | null>(
-    localStorage.getItem("faculty_token")
-  );
-
+  const [token, setToken] = useState<string | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
 
-  /* ================= VALIDATE TOKEN ON LOAD ================= */
+  /* ================= INITIAL LOAD ================= */
 
   useEffect(() => {
-    const validateToken = async () => {
-      if (!token) {
+    const initializeAuth = async () => {
+      const storedToken = localStorage.getItem("faculty_token");
+
+      if (!storedToken) {
         setAuthChecked(true);
         return;
       }
 
       try {
-        const res = await apiRequest("/faculty/me", "GET", null, token);
+        const res = await apiRequest(
+          "/faculty/me",
+          "GET",
+          null,
+          storedToken
+        );
 
         if (res.status === "success") {
           setUser(res.data);
+          setToken(storedToken);
         } else {
-          logout();
+          localStorage.removeItem("faculty_token");
         }
-      } catch {
-        logout();
+      } catch (error) {
+        console.error("Token validation failed:", error);
+        // Don't immediately logout on dev reload/network hiccup
       } finally {
         setAuthChecked(true);
       }
     };
 
-    validateToken();
-  }, [token]);
+    initializeAuth();
+  }, []);
 
   /* ================= LOGIN ================= */
 
@@ -265,11 +269,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       };
     }
 
-    // Save token
-    setToken(accessToken);
+    // Save token first
     localStorage.setItem("faculty_token", accessToken);
+    setToken(accessToken);
 
-    // Fetch full faculty profile
+    // Fetch user profile
     const profile = await apiRequest(
       "/faculty/me",
       "GET",
