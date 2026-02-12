@@ -65,15 +65,16 @@ export default function LoginFormDemo() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-6">
-          <div className="flex justify-center mb-2">
-             <div className="ml-4 rounded-full flex items-center justify-center lg:justify-start w-16 h-16">
-  <img
-    src={logo}
-    alt="Logo"
-    className="h-10 w-10 object-contain cursor-pointer"
-    onClick={() => navigate("/dashboard")}
-  />
-</div>
+           <div className="flex justify-center mb-2">
+            <div 
+              className="w-16 h-16 rounded-full flex items-center justify-center cursor-pointer"
+            >
+              <img
+                src={logo}
+                alt="Logo"
+                className="h-12 w-12 sm:h-14 sm:w-14 object-contain"
+              />
+            </div>
           </div>
           <h1 className="text-2xl font-bold text-foreground mb-1">Welcome Back</h1>
           <p className="text-muted-foreground text-xs">Sign in to continue</p>
