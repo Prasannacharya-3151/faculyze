@@ -491,7 +491,7 @@ const initiatePayload: InitiateUploadPayload = {
         onSubmit={handleSubmit}
         className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto"
       >
-        <div className="space-y-4">
+        <div className="space-y-6">
           <h1 className="text-2xl font-bold text-foreground">
             Upload Notes
           </h1>
@@ -789,8 +789,8 @@ function DropdownBlock({
             type="button"
             disabled={loading || disabled}
             className="
-              relative w-full pl-10 pr-8 py-2.5 rounded-full
-              text-left text-sm
+  relative w-full pl-10 pr-8 py-2.5 rounded-full
+  text-left text-sm font-body font-normal
               bg-transparent border border-muted
               outline-none transition-all duration-200
               focus:border-primary focus:ring-1 focus:ring-ring
@@ -813,7 +813,7 @@ function DropdownBlock({
 
             <span
               className={`
-                truncate block w-full pr-5
+                    truncate block w-full pr-5 font-body font-normal
                 ${current.startsWith("Select") 
                   ? "text-muted-foreground" 
                   : "text-foreground"
@@ -835,9 +835,10 @@ function DropdownBlock({
         {!loading && !disabled && (
           <DropdownMenuContent
             className="
-              w-[var(--radix-dropdown-menu-trigger-width)]
-              bg-background border border-muted
-              rounded-xl shadow-lg max-h-60 overflow-auto
+             w-[var(--radix-dropdown-menu-trigger-width)]
+    bg-background border border-muted
+    rounded-xl shadow-lg max-h-60 overflow-auto
+    font-body
             "
           >
             {options.length === 0 ? (

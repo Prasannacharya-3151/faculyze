@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Eye, EyeOff, Mail, Lock, ArrowLeft } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+// import { useAuth } from "../../context/AuthContext";
 // import { apiRequest } from "../../lib/api";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
