@@ -175,72 +175,90 @@ const DeleteModal = ({ isOpen, onClose, onConfirm, documentName, loading }: Dele
 
   return (
     <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="bg-card w-full max-w-md rounded-2xl border border-border shadow-2xl">
-        <div className="p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="rounded-full bg-destructive/10 p-2">
-              <AlertCircle className="w-6 h-6 text-destructive" />
-            </div>
-            <div>
-              <h2 className="font-semibold text-xl text-foreground">Delete File</h2>
-              <p className="text-sm text-muted-foreground">Request file deletion</p>
-            </div>
-          </div>
+      <div className="bg-card w-full max-w-md rounded-2xl border border-border shadow-lg">
+  <div className="p-6">
 
-          <div className="mb-6">
-            <p className="text-foreground mb-2">
-              Are you sure you want to delete <span className="font-semibold">"{documentName}"</span>?
-            </p>
-            <p className="text-sm text-muted-foreground mb-4">
-              Please provide a reason for deletion. This will create a delete request that needs admin approval.
-            </p>
-
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-foreground">
-                Reason for deletion *
-              </label>
-              <textarea
-                value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                placeholder="Explain why you want to delete this file..."
-                className="w-full min-h-[100px] p-3 rounded-xl border border-border bg-transparent focus:border-primary focus:ring-1 focus:ring-ring outline-none resize-none placeholder:text-muted-foreground"
-                disabled={loading}
-              />
-              <p className="text-xs text-muted-foreground">
-                Note: File will be permanently deleted after admin approval.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => {
-                onClose();
-                setReason("");
-              }}
-              disabled={loading}
-              className="flex-1 rounded-full border-border hover:bg-accent/10"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSubmit}
-              disabled={loading || !reason.trim()}
-              className="flex-1 rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                "Request Delete"
-              )}
-            </Button>
-          </div>
-        </div>
+    {/* Header */}
+    <div className="flex items-center gap-3 mb-5">
+      <div className="rounded-full bg-destructive/10 p-2">
+        <AlertCircle className="w-6 h-6 text-destructive" />
       </div>
+      <div>
+        <h2 className="text-xl font-semibold font-heading text-foreground">
+          Delete File
+        </h2>
+        <p className="text-sm font-body text-muted-foreground">
+          Request file deletion
+        </p>
+      </div>
+    </div>
+
+    {/* Content */}
+    <div className="mb-6 font-body">
+      <p className="text-foreground text-sm leading-relaxed mb-2">
+        Are you sure you want to delete{" "}
+        <span className="font-semibold">
+          "{documentName}"
+        </span>?
+      </p>
+
+      <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+        Please provide a reason for deletion. This will create a delete
+        request that needs admin approval.
+      </p>
+
+      <div className="space-y-3">
+        <label className="block text-sm font-medium text-foreground">
+          Reason for deletion *
+        </label>
+
+        <textarea
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Explain why you want to delete this file..."
+          className="w-full min-h-[100px] p-3 rounded-xl border border-border bg-transparent text-sm focus:border-primary focus:ring-1 focus:ring-ring outline-none resize-none"
+          disabled={loading}
+        />
+
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Note: File will be permanently deleted after admin approval.
+        </p>
+      </div>
+    </div>
+
+    {/* Actions */}
+    <div className="flex gap-3">
+      <Button
+        variant="outline"
+        onClick={() => {
+          onClose();
+          setReason("");
+        }}
+        disabled={loading}
+        className="flex-1 rounded-full border-border font-heading"
+      >
+        Cancel
+      </Button>
+
+      <Button
+        onClick={handleSubmit}
+        disabled={loading || !reason.trim()}
+        className="flex-1 rounded-full bg-red-600 text-white hover:bg-destructive/90 font-heading"
+      >
+        {loading ? (
+          <>
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+            Processing...
+          </>
+        ) : (
+          "Request Delete"
+        )}
+      </Button>
+    </div>
+
+  </div>
+</div>
+
     </div>
   );
 };

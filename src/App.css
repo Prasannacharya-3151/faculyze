@@ -92,22 +92,6 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-/* ================= FONT HIERARCHY ================= */
-
-@layer base {
-
-  Ahhhh okay bruh 🔥 now I understand properly.
-
-You’re saying:
-
-👉 “Enter course title” (placeholder) looks darker
-👉 You want ALL input placeholders to look like that (same darkness)
-
-Right now some placeholders look lighter because browsers apply default opacity.
-
-✅ Fix: Make ALL placeholders same darkness
-
-Add this inside your global CSS (@layer base section):
 
 @layer base {
    ::placeholder {
@@ -115,7 +99,7 @@ Add this inside your global CSS (@layer base section):
     opacity: 0.6; /* 0.6–0.7 is perfect, 0.2 is too light */
     font-weight: 400;
   }
-}
+
 
   body {
     @apply bg-background text-foreground;
