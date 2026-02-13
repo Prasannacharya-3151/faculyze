@@ -132,11 +132,11 @@ const customScrollbarStyles = `
 
 /* ================= CATEGORY MAPPING ================= */
 
-const CATEGORY_OPTIONS = [
-  "Notes",
-  "Exam Papers", 
-  "Other Study Materials"
-];
+// const CATEGORY_OPTIONS = [
+//   "Notes",
+//   "Exam Papers", 
+//   "Other Study Materials"
+// ];
 
 const getCategoryIcon = (category: string) => {
   if (category.toLowerCase().includes("exam")) {
@@ -345,11 +345,7 @@ export default function UploadedNotes() {
             .join(' ');
           
           // CATEGORY: Use from API or default to "Notes"
-          let category = note.category?.trim();
-          if (!category || category === "" || !CATEGORY_OPTIONS.includes(category)) {
-            // Default to "Notes" if category is invalid or empty
-            category = "Notes";
-          }
+         const category = note.category?.trim() || "Notes";
           
           // GROUP ALLOWED: Use what's in API or default
           const groupAllowed = note.group_allowed?.trim() || "All Students";
